@@ -1,0 +1,629 @@
+<!DOCTYPE html>
+<html lang="ko" translate="no">
+<head>
+<meta charset="UTF-8">
+<meta name="google" content="notranslate">
+<meta http-equiv="Content-Language" content="ko">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>INOTI Eyecare Solution</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Noto+Sans+KR:wght@400;500;700;900&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #f0f4f8;
+  --surface: #ffffff;
+  --surface2: #e8eef5;
+  --accent: #1a6fef;
+  --accent2: #00a884;
+  --accent3: #5b3fd4;
+  --text: #0f1c2e;
+  --muted: #5a7290;
+  --border: rgba(0,0,0,0.08);
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: 'Noto Sans KR', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* 배경 효과 */
+body::before {
+  content: "";
+  position: fixed;
+  top: -40%;
+  left: -20%;
+  width: 80vw;
+  height: 80vw;
+  background: radial-gradient(circle, rgba(42,127,255,0.08) 0%, transparent 70%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+body::after {
+  content: "";
+  position: fixed;
+  bottom: -30%;
+  right: -10%;
+  width: 60vw;
+  height: 60vw;
+  background: radial-gradient(circle, rgba(124,92,252,0.05) 0%, transparent 70%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+.container {
+  position: relative;
+  z-index: 1;
+  max-width: 1100px;
+  margin: auto;
+  padding: 48px 24px 60px;
+  /* [FIX] 로그인 후 부드러운 페이드인 전환 */
+  transition: opacity 0.4s ease;
+}
+
+/* 헤더 */
+.header {
+  text-align: center;
+  margin-bottom: 56px;
+}
+
+.logo-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(26,111,239,0.08);
+  border: 1px solid rgba(26,111,239,0.25);
+  border-radius: 999px;
+  padding: 6px 18px;
+  font-size: 12px;
+  font-weight: 700;
+  color: #1a6fef;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  margin-bottom: 20px;
+}
+
+.logo-badge::before {
+  content: "";
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #1a6fef;
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.3; }
+}
+
+.header h1 {
+  font-family: 'Noto Sans KR', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif;
+  font-size: clamp(32px, 5vw, 52px);
+  font-weight: 400;
+  letter-spacing: -1px;
+  line-height: 1.1;
+  background: linear-gradient(135deg, #0f1c2e 0%, #1a6fef 50%, #5b3fd4 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  margin-bottom: 12px;
+}
+
+.header p {
+  color: var(--muted);
+  font-size: 15px;
+  font-weight: 400;
+  letter-spacing: 0.5px;
+}
+
+/* 섹션 레이블 */
+.section-label {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 16px;
+  padding-left: 4px;
+}
+
+/* 그리드 */
+.grid-main {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+.grid-sub {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+  margin-bottom: 40px;
+}
+
+/* 카드 공통 */
+.card {
+  border-radius: 20px;
+  padding: 28px;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  border: 1px solid var(--border);
+}
+
+/* [FIX] 사용하지 않는 nth-child animation-delay 및 gradShift 제거 */
+.card:nth-child(2) { animation-delay: -1.2s; }
+.card:nth-child(3) { animation-delay: -2.5s; }
+.card:nth-child(4) { animation-delay: -3.8s; }
+
+.card:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 24px 60px rgba(0,0,0,0.25);
+  /* [FIX] animation-play-state 제거 — .card에 animation이 없어 무효였음 */
+}
+
+.card-inner {
+  position: relative;
+  z-index: 1;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  min-height: 150px;
+}
+
+/* [FIX] .card::before 제거 — background:none / pointer-events:none 으로 완전 무의미했음 */
+
+/* 카드 컬러 */
+.card-primary {
+  background: #1d4ed8;
+  border: 1px solid #3b82f6;
+}
+
+.card-teal {
+  background: #065f46;
+  border: 1px solid #10b981;
+}
+
+.card-purple {
+  background: #4c1d95;
+  border: 1px solid #7c3aed;
+}
+
+.card-violet {
+  background: #6b21a8;
+  border: 1px solid #a855f7;
+}
+
+.card-dark {
+  background: #1e293b;
+  border: 1px solid #475569;
+}
+
+/* 카드 내부 */
+.card-badge {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.65);
+  margin-bottom: 10px;
+}
+
+.card-title {
+  font-size: 20px;
+  font-weight: 700;
+  line-height: 1.3;
+  margin-bottom: 6px;
+  color: #ffffff;
+}
+
+.card-desc {
+  font-size: 13px;
+  color: rgba(255,255,255,0.80);
+  line-height: 1.5;
+}
+
+.card-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 20px;
+}
+
+.card-icon {
+  font-size: 32px;
+  line-height: 1;
+  transition: transform 0.3s ease;
+  display: inline-block;
+  animation: iconPulse 3s ease-in-out infinite;
+}
+.card:nth-child(2) .card-icon { animation-delay: -0.8s; }
+.card:nth-child(3) .card-icon { animation-delay: -1.6s; }
+.card:nth-child(4) .card-icon { animation-delay: -2.4s; }
+@keyframes iconPulse {
+  0%,100% { transform: scale(1);    filter: brightness(1); }
+  50%      { transform: scale(1.12); filter: brightness(1.2); }
+}
+
+.card:hover .card-icon {
+  animation-play-state: paused;
+  transform: scale(1.25) rotate(10deg);
+  filter: brightness(1.3);
+}
+
+.card-arrow {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.15);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  transition: background 0.3s, transform 0.3s;
+}
+
+.card:hover .card-arrow {
+  background: rgba(255,255,255,0.28);
+  transform: translateX(3px);
+}
+
+/* 서브 카드 (작은 것) */
+.card-sm .card-inner {
+  min-height: 120px;
+}
+
+.card-sm .card-title {
+  font-size: 15px;
+}
+
+.card-sm .card-icon {
+  font-size: 26px;
+}
+
+/* 구분선 */
+.divider {
+  height: 1px;
+  background: var(--border);
+  margin: 32px 0;
+}
+
+/* 푸터 */
+.footer {
+  text-align: center;
+  color: var(--muted);
+  font-size: 12px;
+  margin-top: 40px;
+  padding-top: 24px;
+  border-top: 1px solid rgba(0,0,0,0.08);
+}
+
+@media (max-width: 768px) {
+  .grid-main { grid-template-columns: 1fr; }
+  .grid-sub { grid-template-columns: 1fr 1fr; }
+}
+
+/* ── PC + 태블릿 최적화 ── */
+@media screen and (max-width:1280px){
+  .cust-zs-cols{margin-left:8%!important;margin-right:8%!important;}
+}
+@media screen and (max-width:1024px){
+  /* rx-banner 고정폭 제거 */
+  .rx-banner{min-width:0!important;flex-wrap:wrap!important;}
+  /* 가격카드 마진 축소 + 줄바꿈 허용 */
+  .cust-zs-cols{margin-left:4%!important;margin-right:4%!important;flex-wrap:wrap!important;}
+  /* 에실로 가격테이블 수평스크롤 */
+  .es-img-tbl{overflow-x:auto!important;-webkit-overflow-scrolling:touch;display:block;width:100%;box-sizing:border-box;}
+  /* 수평 오버플로 차단 */
+  .cust-zs-wrap,.cust-zs-scroll{overflow-x:hidden!important;}
+  /* 비교/참조 테이블 */
+  .pc-cmp-tbl,.pc-ref-tbl{font-size:11px;}
+  .pc-cmp-tbl th,.pc-cmp-tbl td,
+  .pc-ref-tbl  th,.pc-ref-tbl  td{padding:4px 6px!important;}
+  /* 브랜드탭 가로스크롤 */
+  .brand-tabs{overflow-x:auto;-webkit-overflow-scrolling:touch;flex-wrap:nowrap!important;}
+  .brand-tab{min-width:fit-content!important;white-space:nowrap!important;}
+  /* bottom-bar 줄바꿈 */
+  .bb-col2{flex-wrap:wrap;gap:4px!important;}
+  /* 사이드바 자동 숨김 */
+  .sidebar{transform:translateX(-100%);transition:transform .3s ease;}
+  .sidebar.open{transform:translateX(0);}
+  .main{margin-left:0!important;}
+  /* 팝업박스 너비 조정 */
+  .popup-box,.pc-box{max-width:90vw!important;box-sizing:border-box;}
+}
+@media screen and (max-width:768px){
+  .cust-zs-cols{margin-left:2%!important;margin-right:2%!important;}
+  .cust-zs-col{flex:1 1 90%!important;max-width:100%!important;min-width:0!important;}
+  .badge-name{font-size:16px!important;}
+  .zs-td{font-size:11px!important;padding:2px 3px!important;}
+  .es-img-tbl th,.es-img-tbl td{font-size:11px!important;padding:4px 5px!important;}
+  .brand-tabs{gap:4px!important;}
+  .bottom-bar{padding:6px 12px!important;}
+}
+</style>
+</head>
+<body>
+
+<div class="container">
+
+  <div class="header">
+    <div class="logo-badge">INOTI Eyecare Solution</div>
+    <h1>스마트 디지털 검안<br>상담 시스템</h1>
+    <p>고객 문진부터 처방 분석, 렌즈 추천까지 — 원스톱 안경원 솔루션</p>
+  </div>
+
+  <div class="section-label">상담 시작</div>
+
+  <div class="grid-main">
+    <div class="card card-primary" onclick="goPage('문진하기/문진.html')">
+      <div class="card-inner">
+        <div>
+          <div class="card-badge">STEP 1 · START HERE</div>
+          <div class="card-title">고객 문진하기</div>
+          <div class="card-desc">고객 기본 정보, 라이프스타일, 시각 불편사항을 체계적으로 입력합니다</div>
+        </div>
+        <div class="card-footer">
+          <div class="card-icon">📝</div>
+          <div class="card-arrow">→</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card card-teal" onclick="goPage('시력데이터analyze/시력데이터analyze.html')">
+      <div class="card-inner">
+        <div>
+          <div class="card-badge">STEP 2 · ANALYSIS</div>
+          <div class="card-title">시력데이터 분석하기</div>
+          <div class="card-desc">검안 도수 데이터 입력 및 눈 상태 정밀 분석, 렌즈 추천까지</div>
+        </div>
+        <div class="card-footer">
+          <div class="card-icon">📊</div>
+          <div class="card-arrow">→</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section-label">가격표 & 상품</div>
+
+  <div class="grid-sub">
+    <div class="card card-sm card-purple" onclick="goPage('안경렌즈가격표/안경렌즈가격표(메인).html')">
+      <div class="card-inner">
+        <div>
+          <div class="card-badge">LENS PRICE</div>
+          <div class="card-title">안경렌즈 가격표</div>
+        </div>
+        <div class="card-footer">
+          <div class="card-icon">👓</div>
+          <div class="card-arrow">→</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card card-sm card-violet" onclick="goPage('콘택트렌즈가격표/콘택트렌즈가격표.html')">
+      <div class="card-inner">
+        <div>
+          <div class="card-badge">CONTACT PRICE</div>
+          <div class="card-title">콘택트렌즈 가격표</div>
+        </div>
+        <div class="card-footer">
+          <div class="card-icon">🧿</div>
+          <div class="card-arrow">→</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card card-sm card-dark" onclick="goExternal('http://inoti.biz')">
+      <div class="card-inner">
+        <div>
+          <div class="card-badge">B2B MARKET</div>
+          <div class="card-title">이노티 비즈마켓</div>
+        </div>
+        <div class="card-footer">
+          <div class="card-icon">🏢</div>
+          <div class="card-arrow">↗</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card card-sm card-dark" onclick="goExternal('http://inotistore.com')">
+      <div class="card-inner">
+        <div>
+          <div class="card-badge">B2C STORE</div>
+          <div class="card-title">이노티스토어</div>
+        </div>
+        <div class="card-footer">
+          <div class="card-icon">🛍️</div>
+          <div class="card-arrow">↗</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="footer">
+    INOTI Eyecare Solution &nbsp;·&nbsp; 스마트 안경원 상담 시스템 &nbsp;·&nbsp; ©2025 INOTI
+  </div>
+
+</div>
+
+<script>
+/* ══════════════════════════════════════════════════
+   INOTI 인증 모듈 (index.html 인라인)
+   - auth.js 와 역할 분리:
+     index.html → 인라인 인증 (자체 포함)
+     다른 페이지 → <script src="../auth.js"> 사용 권장
+══════════════════════════════════════════════════ */
+
+const INOTI_AUTH = {
+  ACCESS_PW:   "inoti8300",
+  ADMIN_PW:    "@@inoti8300!!",
+  SESSION_KEY: "inoti_access",
+  ADMIN_KEY:   "inoti_admin",
+  SESSION_MIN: 1440,  /* 24시간 (분 단위) */
+
+  isLoggedIn() {
+    const t = localStorage.getItem(this.SESSION_KEY);
+    return t && (Date.now() - parseInt(t)) / 60000 < this.SESSION_MIN;
+  },
+  isAdmin() {
+    const t = localStorage.getItem(this.ADMIN_KEY);
+    return t && (Date.now() - parseInt(t)) / 60000 < 60;
+  },
+  login()      { localStorage.setItem(this.SESSION_KEY, Date.now()); },
+  adminLogin() { localStorage.setItem(this.ADMIN_KEY,   Date.now()); },
+  logout() {
+    localStorage.removeItem(this.SESSION_KEY);
+    localStorage.removeItem(this.ADMIN_KEY);
+  }
+};
+
+/* [FIX] CSS 중복 주입 방지 — 이미 삽입된 경우 건너뜀 */
+function injectAuthCSS() {
+  if (document.getElementById("auth-style-injected")) return;
+  const style = document.createElement("style");
+  style.id = "auth-style-injected";
+  style.textContent = `
+    .auth-overlay{position:fixed;inset:0;background:linear-gradient(135deg,#e8eef5,#dbeafe);display:flex;align-items:center;justify-content:center;z-index:99999;font-family:'Noto Sans KR','Apple SD Gothic Neo','Malgun Gothic',sans-serif;}
+    .auth-box{background:rgba(255,255,255,0.98);border:1px solid rgba(0,0,0,0.1);border-radius:20px;padding:40px 36px;width:320px;text-align:center;box-shadow:0 24px 80px rgba(0,0,0,0.15);animation:authIn .4s ease;}
+    @keyframes authIn{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+    .auth-logo{font-size:28px;color:#0f1c2e;margin-bottom:6px;font-weight:900;letter-spacing:2px;}
+    .auth-sub{font-size:12px;color:#4b6080;margin-bottom:28px;}
+    .auth-label{font-size:11px;font-weight:700;color:#4b6080;letter-spacing:1px;margin-bottom:10px;text-align:left;}
+    .auth-input{width:100%;padding:13px 16px;background:#f8fafc;border:1px solid rgba(0,0,0,0.15);border-radius:10px;color:#0f1c2e;font-size:16px;text-align:center;outline:none;margin-bottom:14px;letter-spacing:3px;transition:border-color .2s;}
+    .auth-input:focus{border-color:rgba(42,127,255,0.6);}
+    .auth-btn{width:100%;padding:14px;background:linear-gradient(135deg,#1d5bd4,#2a7fff);color:white;border:none;border-radius:10px;font-size:15px;font-weight:700;cursor:pointer;box-shadow:0 4px 16px rgba(42,127,255,0.3);}
+    .auth-btn:hover{opacity:.9;}
+    .auth-error{font-size:12px;color:#dc2626;margin-top:10px;min-height:18px;}
+    .auth-shake{animation:shake .4s ease;}
+    @keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
+  `;
+  document.head.appendChild(style);
+}
+
+/* ── 접속 비밀번호 게이트 ── */
+function showAccessGate(onSuccess) {
+  if (INOTI_AUTH.isLoggedIn()) { onSuccess(); return; }
+
+  injectAuthCSS();
+  /* [FIX] 스크롤 잠금 추가 (기존 누락) */
+  document.body.style.overflow = "hidden";
+
+  const ov = document.createElement("div");
+  ov.className = "auth-overlay";
+  ov.id = "accessGate";
+  ov.innerHTML = `
+    <div class="auth-box">
+      <div class="auth-logo">INOTI</div>
+      <div class="auth-sub">Eyecare Solution</div>
+      <div class="auth-label">접속 비밀번호</div>
+      <input class="auth-input" type="password" id="accPw" placeholder="••••••••" autocomplete="off">
+      <button class="auth-btn" id="accBtn">입장하기</button>
+      <div class="auth-error" id="accErr"></div>
+    </div>`;
+  document.body.prepend(ov);
+
+  const inp = document.getElementById("accPw");
+  inp.focus();
+
+  function tryLogin() {
+    if (inp.value === INOTI_AUTH.ACCESS_PW) {
+      INOTI_AUTH.login();
+      ov.style.transition = "opacity .3s";
+      ov.style.opacity = "0";
+      setTimeout(() => {
+        ov.remove();
+        document.body.style.overflow = "";
+        onSuccess();
+      }, 300);
+    } else {
+      const box = ov.querySelector(".auth-box");
+      box.classList.remove("auth-shake");
+      void box.offsetWidth;
+      box.classList.add("auth-shake");
+      document.getElementById("accErr").textContent = "비밀번호가 올바르지 않습니다";
+      inp.value = "";
+      inp.focus();
+    }
+  }
+
+  document.getElementById("accBtn").addEventListener("click", tryLogin);
+  inp.addEventListener("keydown", e => { if (e.key === "Enter") tryLogin(); });
+}
+
+/* ── 관리자 편집 비밀번호 게이트 ── */
+function showAdminGate(onSuccess) {
+  if (INOTI_AUTH.isAdmin()) { onSuccess(); return; }
+
+  injectAuthCSS();
+
+  const ov = document.createElement("div");
+  ov.className = "auth-overlay";
+  ov.id = "adminGate";
+  ov.style.background = "rgba(0,0,0,0.85)";
+  ov.style.backdropFilter = "blur(8px)";
+  ov.innerHTML = `
+    <div class="auth-box">
+      <div class="auth-logo" style="font-size:20px;">🔐 관리자 인증</div>
+      <div class="auth-sub">편집 모드 진입을 위해 관리자 비밀번호를 입력하세요</div>
+      <div class="auth-label">관리자 비밀번호</div>
+      <input class="auth-input" type="password" id="admPw" placeholder="••••••••" autocomplete="off">
+      <button class="auth-btn" id="admBtn">편집 시작</button>
+      <div class="auth-error" id="admErr"></div>
+      <div style="margin-top:12px;">
+        <button id="admCancel"
+          style="background:none;border:none;color:#5a7a9a;font-size:12px;cursor:pointer;">취소</button>
+      </div>
+    </div>`;
+  document.body.prepend(ov);
+
+  const inp = document.getElementById("admPw");
+  inp.focus();
+
+  function tryAdmin() {
+    if (inp.value === INOTI_AUTH.ADMIN_PW) {
+      INOTI_AUTH.adminLogin();
+      ov.remove();
+      onSuccess();
+    } else {
+      const box = ov.querySelector(".auth-box");
+      box.classList.remove("auth-shake");
+      void box.offsetWidth;
+      box.classList.add("auth-shake");
+      document.getElementById("admErr").textContent = "관리자 비밀번호가 올바르지 않습니다";
+      inp.value = "";
+      inp.focus();
+    }
+  }
+
+  document.getElementById("admBtn").addEventListener("click", tryAdmin);
+  inp.addEventListener("keydown", e => { if (e.key === "Enter") tryAdmin(); });
+  /* [FIX] 취소 버튼도 이벤트 리스너 방식으로 통일 */
+  document.getElementById("admCancel").addEventListener("click", () => ov.remove());
+}
+
+/* ── 페이지 이동 ── */
+function goPage(page)     { window.location.href = page; }
+function goExternal(url)  { window.open(url, "_blank"); }
+
+/* ── 접속 게이트 진입 ── */
+window.addEventListener("DOMContentLoaded", function () {
+  const c = document.querySelector(".container");
+  if (c) c.style.opacity = "0";
+  showAccessGate(function () {
+    /* [FIX] transition 이 CSS에 정의되어 있으므로 opacity 변경 시 자연스럽게 페이드인 */
+    if (c) c.style.opacity = "1";
+  });
+});
+</script>
+
+</body>
+</html>

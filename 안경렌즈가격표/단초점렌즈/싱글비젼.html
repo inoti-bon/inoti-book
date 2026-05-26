@@ -1,0 +1,1266 @@
+<!DOCTYPE html>
+<html lang="ko" translate="no">
+<head>
+<meta charset="UTF-8">
+<meta name="google" content="notranslate">
+<meta http-equiv="Content-Language" content="ko">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>싱글비젼</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#f0f4f8; --surface:#ffffff; --surface2:#e8eef5;
+  --text:#0f1c2e; --muted:#4b6080; --border:rgba(0,0,0,0.09);
+  --sidebar-w:168px;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Noto Sans KR', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif;background:var(--bg);color:var(--text);min-height:100vh;display:flex;flex-direction:column;font-size:13px;}
+
+/* 상단바 */
+.top-bar{position:relative;z-index:10;background:rgba(248,250,252,0.97);border-bottom:1px solid var(--border);padding:10px 24px;display:flex;align-items:center;justify-content:center;}
+.top-brand{font-family: 'Noto Sans KR', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif;font-size:16px;color:var(--text);}
+.top-actions{display:flex;gap:6px;align-items:center;}
+
+
+
+/* 저장됨 토스트 */
+.toast{
+  position:fixed;bottom:80px;left:50%;transform:translateX(-50%);
+  background:#059669;color:white;
+  padding:10px 22px;border-radius:10px;
+  font-size:13px;font-weight:700;
+  opacity:0;transition:opacity .3s;
+  z-index:200;pointer-events:none;
+  white-space:nowrap;
+}
+.toast.show{opacity:1;}
+
+/* 레이아웃 */
+.layout{position:relative;z-index:1;display:flex;flex:1;}
+
+/* 사이드바 */
+.sidebar{width:var(--sidebar-w);flex-shrink:0;background:#ffffff;border-right:1px solid var(--border);position:sticky;top:0;height:100vh;display:flex;flex-direction:column;padding:20px 12px;gap:4px;overflow-y:auto;}
+.sb-label{font-size:11px;font-weight:900;letter-spacing:2px;text-transform:uppercase;color:#444444;padding:0 6px;margin-bottom:8px;margin-top:4px;}
+.sb-btn {
+  display:flex; align-items:center; gap:8px;
+  padding:10px 12px;
+  border-radius:10px;
+  border:1px solid transparent;
+  background:transparent;
+  color:#111111;
+  font-size:14px; font-weight:700;
+  cursor:pointer;
+  font-family:'Noto Sans KR','Apple SD Gothic Neo','Malgun Gothic',sans-serif;
+  transition:background .15s ease, color .15s ease;
+  text-decoration:none; width:100%;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: rgba(0,0,0,0.08);
+  user-select:none; -webkit-user-select:none;
+}
+.sb-btn:hover,
+.sb-btn:active,
+.sb-btn.touch-active {
+  background: rgba(0,0,0,0.07);
+  color: #000000;
+}
+.sb-btn.on-cat{background:rgba(37,99,235,0.15);border-color:rgba(37,99,235,0.35);color:#111111;}
+.sb-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0;}
+.sb-div{height:1px;background:var(--border);margin:6px 0;}
+.sb-spacer{flex:1;}
+.sb-sub {
+  display:flex; align-items:center; gap:7px;
+  padding:8px 10px 8px 18px;
+  border-radius:8px;
+  border:none;
+  border-left:3px solid transparent;
+  background:transparent;
+  color:#111111;
+  font-size:13px; font-weight:600;
+  cursor:pointer;
+  font-family:'Noto Sans KR','Apple SD Gothic Neo','Malgun Gothic',sans-serif;
+  transition:background .15s ease, border-color .15s ease, color .15s ease;
+  text-decoration:none;
+  width:100%;
+  /* 터치 기기 최적화 */
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: rgba(37,99,235,0.15);
+  user-select: none;
+  -webkit-user-select: none;
+}
+.sb-sub:hover,
+.sb-sub:active,
+.sb-sub.touch-active {
+  background: rgba(37,99,235,0.10);
+  border-left-color: #1d4ed8;
+  color: #1d4ed8;
+}
+.sb-sub.active {
+  background: rgba(37,99,235,0.13);
+  border-left-color: #1d4ed8;
+  color: #1d4ed8;
+  font-weight:700;
+}
+
+/* 메인 */
+.main{flex:1;padding:12px 12px 54px;overflow:hidden;}
+
+@keyframes fadeUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+
+/* ── 도수 배너 ── */
+.rx-banner{background:#eef2ff;border:1px solid var(--border);border-radius:12px;padding:10px 18px;display:flex;align-items:center;gap:14px;margin-bottom:14px;flex-wrap:wrap;animation:fadeUp .4s ease;}
+.rx-eye{display:flex;align-items:center;gap:7px;}
+.rx-eye-label{font-size:10px;font-weight:700;letter-spacing:1px;color:var(--muted);}
+.rx-val{font-size:14px;font-weight:900;}
+.rx-val.r-col{color:#ef4444;}
+.rx-val.l-col{color:#3b82f6;}
+.rx-sep{width:1px;height:26px;background:var(--border);}
+.rx-tags{display:flex;gap:5px;flex-wrap:wrap;margin-left:auto;}
+.rx-tag{font-size:10px;font-weight:700;padding:2px 9px;border-radius:999px;}
+.rx-tag.warn{background:rgba(245,158,11,0.15);color:#fcd34d;border:1px solid rgba(245,158,11,0.3);}
+.rx-tag.danger{background:rgba(239,68,68,0.15);color:#fca5a5;border:1px solid rgba(239,68,68,0.3);}
+.rx-tag.info{background:rgba(37,99,235,0.15);color:#1e40af;border:1px solid rgba(37,99,235,0.3);}
+.rx-tag.none{background:rgba(34,197,94,0.12);color:#166534;border:1px solid rgba(34,197,94,0.25);}
+
+/* ── 비교 테이블 ── */
+.compare-wrap{min-width:0;animation:fadeUp .45s ease;}
+
+table.ct{width:100%;border-collapse:collapse;}
+table.ct td{
+  border:1px solid rgba(0,0,0,0.09);
+  padding:7px 8px;
+  text-align:center;
+  vertical-align:middle;
+  font-size:12px;
+  line-height:1.4;
+}
+table.ct th{
+  border:1px solid rgba(0,0,0,0.09);
+  padding:7px 8px;
+  text-align:center;
+  vertical-align:middle;
+  line-height:1.4;
+}
+
+/* 등급 헤더 */
+.gh-label{background:#e8eef5;font-size:11px;font-weight:700;color:#1e3a5f;width:80px;border-right:1px solid rgba(0,0,0,0.08);}
+.gh-custom {background:linear-gradient(135deg,#1e3a8a,#1d4ed8);color:#ffffff;font-weight:900;font-size:25px;}
+.gh-premium{background:linear-gradient(135deg,#14532d,#166534);color:#ffffff;font-weight:900;font-size:25px;}
+.gh-double {background:linear-gradient(135deg,#0f2a5e,#1e56c8);color:#ffffff;font-weight:900;font-size:25px;}
+.gh-uv     {background:linear-gradient(135deg,#4c1d95,#6d28d9);color:#ffffff;font-weight:900;font-size:25px;}
+.gh-uvbase {background:linear-gradient(135deg,#1e293b,#334155);color:#ffffff;font-weight:900;font-size:25px;}
+
+/* 서브 헤더 (제품 라인명) */
+.sh-row td{background:rgba(255,255,255,0.04);font-size:11px;color:#000000;font-weight:700;font-style:normal;font-family:'Noto Sans KR','Apple SD Gothic Neo','Malgun Gothic',sans-serif;padding:4px 8px;}
+.sh-label {background:#e8eef5!important;}
+
+/* 행 레이블 */
+.row-label{background:#f0f4f8;font-size:17px !important;font-weight:700;color:#1e3a5f;text-align:center;width:80px;}
+
+/* 가격 행 */
+.price-msrp{color:rgba(255,255,255,0.70);font-size:11px;text-decoration:line-through;}
+.price-sell{font-size:13px;font-weight:900;color:#1e40af;}
+.price-empty{color:rgba(255,255,255,0.15);font-size:12px;}
+
+/* 옵션 행 */
+.opt-row td{background:rgba(255,255,255,0.02);}
+.opt-val{font-size:12px;color:rgba(0,0,0,0.58);}
+.opt-val.add{color:#fcd34d;font-weight:700;}
+.opt-val.dash{color:rgba(255,255,255,0.15);}
+.opt-note{font-size:10px;color:var(--muted);margin-top:2px;}
+
+/* 성능/왜곡 행 */
+.perf-row td{background:#f8fafc;font-size:11px;color:#1e3a5f;font-weight:600;padding:5px 8px;}
+
+/* 왜곡 히트맵 행 */
+.hm-row td{background:#0a0f1e;padding:12px 6px;}
+.hm-label{background:#111827!important;font-size:11px;font-weight:700;color:#93c5fd;}
+.eye-wrap{display:flex;flex-direction:column;align-items:center;gap:3px;}
+.eye-lbl{font-size:9px;font-weight:700;color:var(--muted);}
+.eye-sub{font-size:9px;color:rgba(255,255,255,0.65);margin-top:2px;}
+.eyes-pair{display:flex;gap:8px;justify-content:center;}
+
+/* 범례 */
+.legend{display:flex;align-items:center;justify-content:center;gap:16px;font-size:20px;color:var(--muted);padding:16px 0 0;}
+.legend-grad{height:14px;width:200px;border-radius:999px;background:linear-gradient(90deg,#1a4bd4,#22c55e,#f59e0b,#ef4444);}
+
+/* 하단 */
+.bottom-bar{position:fixed;bottom:0;left:var(--sidebar-w);right:0;background:rgba(248,250,252,0.97);border-top:1px solid var(--border);padding:10px 24px;display:flex;gap:8px;justify-content:center;z-index:50;}
+.bbtn{padding:10px 22px;border:none;border-radius:10px;font-size:13px;font-weight:700;cursor:pointer;font-family:'Noto Sans KR', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif;transition:all .2s;}
+.bbtn-ghost{background:rgba(255,255,255,0.06);color:var(--muted);border:1px solid var(--border);}
+.bbtn-ghost:hover{background:rgba(255,255,255,0.1);color:var(--text);}
+.bbtn-blue{background:linear-gradient(135deg,#1d4ed8,#2563eb);color:white;}
+.bbtn-blue:hover{transform:translateY(-1px);}
+
+/* [FIX] 구버전 768px 미디어 쿼리 제거 → 아래 1024px 통합 버전 사용 */
+
+
+
+
+/* ── 성능 행 ── */
+.perf-row td{background:#f8fafc;}
+.perf-label{background:#e8eef5!important;font-size:17px !important;font-weight:700;color:#1e3a5f;text-align:center;}
+.perf-cell{border:1px solid rgba(0,0,0,0.09);border-top:none;border-right:none;padding:10px 12px;display:flex;flex-direction:column;gap:6px;}
+.perf-cell:last-child{border-right:1px solid rgba(0,0,0,0.08);}
+.perf-item{display:flex;flex-direction:column;gap:3px;}
+.perf-top{display:flex;justify-content:center;font-size:10px;color:var(--muted);}
+.perf-bar{height:5px;background:rgba(255,255,255,0.08);border-radius:999px;overflow:hidden;}
+.perf-fill{height:100%;border-radius:999px;transition:width 1s ease;}
+
+
+/* ── 팝업 오버레이 ── */
+.popup-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:200;align-items:center;justify-content:center;}
+.popup-overlay.active{display:flex;}
+.popup-box{background:#ffffff;border:1px solid rgba(37,99,235,0.3);border-radius:20px;padding:28px 28px 24px;max-width:620px;width:90%;max-height:80vh;overflow-y:auto;box-shadow:0 24px 80px rgba(0,0,0,0.6);animation:popIn .3s ease;}
+@keyframes popIn{from{opacity:0;transform:scale(.94) translateY(10px)}to{opacity:1;transform:scale(1) translateY(0)}}
+.popup-header{display:flex;align-items:center;justify-content:center;margin-bottom:20px;padding-bottom:14px;border-bottom:1px solid var(--border);}
+.popup-title{font-family:'Noto Sans KR','Apple SD Gothic Neo','Malgun Gothic',sans-serif;font-size:18px;color:var(--text);}
+.popup-close{width:32px;height:32px;border-radius:50%;background:rgba(255,255,255,0.08);border:none;color:var(--muted);font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .2s;}
+.popup-close:hover{background:rgba(255,255,255,0.15);color:var(--text);}
+.coating-list{display:flex;flex-direction:column;gap:10px;}
+.coating-item{display:flex;align-items:flex-start;gap:14px;padding:14px 16px;background:rgba(255,255,255,0.03);border:1px solid var(--border);border-radius:12px;transition:background .2s;}
+.coating-item:hover{background:rgba(37,99,235,0.06);border-color:rgba(37,99,235,0.2);}
+.ci-icon{font-size:22px;min-width:36px;height:36px;display:flex;align-items:center;justify-content:center;background:rgba(37,99,235,0.1);border-radius:10px;flex-shrink:0;}
+.ci-name{font-size:13px;font-weight:700;color:var(--text);margin-bottom:4px;}
+.ci-desc{font-size:12px;color:var(--muted);line-height:1.6;}
+.ci-detail{display:flex;flex-direction:column;gap:3px;margin:8px 0 4px;padding:8px 10px;background:rgba(37,99,235,0.05);border-radius:8px;border-left:3px solid rgba(37,99,235,0.3);}
+.ci-point{font-size:11px;color:#1e40af;line-height:1.5;font-weight:600;}
+.ci-tag{display:inline-block;font-size:10px;font-weight:700;padding:2px 8px;border-radius:4px;background:rgba(37,99,235,0.15);color:#1e40af;margin-top:6px;}
+
+
+/* ── 성능 가로 행 ── */
+.perf-cell-h{padding:8px 12px;border:1px solid rgba(0,0,0,0.09);border-top:none;border-right:none;vertical-align:middle;}
+.perf-cell-h:last-child{border-right:1px solid rgba(0,0,0,0.08);}
+.perf-cell-h .perf-bar{height:8px;background:rgba(255,255,255,0.08);border-radius:999px;overflow:hidden;margin-bottom:4px;}
+.perf-cell-h .perf-fill{height:100%;border-radius:999px;}
+.perf-val{font-size:11px;font-weight:700;color:rgba(0,0,0,0.58);}
+
+
+/* ── 옵션 행 ── */
+.option-row td { background:rgba(0,0,0,0.02); }
+.option-label  { background:#f0f4f8; font-size:17px !important; font-weight:700; color:#1e3a5f; text-align:center; vertical-align:middle; width:80px; }
+.option-cell   { vertical-align:top; padding:8px 10px; border-left:1px solid rgba(0,0,0,0.08); background:#fafbfd; }
+.option-cell:last-child { border-right:1px solid rgba(0,0,0,0.08); }
+.opt-item {
+  height:28px;
+  display:flex;
+  align-items:center;
+  justify-content:flex-start;
+  font-size:11.5px;
+  font-weight:700;
+  color:#0f1c2e;
+  border-bottom:1px solid rgba(0,0,0,0.08);
+  padding:0 8px;
+  white-space:nowrap;
+  overflow:hidden;
+  letter-spacing:-0.2px;
+}
+.opt-item:last-child { border-bottom:none; }
+
+
+/* ── 스크롤 래퍼 ── */
+.scroll-wrap { overflow-x:auto; width:100%; -webkit-overflow-scrolling:touch; }
+
+
+/* ── 등급 포커스 (dimmed) ── */
+.ct.has-focus tr > td, .ct.has-focus tr > th { opacity:0.15; transition:opacity .3s; }
+.ct.has-focus tr > td:first-child, .ct.has-focus tr > th:first-child { opacity:1 !important; }
+.ct.has-focus tr > td.focused-col, .ct.has-focus tr > th.focused-col { opacity:1 !important; }
+.gh-custom,.gh-premium,.gh-double,.gh-uv,.gh-uvbase { cursor:pointer; user-select:none; }
+.gh-custom:hover,.gh-premium:hover,.gh-double:hover,.gh-uv:hover,.gh-uvbase:hover { filter:brightness(1.18); }
+/* ── 굴절률 포커스 ── */
+.ct.has-ref-focus tr > td.ref-focused { opacity:1 !important; }
+.ct.has-ref-focus tr > td.ref-dimmed  { opacity:0.12 !important; transition:opacity .3s; }
+td[data-ref] { cursor:pointer; }
+td[data-ref]:hover { background:rgba(29,78,216,0.12) !important; }
+td[data-ref].ref-active { background:rgba(29,78,216,0.18) !important; font-weight:900 !important; }
+
+.coating-btn{
+  display:flex;align-items:center;gap:8px;
+  padding:9px 10px;border-radius:10px;
+  border:1px solid transparent;background:transparent;
+  color:#111111;font-size:13px;font-weight:700;
+  cursor:pointer;font-family:'Noto Sans KR',sans-serif;
+  transition:all .2s;width:100%;text-align:left;
+}
+.coating-btn:hover{background:rgba(0,0,0,0.06);color:#000000;}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/* 오버레이 */
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/* ══════════════════════════════
+   사이드바 토글 (PC + 태블릿 통합)
+══════════════════════════════ */
+
+
+
+/* 오버레이 (태블릿에서만 사용) */
+.sb-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.38);
+  z-index: 98;
+}
+.sb-overlay.show { display: block; }
+
+/* ── PC: 사이드바 숨김 상태 ── */
+.sidebar.sb-hidden {
+  width: 0 !important;
+  min-width: 0 !important;
+  padding: 0 !important;
+  overflow: hidden !important;
+  border-right: none !important;
+  transition: width .3s ease, padding .3s ease;
+}
+
+/* ── 태블릿/모바일 ── */
+@media (max-width: 1024px) {
+  :root { --sidebar-w: 0px; } /* [FIX] 사이드바가 overlay로 전환 → bottom-bar 오프셋 제거 */
+  .layout { display: block !important; }
+  .main   { width: 100% !important; padding: 12px 10px 100px !important; }
+
+  .sidebar {
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    width: 220px !important;
+    height: 100dvh !important;
+    z-index: 99 !important;
+    transform: translateX(-100%) !important;
+    transition: transform .3s cubic-bezier(.4,0,.2,1) !important;
+    overflow-y: auto !important;
+    padding: 20px 12px !important;
+  }
+  .sidebar.sb-open {
+    transform: translateX(0) !important;
+    box-shadow: 6px 0 28px rgba(0,0,0,0.15) !important;
+  }
+
+  /* 테이블 compact */
+  .compare-wrap { min-width: 680px !important; }
+  .ct td { padding: 4px 3px !important; font-size: 10px !important; }
+  .ct th { padding: 4px 3px !important; font-size: 10px !important; }
+  .row-label { font-size: 11px !important; width: 56px !important; }
+  .gh-custom,.gh-premium,.gh-double,.gh-uv,.gh-uvbase { font-size: 13px !important; }
+  .opt-item  { height: 22px !important; font-size: 9.5px !important; font-weight: 700 !important; }
+
+  /* 첫 열 sticky */
+  .ct td:first-child, .ct th:first-child {
+    position: sticky !important; left: 0 !important;
+    z-index: 2 !important; background: #f0f4f8 !important;
+  }
+  .ct thead th:first-child { background: #e8eef5 !important; z-index: 3 !important; }
+  .ct .sh-row td:first-child    { background: #e8eef5 !important; }
+  .ct .hm-row td:first-child    { background: #111827 !important; }
+  .ct .feature-row td:first-child { background: #1e293b !important; }
+}
+
+@media (max-width: 768px) {
+  .ct td { padding: 3px 2px !important; font-size: 9px !important; }
+  .ct th { padding: 3px 2px !important; font-size: 9px !important; }
+  .row-label { font-size: 9px !important; width: 44px !important; }
+  .compare-wrap { min-width: 560px !important; }
+}
+
+
+/* ── 사이드바 접기 버튼 (사이드바 내부) ── */
+.sb-collapse-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 9px 12px;
+  border-radius: 10px;
+  border: 1px solid rgba(220,38,38,0.30);
+  background: rgba(220,38,38,0.06);
+  color: #dc2626;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  font-family: 'Noto Sans KR', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif;
+  transition: all .2s;
+  width: 100%;
+  margin-top: 4px;
+  touch-action: manipulation;
+}
+.sb-collapse-btn:hover,
+.sb-collapse-btn:active {
+  background: rgba(220,38,38,0.14);
+  border-color: rgba(220,38,38,0.50);
+  color: #b91c1c;
+}
+
+/* ── 탑바 열기 버튼 (사이드바 숨김 시 노출) ── */
+.sb-top-btn {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  position: absolute;
+  left: 16px;
+  top: 50%;
+  transform: translateY(-50%);
+  height: 36px;
+  padding: 0 14px;
+  gap: 6px;
+  border-radius: 8px;
+  white-space: nowrap;
+  font-size: 13px;
+  font-weight: 700;
+  font-family: 'Noto Sans KR', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif;
+  border: 1px solid rgba(29,78,216,0.25);
+  background: rgba(29,78,216,0.08);
+  color: #1d4ed8;
+  font-size: 18px;
+  cursor: pointer;
+  transition: all .2s;
+  touch-action: manipulation;
+  z-index: 20;
+}
+.sb-top-btn:hover,
+.sb-top-btn:active {
+  background: rgba(29,78,216,0.15);
+  border-color: rgba(29,78,216,0.4);
+}
+
+
+
+
+/* ─ bottom-bar 전체 가로 확장 ─ */
+.bottom-bar{left:0!important;}
+
+/* ─ 싱글비젼 1페이지 여백 조정 ─ */
+.rx-banner{margin-bottom:8px!important;padding:8px 14px!important;}
+.legend{padding:8px 0 0!important;}
+.scroll-wrap{overflow-y:hidden!important;}
+
+/* ─ sidebar 높이: 상단헤더+하단바 정확히 반영 ─ */
+.sidebar{height:calc(100vh - 44px)!important;overflow-y:auto!important;overflow-x:hidden!important;}
+
+/* ─ bottom-bar 2열 구조 ─ */
+.bottom-bar{
+  display:grid!important;
+  grid-template-columns:auto 1fr!important;
+  padding:0!important;
+  gap:0!important;
+  left:0!important;
+  justify-content:unset!important;
+  align-items:stretch!important;
+}
+.bb-col1{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  background:transparent;
+  border-right:1px solid var(--border);
+  padding:0 16px;
+  flex-shrink:0;
+}
+.bb-col2{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:8px;
+  padding:8px 16px;
+}
+.bbtn-sidebar-toggle{
+  background:transparent!important;
+  border:none!important;
+  color:#dc2626!important;
+  font-size:13px!important;
+  font-weight:700!important;
+  padding:10px 4px!important;
+  white-space:nowrap;
+  letter-spacing:0.3px;
+}
+.bbtn-sidebar-toggle:hover{
+  opacity:0.85!important;
+}
+</style>
+</head>
+<body>
+
+</div>
+<div class="sb-overlay" id="sbOverlay" onclick="closeSidebar()"></div>
+<div class="layout" id="mainLayout">
+
+  <!-- 사이드바 -->
+  <nav class="sidebar" id="sidebar">
+    <div style="display:flex;justify-content:space-between;align-items:center;padding:4px 6px 8px;"><span style="font-size:11px;font-weight:900;letter-spacing:2px;text-transform:uppercase;color:#444;">렌즈 카테고리</span></div>
+    <a class="sb-btn on-cat" href="단초점렌즈.html"><span class="sb-dot" style="background:#2563eb;"></span>단초점 렌즈</a>
+    <a class="sb-btn" href="../기능성렌즈/기능성렌즈.html"><span class="sb-dot" style="background:#14b8a6;"></span>기능성 렌즈</a>
+    <a class="sb-btn" href="../다초점렌즈/다초점렌즈.html"><span class="sb-dot" style="background:#8b5cf6;"></span>다초점 렌즈</a>
+
+    <div class="sb-div"></div>
+    <div class="sb-label">단초점 항목</div>
+    <a class="sb-sub active" href="싱글비젼.html">🛡️ 싱글비젼</a>
+    <a class="sb-sub" href="양면비구면렌즈.html">🔬 양면비구면렌즈</a>
+    <a class="sb-sub" href="프리미엄렌즈.html">💎 프리미엄렌즈</a>
+    <a class="sb-sub" href="개인맞춤형렌즈.html">⚙️ 개인맞춤형렌즈</a>
+    <a class="sb-sub" href="변색렌즈.html">🔄 변색렌즈</a>
+    <a class="sb-sub" href="선글라스렌즈.html">🕶️ 선글라스/편광렌즈</a>
+
+    <div class="sb-spacer"></div>
+</nav>
+
+  <main class="main">
+
+    <!-- 도수 배너 -->
+    <div class="rx-banner" id="rxBanner">
+      <div class="rx-eye">
+        <span class="rx-eye-label">R</span>
+        <span class="rx-val r-col" id="rDisp">S —</span>
+        <span class="rx-val r-col" id="rcDisp">C —</span>
+      </div>
+      <div class="rx-sep"></div>
+      <div class="rx-eye">
+        <span class="rx-eye-label">L</span>
+        <span class="rx-val l-col" id="lDisp">S —</span>
+        <span class="rx-val l-col" id="lcDisp">C —</span>
+      </div>
+      <div class="rx-tags" id="rxTags"></div>
+    </div>
+
+
+
+
+    
+
+    <!-- 비교 테이블 -->
+        <div class="scroll-wrap">
+    <div class="compare-wrap">
+    <table class="ct">
+
+      <!-- ① 등급 헤더 -->
+      <thead>
+        <tr>
+          <th class="gh-label">등급</th>
+          <th class="gh-custom" onclick="onGhClick('gh-custom')" style="cursor:pointer;" colspan="4">개인맞춤</th>
+          <th class="gh-premium" onclick="onGhClick('gh-premium')" style="cursor:pointer;" colspan="4">프리미엄</th>
+          <th class="gh-double" onclick="onGhClick('gh-double')" style="cursor:pointer;" colspan="4">양면비구면</th>
+          <th class="gh-uv" onclick="onGhClick('gh-uv')" style="cursor:pointer;" colspan="4">비구면</th>
+          <th class="gh-uvbase" onclick="onGhClick('gh-uvbase')" style="cursor:pointer;" colspan="4">구면</th>
+        </tr>
+      </thead>
+
+      <tbody>
+
+        <!-- ② 제품 라인명 -->
+        <tr class="sh-row">
+          <td class="sh-label" style="text-align:center;font-size:13px;font-weight:700;color:var(--muted);">렌즈</td>
+          <td onclick="onGhClick('gh-custom')" style="cursor:pointer;" colspan="4" style="text-align:center;font-weight:900;font-size:13px;">씨맥스 INF</td>
+          <td onclick="onGhClick('gh-premium')" style="cursor:pointer;" colspan="4" style="text-align:center;font-weight:900;font-size:13px;">클리어뷰</td>
+          <td onclick="onGhClick('gh-double')" style="cursor:pointer;" colspan="4" style="text-align:center;font-weight:900;font-size:13px;">디프리</td>
+          <td onclick="onGhClick('gh-uv')" style="cursor:pointer;" colspan="4" style="text-align:center;font-weight:900;font-size:13px;">퍼펙트UV</td>
+          <td onclick="onGhClick('gh-uvbase')" style="cursor:pointer;" colspan="4" style="text-align:center;font-weight:900;font-size:13px;">퍼펙트UV</td>
+        </tr>
+
+                <!-- ③ 굴절률 -->
+        <tr>
+          <td class="row-label" style="font-size:12px !important;font-weight:700;">굴절률</td>
+          <td data-ref="1.74" onclick="onRefClick(this)" style="cursor:pointer;font-weight:900;">1.74</td>
+          <td data-ref="1.67" onclick="onRefClick(this)" style="cursor:pointer;font-weight:900;">1.67</td>
+          <td data-ref="1.60" onclick="onRefClick(this)" style="cursor:pointer;font-weight:900;">1.60</td>
+          <td data-ref="1.56" onclick="onRefClick(this)" style="cursor:pointer;font-weight:900;">1.56</td>
+          <td data-ref="1.74" onclick="onRefClick(this)" style="cursor:pointer;font-weight:900;">1.74</td>
+          <td data-ref="1.67" onclick="onRefClick(this)" style="cursor:pointer;font-weight:900;">1.67</td>
+          <td data-ref="1.60" onclick="onRefClick(this)" style="cursor:pointer;font-weight:900;">1.60</td>
+          <td data-ref="1.56" onclick="onRefClick(this)" style="cursor:pointer;font-weight:900;">1.56</td>
+          <td data-ref="1.74" onclick="onRefClick(this)" style="cursor:pointer;font-weight:900;">1.74</td>
+          <td data-ref="1.67" onclick="onRefClick(this)" style="cursor:pointer;font-weight:900;">1.67</td>
+          <td data-ref="1.60" onclick="onRefClick(this)" style="cursor:pointer;font-weight:900;">1.60</td>
+          <td data-ref="1.56" onclick="onRefClick(this)" style="cursor:pointer;font-weight:900;">1.56</td>
+          <td data-ref="1.74" onclick="onRefClick(this)" style="cursor:pointer;font-weight:900;">1.74</td>
+          <td data-ref="1.67" onclick="onRefClick(this)" style="cursor:pointer;font-weight:900;">1.67</td>
+          <td data-ref="1.60" onclick="onRefClick(this)" style="cursor:pointer;font-weight:900;">1.60</td>
+          <td data-ref="1.56" onclick="onRefClick(this)" style="cursor:pointer;font-weight:900;">1.56</td>
+          <td data-ref="1.74" onclick="onRefClick(this)" style="cursor:pointer;font-weight:900;">1.74</td>
+          <td data-ref="1.67" onclick="onRefClick(this)" style="cursor:pointer;font-weight:900;">1.67</td>
+          <td data-ref="1.60" onclick="onRefClick(this)" style="cursor:pointer;font-weight:900;">1.60</td>
+          <td data-ref="1.56" onclick="onRefClick(this)" style="cursor:pointer;font-weight:900;">1.56</td>
+        </tr>
+<!-- ④ 권장소비자가 -->
+        <tr>
+          <td class="row-label" style="font-size:10px !important;font-weight:700;white-space:nowrap;">권장소비자가</td>
+          <td style="text-align:center;padding:5px 2px;font-size:11px;font-weight:700;color:rgba(0,0,0,0.40);"><s>85만</s></td><td style="text-align:center;padding:5px 2px;font-size:11px;font-weight:700;color:rgba(0,0,0,0.40);"><s>60만</s></td><td style="text-align:center;padding:5px 2px;font-size:11px;font-weight:700;color:rgba(0,0,0,0.40);"><s>50만</s></td><td style="text-align:center;padding:5px 2px;font-size:11px;font-weight:700;color:rgba(0,0,0,0.40);"><s>40만</s></td><td style="text-align:center;padding:5px 2px;font-size:11px;font-weight:700;color:rgba(0,0,0,0.40);"><s>45만</s></td><td style="text-align:center;padding:5px 2px;font-size:11px;font-weight:700;color:rgba(0,0,0,0.40);"><s>26만</s></td><td style="text-align:center;padding:5px 2px;font-size:11px;font-weight:700;color:rgba(0,0,0,0.40);"><s>16만</s></td><td style="text-align:center;padding:5px 2px;font-size:11px;font-weight:700;color:rgba(0,0,0,0.40);"><s>10만</s></td><td style="text-align:center;padding:5px 2px;font-size:11px;font-weight:700;color:rgba(0,0,0,0.40);"><s>37만</s></td><td style="text-align:center;padding:5px 2px;font-size:11px;font-weight:700;color:rgba(0,0,0,0.40);"><s>23만</s></td><td style="text-align:center;padding:5px 2px;font-size:11px;font-weight:700;color:rgba(0,0,0,0.40);"><s>15만</s></td><td style="text-align:center;padding:5px 2px;font-size:11px;font-weight:700;color:rgba(0,0,0,0.22);">—</td><td style="text-align:center;padding:5px 2px;font-size:11px;font-weight:700;color:rgba(0,0,0,0.40);"><s>17만</s></td><td style="text-align:center;padding:5px 2px;font-size:11px;font-weight:700;color:rgba(0,0,0,0.40);"><s>12만</s></td><td style="text-align:center;padding:5px 2px;font-size:11px;font-weight:700;color:rgba(0,0,0,0.40);"><s>9만</s></td><td style="text-align:center;padding:5px 2px;font-size:11px;font-weight:700;color:rgba(0,0,0,0.40);"><s>5만</s></td><td style="text-align:center;padding:5px 2px;font-size:11px;font-weight:700;color:rgba(0,0,0,0.22);">—</td><td style="text-align:center;padding:5px 2px;font-size:11px;font-weight:700;color:rgba(0,0,0,0.22);">—</td><td style="text-align:center;padding:5px 2px;font-size:11px;font-weight:700;color:rgba(0,0,0,0.40);"><s>8만</s></td><td style="text-align:center;padding:5px 2px;font-size:11px;font-weight:700;color:rgba(0,0,0,0.40);"><s>4만</s></td>
+        </tr>
+<!-- ⑤ 판매가 -->
+        <tr>
+          <td class="row-label" style="font-size:12px !important;font-weight:700;">판매가</td>
+          <td style="text-align:center;padding:4px 1px;font-size:16px;font-weight:900;color:#1e3a8a;letter-spacing:-0.3px;">68만</td><td style="text-align:center;padding:4px 1px;font-size:16px;font-weight:900;color:#1e3a8a;letter-spacing:-0.3px;">48만</td><td style="text-align:center;padding:4px 1px;font-size:16px;font-weight:900;color:#1e3a8a;letter-spacing:-0.3px;">40만</td><td style="text-align:center;padding:4px 1px;font-size:16px;font-weight:900;color:#1e3a8a;letter-spacing:-0.3px;">32만</td><td style="text-align:center;padding:4px 1px;font-size:16px;font-weight:900;color:#1e3a8a;letter-spacing:-0.3px;">36만</td><td style="text-align:center;padding:4px 1px;font-size:16px;font-weight:900;color:#1e3a8a;letter-spacing:-0.3px;">20.8만</td><td style="text-align:center;padding:4px 1px;font-size:16px;font-weight:900;color:#1e3a8a;letter-spacing:-0.3px;">12.8만</td><td style="text-align:center;padding:4px 1px;font-size:16px;font-weight:900;color:#1e3a8a;letter-spacing:-0.3px;">8만</td><td style="text-align:center;padding:4px 1px;font-size:16px;font-weight:900;color:#1e3a8a;letter-spacing:-0.3px;">15만</td><td style="text-align:center;padding:4px 1px;font-size:16px;font-weight:900;color:#1e3a8a;letter-spacing:-0.3px;">10만</td><td style="text-align:center;padding:4px 1px;font-size:16px;font-weight:900;color:#1e3a8a;letter-spacing:-0.3px;">7만</td><td style="text-align:center;padding:4px 1px;font-size:16px;font-weight:900;color:rgba(0,0,0,0.22);">—</td><td style="text-align:center;padding:4px 1px;font-size:16px;font-weight:900;color:#1e3a8a;letter-spacing:-0.3px;">9만</td><td style="text-align:center;padding:4px 1px;font-size:16px;font-weight:900;color:#1e3a8a;letter-spacing:-0.3px;">7만</td><td style="text-align:center;padding:4px 1px;font-size:16px;font-weight:900;color:#1e3a8a;letter-spacing:-0.3px;">5만</td><td style="text-align:center;padding:4px 1px;font-size:16px;font-weight:900;color:#1e3a8a;letter-spacing:-0.3px;">3만</td><td style="text-align:center;padding:4px 1px;font-size:16px;font-weight:900;color:rgba(0,0,0,0.22);">—</td><td style="text-align:center;padding:4px 1px;font-size:16px;font-weight:900;color:rgba(0,0,0,0.22);">—</td><td style="text-align:center;padding:4px 1px;font-size:16px;font-weight:900;color:#1e3a8a;letter-spacing:-0.3px;">4만</td><td style="text-align:center;padding:4px 1px;font-size:16px;font-weight:900;color:#1e3a8a;letter-spacing:-0.3px;">2만</td>
+        </tr>
+        <!-- 옵션 행 -->
+        <tr class="option-row">
+          <td class="option-label">옵션</td>
+          <td class="option-cell" colspan="4"><div class="opt-item" id="opt-custom-1">착색 +3만 (1.74불가)</div><div class="opt-item" id="opt-custom-2">PURE BLUE UV +5만 (1.56/1.74불가)</div><div class="opt-item" id="opt-custom-3">미러(착색포함) +5만</div><div class="opt-item" id="opt-custom-4">변색 GEN'S +17만 (1.74불가)</div><div class="opt-item" id="opt-custom-5">편광 Xperio +12만 (1.74/1.67불가)</div></td>
+          <td class="option-cell" colspan="4"><div class="opt-item" id="opt-premium-1">여벌 기준 금액. RX는 별도 확인 필요.</div><div class="opt-item" id="opt-premium-2">블루가드플래티넘 1.74 +5만 / 1.67 +2만</div><div class="opt-item" id="opt-premium-3">블루가드플래티넘 1.60 +2만 / 1.56 +3만</div><div class="opt-item" id="opt-premium-4">블루가드포토퓨전 1.60 +14만 / 1.56 +12만</div><div class="opt-item" id="opt-premium-5">블루가드포토퓨전 1.56 그레이만 가능</div></td>
+          <td class="option-cell" colspan="4"><div class="opt-item" id="opt-double-1">착색 +3만 (1.74불가)</div><div class="opt-item" id="opt-double-2">고난시 +2만 (난시-2.00이상)</div><div class="opt-item" id="opt-double-3"></div><div class="opt-item" id="opt-double-4"></div><div class="opt-item" id="opt-double-5"></div></td>
+          <td class="option-cell" colspan="4"><div class="opt-item" id="opt-uv-1">착색 +3만 (1.74불가)</div><div class="opt-item" id="opt-uv-2">고난시 +2만 (난시-2.00이상)</div><div class="opt-item" id="opt-uv-3">RX 1.74 +10만 / 1.67 +6만 / 1.60 +4만</div><div class="opt-item" id="opt-uv-4">RX는 여벌범위 주문생산. 1.56불가</div><div class="opt-item" id="opt-uv-5"></div></td>
+          <td class="option-cell" colspan="4"><div class="opt-item" id="opt-uvbase-1">착색 +3만</div><div class="opt-item" id="opt-uvbase-2">고난시 +2만 (난시-2.00이상)</div><div class="opt-item" id="opt-uvbase-3">RX는 여벌범위 주문생산. 1.56불가</div><div class="opt-item" id="opt-uvbase-4"></div><div class="opt-item" id="opt-uvbase-5"></div></td>
+        </tr>
+
+
+        <tr>
+          <td class="row-label" style="background:#e8eef5;font-size:10px;color:#1e3a5f;">시야<br>범위</td>
+          <td class="perf-cell-h" colspan="4"><div class="perf-bar"><div class="perf-fill" style="width:100%;background:linear-gradient(90deg,#2563eb,#60a5fa);"></div></div><span class="perf-val">100</span></td>
+          <td class="perf-cell-h" colspan="4"><div class="perf-bar"><div class="perf-fill" style="width:85%;background:linear-gradient(90deg,#059669,#34d399);"></div></div><span class="perf-val">85</span></td>
+          <td class="perf-cell-h" colspan="4"><div class="perf-bar"><div class="perf-fill" style="width:70%;background:linear-gradient(90deg,#0284c7,#38bdf8);"></div></div><span class="perf-val">70</span></td>
+          <td class="perf-cell-h" colspan="4"><div class="perf-bar"><div class="perf-fill" style="width:55%;background:linear-gradient(90deg,#7c3aed,#a78bfa);"></div></div><span class="perf-val">55</span></td>
+          <td class="perf-cell-h" colspan="4"><div class="perf-bar"><div class="perf-fill" style="width:30%;background:linear-gradient(90deg,#4b5563,#9ca3af);"></div></div><span class="perf-val">30</span></td>
+        </tr>
+        <!-- 적응속도 -->
+        <tr>
+          <td class="row-label" style="background:#e8eef5;font-size:10px;color:#1e3a5f;">적응<br>속도</td>
+          <td class="perf-cell-h" colspan="4"><div class="perf-bar"><div class="perf-fill" style="width:95%;background:linear-gradient(90deg,#2563eb,#60a5fa);"></div></div><span class="perf-val">95</span></td>
+          <td class="perf-cell-h" colspan="4"><div class="perf-bar"><div class="perf-fill" style="width:80%;background:linear-gradient(90deg,#059669,#34d399);"></div></div><span class="perf-val">80</span></td>
+          <td class="perf-cell-h" colspan="4"><div class="perf-bar"><div class="perf-fill" style="width:70%;background:linear-gradient(90deg,#0284c7,#38bdf8);"></div></div><span class="perf-val">70</span></td>
+          <td class="perf-cell-h" colspan="4"><div class="perf-bar"><div class="perf-fill" style="width:60%;background:linear-gradient(90deg,#7c3aed,#a78bfa);"></div></div><span class="perf-val">60</span></td>
+          <td class="perf-cell-h" colspan="4"><div class="perf-bar"><div class="perf-fill" style="width:45%;background:linear-gradient(90deg,#4b5563,#9ca3af);"></div></div><span class="perf-val">45</span></td>
+        </tr>
+        <!-- 왜곡억제 -->
+        <tr>
+          <td class="row-label" style="background:#e8eef5;font-size:10px;color:#1e3a5f;">왜곡<br>억제</td>
+          <td class="perf-cell-h" colspan="4"><div class="perf-bar"><div class="perf-fill" style="width:100%;background:linear-gradient(90deg,#2563eb,#60a5fa);"></div></div><span class="perf-val">100</span></td>
+          <td class="perf-cell-h" colspan="4"><div class="perf-bar"><div class="perf-fill" style="width:85%;background:linear-gradient(90deg,#059669,#34d399);"></div></div><span class="perf-val">85</span></td>
+          <td class="perf-cell-h" colspan="4"><div class="perf-bar"><div class="perf-fill" style="width:65%;background:linear-gradient(90deg,#0284c7,#38bdf8);"></div></div><span class="perf-val">65</span></td>
+          <td class="perf-cell-h" colspan="4"><div class="perf-bar"><div class="perf-fill" style="width:45%;background:linear-gradient(90deg,#7c3aed,#a78bfa);"></div></div><span class="perf-val">45</span></td>
+          <td class="perf-cell-h" colspan="4"><div class="perf-bar"><div class="perf-fill" style="width:20%;background:linear-gradient(90deg,#4b5563,#9ca3af);"></div></div><span class="perf-val">20</span></td>
+        </tr>
+<!-- ⑭ 왜곡 히트맵 -->
+        <tr class="hm-row">
+          <td class="hm-label">왜곡</td>
+          <td id="hm-custom"  colspan="4"><div style="display:flex;gap:12px;justify-content:center;align-items:center;"><div style="display:flex;flex-direction:column;align-items:center;gap:3px;">
+        <div style="font-size:11px;font-weight:700;color:white;">R</div>
+        <svg width="90" height="90" viewBox="0 0 90 90" xmlns="http://www.w3.org/2000/svg">
+          <defs><clipPath id="cphm-customR"><circle cx="45" cy="45" r="43"/></clipPath></defs>
+          <g clip-path="url(#cphm-customR)"><circle cx="45" cy="45" r="43.0" fill="rgb(31,115,202)"/><circle cx="45" cy="45" r="41.9" fill="rgb(31,114,203)"/><circle cx="45" cy="45" r="40.9" fill="rgb(31,113,204)"/><circle cx="45" cy="45" r="39.8" fill="rgb(31,112,205)"/><circle cx="45" cy="45" r="38.7" fill="rgb(30,112,205)"/><circle cx="45" cy="45" r="37.6" fill="rgb(30,111,206)"/><circle cx="45" cy="45" r="36.5" fill="rgb(30,111,207)"/><circle cx="45" cy="45" r="35.5" fill="rgb(30,110,208)"/><circle cx="45" cy="45" r="34.4" fill="rgb(30,109,208)"/><circle cx="45" cy="45" r="33.3" fill="rgb(30,109,209)"/><circle cx="45" cy="45" r="32.2" fill="rgb(30,108,210)"/><circle cx="45" cy="45" r="31.2" fill="rgb(30,108,211)"/><circle cx="45" cy="45" r="30.1" fill="rgb(30,107,211)"/><circle cx="45" cy="45" r="29.0" fill="rgb(30,107,212)"/><circle cx="45" cy="45" r="27.9" fill="rgb(30,106,212)"/><circle cx="45" cy="45" r="26.9" fill="rgb(30,106,213)"/><circle cx="45" cy="45" r="25.8" fill="rgb(30,105,214)"/><circle cx="45" cy="45" r="24.7" fill="rgb(30,105,214)"/><circle cx="45" cy="45" r="23.7" fill="rgb(30,104,215)"/><circle cx="45" cy="45" r="22.6" fill="rgb(30,104,215)"/><circle cx="45" cy="45" r="21.5" fill="rgb(30,104,215)"/><circle cx="45" cy="45" r="20.4" fill="rgb(30,103,216)"/><circle cx="45" cy="45" r="19.4" fill="rgb(30,103,216)"/><circle cx="45" cy="45" r="18.3" fill="rgb(30,103,217)"/><circle cx="45" cy="45" r="17.2" fill="rgb(30,102,217)"/><circle cx="45" cy="45" r="16.1" fill="rgb(30,102,217)"/><circle cx="45" cy="45" r="15.0" fill="rgb(30,102,218)"/><circle cx="45" cy="45" r="14.0" fill="rgb(30,102,218)"/><circle cx="45" cy="45" r="12.9" fill="rgb(30,101,218)"/><circle cx="45" cy="45" r="11.8" fill="rgb(30,101,219)"/><circle cx="45" cy="45" r="10.8" fill="rgb(30,101,219)"/><circle cx="45" cy="45" r="9.7" fill="rgb(30,101,219)"/><circle cx="45" cy="45" r="8.6" fill="rgb(30,101,219)"/><circle cx="45" cy="45" r="7.5" fill="rgb(30,100,219)"/><circle cx="45" cy="45" r="6.5" fill="rgb(30,100,220)"/><circle cx="45" cy="45" r="5.4" fill="rgb(30,100,220)"/><circle cx="45" cy="45" r="4.3" fill="rgb(30,100,220)"/><circle cx="45" cy="45" r="3.2" fill="rgb(30,100,220)"/><circle cx="45" cy="45" r="2.1" fill="rgb(30,100,220)"/><circle cx="45" cy="45" r="1.1" fill="rgb(30,100,220)"/></g>
+          <circle cx="45" cy="45" r="43" fill="none" stroke="rgba(255,255,255,0.2)" stroke-width="1.5"/>
+        </svg>
+        <div style="font-size:9px;color:rgba(0,0,0,0.40);">S-1.00 C-0.50</div>
+      </div><div style="display:flex;flex-direction:column;align-items:center;gap:3px;">
+        <div style="font-size:11px;font-weight:700;color:white;">L</div>
+        <svg width="90" height="90" viewBox="0 0 90 90" xmlns="http://www.w3.org/2000/svg">
+          <defs><clipPath id="cphm-customL"><circle cx="45" cy="45" r="43"/></clipPath></defs>
+          <g clip-path="url(#cphm-customL)"><circle cx="45" cy="45" r="43.0" fill="rgb(31,121,195)"/><circle cx="45" cy="45" r="41.9" fill="rgb(31,120,196)"/><circle cx="45" cy="45" r="40.9" fill="rgb(31,119,197)"/><circle cx="45" cy="45" r="39.8" fill="rgb(31,118,198)"/><circle cx="45" cy="45" r="38.7" fill="rgb(31,117,199)"/><circle cx="45" cy="45" r="37.6" fill="rgb(31,116,201)"/><circle cx="45" cy="45" r="36.5" fill="rgb(31,115,202)"/><circle cx="45" cy="45" r="35.5" fill="rgb(31,114,203)"/><circle cx="45" cy="45" r="34.4" fill="rgb(31,113,204)"/><circle cx="45" cy="45" r="33.3" fill="rgb(31,112,205)"/><circle cx="45" cy="45" r="32.2" fill="rgb(30,112,206)"/><circle cx="45" cy="45" r="31.2" fill="rgb(30,111,207)"/><circle cx="45" cy="45" r="30.1" fill="rgb(30,110,208)"/><circle cx="45" cy="45" r="29.0" fill="rgb(30,109,208)"/><circle cx="45" cy="45" r="27.9" fill="rgb(30,109,209)"/><circle cx="45" cy="45" r="26.9" fill="rgb(30,108,210)"/><circle cx="45" cy="45" r="25.8" fill="rgb(30,107,211)"/><circle cx="45" cy="45" r="24.7" fill="rgb(30,107,212)"/><circle cx="45" cy="45" r="23.7" fill="rgb(30,106,212)"/><circle cx="45" cy="45" r="22.6" fill="rgb(30,106,213)"/><circle cx="45" cy="45" r="21.5" fill="rgb(30,105,214)"/><circle cx="45" cy="45" r="20.4" fill="rgb(30,105,214)"/><circle cx="45" cy="45" r="19.4" fill="rgb(30,104,215)"/><circle cx="45" cy="45" r="18.3" fill="rgb(30,104,215)"/><circle cx="45" cy="45" r="17.2" fill="rgb(30,103,216)"/><circle cx="45" cy="45" r="16.1" fill="rgb(30,103,216)"/><circle cx="45" cy="45" r="15.0" fill="rgb(30,103,217)"/><circle cx="45" cy="45" r="14.0" fill="rgb(30,102,217)"/><circle cx="45" cy="45" r="12.9" fill="rgb(30,102,218)"/><circle cx="45" cy="45" r="11.8" fill="rgb(30,102,218)"/><circle cx="45" cy="45" r="10.8" fill="rgb(30,101,218)"/><circle cx="45" cy="45" r="9.7" fill="rgb(30,101,219)"/><circle cx="45" cy="45" r="8.6" fill="rgb(30,101,219)"/><circle cx="45" cy="45" r="7.5" fill="rgb(30,101,219)"/><circle cx="45" cy="45" r="6.5" fill="rgb(30,100,219)"/><circle cx="45" cy="45" r="5.4" fill="rgb(30,100,220)"/><circle cx="45" cy="45" r="4.3" fill="rgb(30,100,220)"/><circle cx="45" cy="45" r="3.2" fill="rgb(30,100,220)"/><circle cx="45" cy="45" r="2.1" fill="rgb(30,100,220)"/><circle cx="45" cy="45" r="1.1" fill="rgb(30,100,220)"/></g>
+          <circle cx="45" cy="45" r="43" fill="none" stroke="rgba(255,255,255,0.2)" stroke-width="1.5"/>
+        </svg>
+        <div style="font-size:9px;color:rgba(0,0,0,0.40);">S-3.00 C-0.50</div>
+      </div></div></td>
+          <td id="hm-premium" colspan="4"><div style="display:flex;gap:12px;justify-content:center;align-items:center;"><div style="display:flex;flex-direction:column;align-items:center;gap:3px;">
+        <div style="font-size:11px;font-weight:700;color:white;">R</div>
+        <svg width="90" height="90" viewBox="0 0 90 90" xmlns="http://www.w3.org/2000/svg">
+          <defs><clipPath id="cphm-premiumR"><circle cx="45" cy="45" r="43"/></clipPath></defs>
+          <g clip-path="url(#cphm-premiumR)"><circle cx="45" cy="45" r="43.0" fill="rgb(32,155,152)"/><circle cx="45" cy="45" r="41.9" fill="rgb(32,152,156)"/><circle cx="45" cy="45" r="40.9" fill="rgb(32,149,159)"/><circle cx="45" cy="45" r="39.8" fill="rgb(32,147,162)"/><circle cx="45" cy="45" r="38.7" fill="rgb(32,144,165)"/><circle cx="45" cy="45" r="37.6" fill="rgb(32,142,168)"/><circle cx="45" cy="45" r="36.5" fill="rgb(32,139,171)"/><circle cx="45" cy="45" r="35.5" fill="rgb(32,137,174)"/><circle cx="45" cy="45" r="34.4" fill="rgb(31,135,177)"/><circle cx="45" cy="45" r="33.3" fill="rgb(31,133,179)"/><circle cx="45" cy="45" r="32.2" fill="rgb(31,131,182)"/><circle cx="45" cy="45" r="31.2" fill="rgb(31,129,185)"/><circle cx="45" cy="45" r="30.1" fill="rgb(31,127,187)"/><circle cx="45" cy="45" r="29.0" fill="rgb(31,125,189)"/><circle cx="45" cy="45" r="27.9" fill="rgb(31,123,191)"/><circle cx="45" cy="45" r="26.9" fill="rgb(31,121,194)"/><circle cx="45" cy="45" r="25.8" fill="rgb(31,120,196)"/><circle cx="45" cy="45" r="24.7" fill="rgb(31,118,198)"/><circle cx="45" cy="45" r="23.7" fill="rgb(31,117,200)"/><circle cx="45" cy="45" r="22.6" fill="rgb(31,115,201)"/><circle cx="45" cy="45" r="21.5" fill="rgb(31,114,203)"/><circle cx="45" cy="45" r="20.4" fill="rgb(31,112,205)"/><circle cx="45" cy="45" r="19.4" fill="rgb(30,111,206)"/><circle cx="45" cy="45" r="18.3" fill="rgb(30,110,208)"/><circle cx="45" cy="45" r="17.2" fill="rgb(30,109,209)"/><circle cx="45" cy="45" r="16.1" fill="rgb(30,108,211)"/><circle cx="45" cy="45" r="15.0" fill="rgb(30,107,212)"/><circle cx="45" cy="45" r="14.0" fill="rgb(30,106,213)"/><circle cx="45" cy="45" r="12.9" fill="rgb(30,105,214)"/><circle cx="45" cy="45" r="11.8" fill="rgb(30,104,215)"/><circle cx="45" cy="45" r="10.8" fill="rgb(30,103,216)"/><circle cx="45" cy="45" r="9.7" fill="rgb(30,103,217)"/><circle cx="45" cy="45" r="8.6" fill="rgb(30,102,217)"/><circle cx="45" cy="45" r="7.5" fill="rgb(30,102,218)"/><circle cx="45" cy="45" r="6.5" fill="rgb(30,101,218)"/><circle cx="45" cy="45" r="5.4" fill="rgb(30,101,219)"/><circle cx="45" cy="45" r="4.3" fill="rgb(30,101,219)"/><circle cx="45" cy="45" r="3.2" fill="rgb(30,100,220)"/><circle cx="45" cy="45" r="2.1" fill="rgb(30,100,220)"/><circle cx="45" cy="45" r="1.1" fill="rgb(30,100,220)"/></g>
+          <circle cx="45" cy="45" r="43" fill="none" stroke="rgba(255,255,255,0.2)" stroke-width="1.5"/>
+        </svg>
+        <div style="font-size:9px;color:rgba(0,0,0,0.40);">S-1.00 C-0.50</div>
+      </div><div style="display:flex;flex-direction:column;align-items:center;gap:3px;">
+        <div style="font-size:11px;font-weight:700;color:white;">L</div>
+        <svg width="90" height="90" viewBox="0 0 90 90" xmlns="http://www.w3.org/2000/svg">
+          <defs><clipPath id="cphm-premiumL"><circle cx="45" cy="45" r="43"/></clipPath></defs>
+          <g clip-path="url(#cphm-premiumL)"><circle cx="45" cy="45" r="43.0" fill="rgb(33,177,125)"/><circle cx="45" cy="45" r="41.9" fill="rgb(33,173,129)"/><circle cx="45" cy="45" r="40.9" fill="rgb(33,170,134)"/><circle cx="45" cy="45" r="39.8" fill="rgb(33,166,138)"/><circle cx="45" cy="45" r="38.7" fill="rgb(33,162,143)"/><circle cx="45" cy="45" r="37.6" fill="rgb(32,159,147)"/><circle cx="45" cy="45" r="36.5" fill="rgb(32,156,151)"/><circle cx="45" cy="45" r="35.5" fill="rgb(32,152,155)"/><circle cx="45" cy="45" r="34.4" fill="rgb(32,149,159)"/><circle cx="45" cy="45" r="33.3" fill="rgb(32,146,163)"/><circle cx="45" cy="45" r="32.2" fill="rgb(32,143,166)"/><circle cx="45" cy="45" r="31.2" fill="rgb(32,140,170)"/><circle cx="45" cy="45" r="30.1" fill="rgb(32,138,173)"/><circle cx="45" cy="45" r="29.0" fill="rgb(31,135,177)"/><circle cx="45" cy="45" r="27.9" fill="rgb(31,133,180)"/><circle cx="45" cy="45" r="26.9" fill="rgb(31,130,183)"/><circle cx="45" cy="45" r="25.8" fill="rgb(31,128,186)"/><circle cx="45" cy="45" r="24.7" fill="rgb(31,125,188)"/><circle cx="45" cy="45" r="23.7" fill="rgb(31,123,191)"/><circle cx="45" cy="45" r="22.6" fill="rgb(31,121,194)"/><circle cx="45" cy="45" r="21.5" fill="rgb(31,119,196)"/><circle cx="45" cy="45" r="20.4" fill="rgb(31,117,199)"/><circle cx="45" cy="45" r="19.4" fill="rgb(31,116,201)"/><circle cx="45" cy="45" r="18.3" fill="rgb(31,114,203)"/><circle cx="45" cy="45" r="17.2" fill="rgb(31,112,205)"/><circle cx="45" cy="45" r="16.1" fill="rgb(30,111,207)"/><circle cx="45" cy="45" r="15.0" fill="rgb(30,109,208)"/><circle cx="45" cy="45" r="14.0" fill="rgb(30,108,210)"/><circle cx="45" cy="45" r="12.9" fill="rgb(30,107,211)"/><circle cx="45" cy="45" r="11.8" fill="rgb(30,106,213)"/><circle cx="45" cy="45" r="10.8" fill="rgb(30,105,214)"/><circle cx="45" cy="45" r="9.7" fill="rgb(30,104,215)"/><circle cx="45" cy="45" r="8.6" fill="rgb(30,103,216)"/><circle cx="45" cy="45" r="7.5" fill="rgb(30,102,217)"/><circle cx="45" cy="45" r="6.5" fill="rgb(30,102,218)"/><circle cx="45" cy="45" r="5.4" fill="rgb(30,101,219)"/><circle cx="45" cy="45" r="4.3" fill="rgb(30,101,219)"/><circle cx="45" cy="45" r="3.2" fill="rgb(30,100,219)"/><circle cx="45" cy="45" r="2.1" fill="rgb(30,100,220)"/><circle cx="45" cy="45" r="1.1" fill="rgb(30,100,220)"/></g>
+          <circle cx="45" cy="45" r="43" fill="none" stroke="rgba(255,255,255,0.2)" stroke-width="1.5"/>
+        </svg>
+        <div style="font-size:9px;color:rgba(0,0,0,0.40);">S-3.00 C-0.50</div>
+      </div></div></td>
+          <td id="hm-double"  colspan="4"><div style="display:flex;gap:12px;justify-content:center;align-items:center;"><div style="display:flex;flex-direction:column;align-items:center;gap:3px;">
+        <div style="font-size:11px;font-weight:700;color:white;">R</div>
+        <svg width="90" height="90" viewBox="0 0 90 90" xmlns="http://www.w3.org/2000/svg">
+          <defs><clipPath id="cphm-doubleR"><circle cx="45" cy="45" r="43"/></clipPath></defs>
+          <g clip-path="url(#cphm-doubleR)"><circle cx="45" cy="45" r="43.0" fill="rgb(34,195,103)"/><circle cx="45" cy="45" r="41.9" fill="rgb(34,190,109)"/><circle cx="45" cy="45" r="40.9" fill="rgb(34,185,114)"/><circle cx="45" cy="45" r="39.8" fill="rgb(33,181,120)"/><circle cx="45" cy="45" r="38.7" fill="rgb(33,177,125)"/><circle cx="45" cy="45" r="37.6" fill="rgb(33,172,130)"/><circle cx="45" cy="45" r="36.5" fill="rgb(33,168,135)"/><circle cx="45" cy="45" r="35.5" fill="rgb(33,164,140)"/><circle cx="45" cy="45" r="34.4" fill="rgb(32,161,145)"/><circle cx="45" cy="45" r="33.3" fill="rgb(32,157,150)"/><circle cx="45" cy="45" r="32.2" fill="rgb(32,153,154)"/><circle cx="45" cy="45" r="31.2" fill="rgb(32,150,158)"/><circle cx="45" cy="45" r="30.1" fill="rgb(32,146,163)"/><circle cx="45" cy="45" r="29.0" fill="rgb(32,143,167)"/><circle cx="45" cy="45" r="27.9" fill="rgb(32,140,171)"/><circle cx="45" cy="45" r="26.9" fill="rgb(32,137,174)"/><circle cx="45" cy="45" r="25.8" fill="rgb(31,134,178)"/><circle cx="45" cy="45" r="24.7" fill="rgb(31,131,181)"/><circle cx="45" cy="45" r="23.7" fill="rgb(31,129,185)"/><circle cx="45" cy="45" r="22.6" fill="rgb(31,126,188)"/><circle cx="45" cy="45" r="21.5" fill="rgb(31,124,191)"/><circle cx="45" cy="45" r="20.4" fill="rgb(31,121,194)"/><circle cx="45" cy="45" r="19.4" fill="rgb(31,119,196)"/><circle cx="45" cy="45" r="18.3" fill="rgb(31,117,199)"/><circle cx="45" cy="45" r="17.2" fill="rgb(31,115,201)"/><circle cx="45" cy="45" r="16.1" fill="rgb(31,113,204)"/><circle cx="45" cy="45" r="15.0" fill="rgb(30,112,206)"/><circle cx="45" cy="45" r="14.0" fill="rgb(30,110,208)"/><circle cx="45" cy="45" r="12.9" fill="rgb(30,109,209)"/><circle cx="45" cy="45" r="11.8" fill="rgb(30,107,211)"/><circle cx="45" cy="45" r="10.8" fill="rgb(30,106,213)"/><circle cx="45" cy="45" r="9.7" fill="rgb(30,105,214)"/><circle cx="45" cy="45" r="8.6" fill="rgb(30,104,215)"/><circle cx="45" cy="45" r="7.5" fill="rgb(30,103,216)"/><circle cx="45" cy="45" r="6.5" fill="rgb(30,102,217)"/><circle cx="45" cy="45" r="5.4" fill="rgb(30,101,218)"/><circle cx="45" cy="45" r="4.3" fill="rgb(30,101,219)"/><circle cx="45" cy="45" r="3.2" fill="rgb(30,101,219)"/><circle cx="45" cy="45" r="2.1" fill="rgb(30,100,220)"/><circle cx="45" cy="45" r="1.1" fill="rgb(30,100,220)"/></g>
+          <circle cx="45" cy="45" r="43" fill="none" stroke="rgba(255,255,255,0.2)" stroke-width="1.5"/>
+        </svg>
+        <div style="font-size:9px;color:rgba(0,0,0,0.40);">S-1.00 C-0.50</div>
+      </div><div style="display:flex;flex-direction:column;align-items:center;gap:3px;">
+        <div style="font-size:11px;font-weight:700;color:white;">L</div>
+        <svg width="90" height="90" viewBox="0 0 90 90" xmlns="http://www.w3.org/2000/svg">
+          <defs><clipPath id="cphm-doubleL"><circle cx="45" cy="45" r="43"/></clipPath></defs>
+          <g clip-path="url(#cphm-doubleL)"><circle cx="45" cy="45" r="43.0" fill="rgb(100,185,72)"/><circle cx="45" cy="45" r="41.9" fill="rgb(88,187,77)"/><circle cx="45" cy="45" r="40.9" fill="rgb(77,189,82)"/><circle cx="45" cy="45" r="39.8" fill="rgb(65,191,87)"/><circle cx="45" cy="45" r="38.7" fill="rgb(54,193,91)"/><circle cx="45" cy="45" r="37.6" fill="rgb(43,195,96)"/><circle cx="45" cy="45" r="36.5" fill="rgb(34,196,101)"/><circle cx="45" cy="45" r="35.5" fill="rgb(34,191,108)"/><circle cx="45" cy="45" r="34.4" fill="rgb(34,185,114)"/><circle cx="45" cy="45" r="33.3" fill="rgb(33,180,121)"/><circle cx="45" cy="45" r="32.2" fill="rgb(33,175,127)"/><circle cx="45" cy="45" r="31.2" fill="rgb(33,170,133)"/><circle cx="45" cy="45" r="30.1" fill="rgb(33,165,139)"/><circle cx="45" cy="45" r="29.0" fill="rgb(33,161,145)"/><circle cx="45" cy="45" r="27.9" fill="rgb(32,156,150)"/><circle cx="45" cy="45" r="26.9" fill="rgb(32,152,155)"/><circle cx="45" cy="45" r="25.8" fill="rgb(32,148,161)"/><circle cx="45" cy="45" r="24.7" fill="rgb(32,144,165)"/><circle cx="45" cy="45" r="23.7" fill="rgb(32,140,170)"/><circle cx="45" cy="45" r="22.6" fill="rgb(32,137,174)"/><circle cx="45" cy="45" r="21.5" fill="rgb(31,133,179)"/><circle cx="45" cy="45" r="20.4" fill="rgb(31,130,183)"/><circle cx="45" cy="45" r="19.4" fill="rgb(31,127,187)"/><circle cx="45" cy="45" r="18.3" fill="rgb(31,124,190)"/><circle cx="45" cy="45" r="17.2" fill="rgb(31,121,194)"/><circle cx="45" cy="45" r="16.1" fill="rgb(31,119,197)"/><circle cx="45" cy="45" r="15.0" fill="rgb(31,116,200)"/><circle cx="45" cy="45" r="14.0" fill="rgb(31,114,203)"/><circle cx="45" cy="45" r="12.9" fill="rgb(30,112,205)"/><circle cx="45" cy="45" r="11.8" fill="rgb(30,110,208)"/><circle cx="45" cy="45" r="10.8" fill="rgb(30,108,210)"/><circle cx="45" cy="45" r="9.7" fill="rgb(30,107,212)"/><circle cx="45" cy="45" r="8.6" fill="rgb(30,105,213)"/><circle cx="45" cy="45" r="7.5" fill="rgb(30,104,215)"/><circle cx="45" cy="45" r="6.5" fill="rgb(30,103,216)"/><circle cx="45" cy="45" r="5.4" fill="rgb(30,102,217)"/><circle cx="45" cy="45" r="4.3" fill="rgb(30,101,218)"/><circle cx="45" cy="45" r="3.2" fill="rgb(30,101,219)"/><circle cx="45" cy="45" r="2.1" fill="rgb(30,100,220)"/><circle cx="45" cy="45" r="1.1" fill="rgb(30,100,220)"/></g>
+          <circle cx="45" cy="45" r="43" fill="none" stroke="rgba(255,255,255,0.2)" stroke-width="1.5"/>
+        </svg>
+        <div style="font-size:9px;color:rgba(0,0,0,0.40);">S-3.00 C-0.50</div>
+      </div></div></td>
+          <td id="hm-uv" colspan="4"><div style="display:flex;align-items:center;justify-content:center;height:120px;color:rgba(255,255,255,0.3);font-size:12px;">분석 데이터 로딩 중...</div></td>
+          <td id="hm-uvbase"  colspan="4"><div style="display:flex;gap:12px;justify-content:center;align-items:center;"><div style="display:flex;flex-direction:column;align-items:center;gap:3px;">
+        <div style="font-size:11px;font-weight:700;color:white;">R</div>
+        <svg width="90" height="90" viewBox="0 0 90 90" xmlns="http://www.w3.org/2000/svg">
+          <defs><clipPath id="cphm-uvbaseR"><circle cx="45" cy="45" r="43"/></clipPath></defs>
+          <g clip-path="url(#cphm-uvbaseR)"><circle cx="45" cy="45" r="43.0" fill="rgb(162,173,46)"/><circle cx="45" cy="45" r="41.9" fill="rgb(147,176,53)"/><circle cx="45" cy="45" r="40.9" fill="rgb(132,179,59)"/><circle cx="45" cy="45" r="39.8" fill="rgb(118,182,65)"/><circle cx="45" cy="45" r="38.7" fill="rgb(104,184,70)"/><circle cx="45" cy="45" r="37.6" fill="rgb(90,187,76)"/><circle cx="45" cy="45" r="36.5" fill="rgb(77,189,82)"/><circle cx="45" cy="45" r="35.5" fill="rgb(65,191,87)"/><circle cx="45" cy="45" r="34.4" fill="rgb(52,194,92)"/><circle cx="45" cy="45" r="33.3" fill="rgb(40,196,97)"/><circle cx="45" cy="45" r="32.2" fill="rgb(34,194,104)"/><circle cx="45" cy="45" r="31.2" fill="rgb(34,188,111)"/><circle cx="45" cy="45" r="30.1" fill="rgb(33,182,119)"/><circle cx="45" cy="45" r="29.0" fill="rgb(33,176,126)"/><circle cx="45" cy="45" r="27.9" fill="rgb(33,171,133)"/><circle cx="45" cy="45" r="26.9" fill="rgb(33,165,139)"/><circle cx="45" cy="45" r="25.8" fill="rgb(32,160,145)"/><circle cx="45" cy="45" r="24.7" fill="rgb(32,155,152)"/><circle cx="45" cy="45" r="23.7" fill="rgb(32,151,157)"/><circle cx="45" cy="45" r="22.6" fill="rgb(32,146,163)"/><circle cx="45" cy="45" r="21.5" fill="rgb(32,142,168)"/><circle cx="45" cy="45" r="20.4" fill="rgb(32,138,173)"/><circle cx="45" cy="45" r="19.4" fill="rgb(31,134,178)"/><circle cx="45" cy="45" r="18.3" fill="rgb(31,130,183)"/><circle cx="45" cy="45" r="17.2" fill="rgb(31,127,187)"/><circle cx="45" cy="45" r="16.1" fill="rgb(31,124,191)"/><circle cx="45" cy="45" r="15.0" fill="rgb(31,121,195)"/><circle cx="45" cy="45" r="14.0" fill="rgb(31,118,198)"/><circle cx="45" cy="45" r="12.9" fill="rgb(31,115,201)"/><circle cx="45" cy="45" r="11.8" fill="rgb(31,113,204)"/><circle cx="45" cy="45" r="10.8" fill="rgb(30,110,207)"/><circle cx="45" cy="45" r="9.7" fill="rgb(30,108,210)"/><circle cx="45" cy="45" r="8.6" fill="rgb(30,107,212)"/><circle cx="45" cy="45" r="7.5" fill="rgb(30,105,214)"/><circle cx="45" cy="45" r="6.5" fill="rgb(30,104,215)"/><circle cx="45" cy="45" r="5.4" fill="rgb(30,103,217)"/><circle cx="45" cy="45" r="4.3" fill="rgb(30,102,218)"/><circle cx="45" cy="45" r="3.2" fill="rgb(30,101,219)"/><circle cx="45" cy="45" r="2.1" fill="rgb(30,100,219)"/><circle cx="45" cy="45" r="1.1" fill="rgb(30,100,220)"/></g>
+          <circle cx="45" cy="45" r="43" fill="none" stroke="rgba(255,255,255,0.2)" stroke-width="1.5"/>
+        </svg>
+        <div style="font-size:9px;color:rgba(0,0,0,0.40);">S-1.00 C-0.50</div>
+      </div><div style="display:flex;flex-direction:column;align-items:center;gap:3px;">
+        <div style="font-size:11px;font-weight:700;color:white;">L</div>
+        <svg width="90" height="90" viewBox="0 0 90 90" xmlns="http://www.w3.org/2000/svg">
+          <defs><clipPath id="cphm-uvbaseL"><circle cx="45" cy="45" r="43"/></clipPath></defs>
+          <g clip-path="url(#cphm-uvbaseL)"><circle cx="45" cy="45" r="43.0" fill="rgb(244,146,18)"/><circle cx="45" cy="45" r="41.9" fill="rgb(245,152,15)"/><circle cx="45" cy="45" r="40.9" fill="rgb(245,158,11)"/><circle cx="45" cy="45" r="39.8" fill="rgb(224,162,20)"/><circle cx="45" cy="45" r="38.7" fill="rgb(205,165,28)"/><circle cx="45" cy="45" r="37.6" fill="rgb(186,169,36)"/><circle cx="45" cy="45" r="36.5" fill="rgb(167,172,44)"/><circle cx="45" cy="45" r="35.5" fill="rgb(150,176,51)"/><circle cx="45" cy="45" r="34.4" fill="rgb(132,179,59)"/><circle cx="45" cy="45" r="33.3" fill="rgb(115,182,66)"/><circle cx="45" cy="45" r="32.2" fill="rgb(99,185,73)"/><circle cx="45" cy="45" r="31.2" fill="rgb(83,188,79)"/><circle cx="45" cy="45" r="30.1" fill="rgb(68,191,86)"/><circle cx="45" cy="45" r="29.0" fill="rgb(53,193,92)"/><circle cx="45" cy="45" r="27.9" fill="rgb(39,196,98)"/><circle cx="45" cy="45" r="26.9" fill="rgb(34,192,106)"/><circle cx="45" cy="45" r="25.8" fill="rgb(34,185,115)"/><circle cx="45" cy="45" r="24.7" fill="rgb(33,178,123)"/><circle cx="45" cy="45" r="23.7" fill="rgb(33,171,132)"/><circle cx="45" cy="45" r="22.6" fill="rgb(33,165,139)"/><circle cx="45" cy="45" r="21.5" fill="rgb(32,159,147)"/><circle cx="45" cy="45" r="20.4" fill="rgb(32,153,154)"/><circle cx="45" cy="45" r="19.4" fill="rgb(32,148,161)"/><circle cx="45" cy="45" r="18.3" fill="rgb(32,143,167)"/><circle cx="45" cy="45" r="17.2" fill="rgb(32,138,173)"/><circle cx="45" cy="45" r="16.1" fill="rgb(31,133,179)"/><circle cx="45" cy="45" r="15.0" fill="rgb(31,129,184)"/><circle cx="45" cy="45" r="14.0" fill="rgb(31,125,189)"/><circle cx="45" cy="45" r="12.9" fill="rgb(31,121,194)"/><circle cx="45" cy="45" r="11.8" fill="rgb(31,118,198)"/><circle cx="45" cy="45" r="10.8" fill="rgb(31,115,202)"/><circle cx="45" cy="45" r="9.7" fill="rgb(30,112,205)"/><circle cx="45" cy="45" r="8.6" fill="rgb(30,109,208)"/><circle cx="45" cy="45" r="7.5" fill="rgb(30,107,211)"/><circle cx="45" cy="45" r="6.5" fill="rgb(30,105,213)"/><circle cx="45" cy="45" r="5.4" fill="rgb(30,104,215)"/><circle cx="45" cy="45" r="4.3" fill="rgb(30,102,217)"/><circle cx="45" cy="45" r="3.2" fill="rgb(30,101,218)"/><circle cx="45" cy="45" r="2.1" fill="rgb(30,101,219)"/><circle cx="45" cy="45" r="1.1" fill="rgb(30,100,220)"/></g>
+          <circle cx="45" cy="45" r="43" fill="none" stroke="rgba(255,255,255,0.2)" stroke-width="1.5"/>
+        </svg>
+        <div style="font-size:9px;color:rgba(0,0,0,0.40);">S-3.00 C-0.50</div>
+      </div></div></td>
+        </tr>
+
+      </tbody>
+    </table>
+    </div><!-- /compare-wrap -->
+    </div><!-- /scroll-wrap -->
+
+    <!-- 범례 -->
+    <div class="legend">
+      <span style="color:#1e3a5f;font-weight:700;">안정</span>
+      <div class="legend-grad"></div>
+      <span style="color:#b91c1c;font-weight:700;">왜곡</span>
+      <span style="margin-left:10px;font-size:16px;color:#1e3a5f;font-weight:600;">붉을수록 왜곡 강함 · 푸를수록 시야 안정</span>
+    </div>
+
+  </main>
+</div>
+
+<div class="bottom-bar" >
+  <div class="bb-col1">
+    <button class="bbtn bbtn-sidebar-toggle" id="sbTopBtn" onclick="toggleSidebar()">◀ 사이드바 접기</button>
+  </div>
+  <div class="bb-col2">
+    <button class="bbtn bbtn-ghost" onclick="location.href='../../index.html'">🏠 홈으로</button>
+  <button class="bbtn bbtn-ghost" onclick="location.href='단초점렌즈.html'">◀ 단초점</button>
+  <button class="bbtn bbtn-blue"  onclick="location.href='../../시력데이터analyze/analyze.html'">📊 시력 분석</button>
+  </div>
+</div>
+
+
+
+<script>
+/* ── INOTI 인증 모듈 (인라인) ── */
+const INOTI_AUTH={
+  ACCESS_PW:"inoti8300",ADMIN_PW:"@@inoti8300!!",
+  SESSION_KEY:"inoti_access",ADMIN_KEY:"inoti_admin",SESSION_MIN:1440,
+  isLoggedIn(){const t=localStorage.getItem(this.SESSION_KEY);return t&&(Date.now()-parseInt(t))/60000<this.SESSION_MIN;},
+  isAdmin(){const t=localStorage.getItem(this.ADMIN_KEY);return t&&(Date.now()-parseInt(t))/60000<60;},
+  login(){localStorage.setItem(this.SESSION_KEY,Date.now());},
+  adminLogin(){localStorage.setItem(this.ADMIN_KEY,Date.now());}
+};
+const AUTH_CSS=`<style>.auth-overlay{position:fixed;inset:0;background:linear-gradient(135deg,#060d1a,#0d1b2e);display:flex;align-items:center;justify-content:center;z-index:99999;font-family:'Noto Sans KR', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif;}.auth-box{background:rgba(13,27,46,0.97);border:1px solid rgba(0,0,0,0.09);border-radius:20px;padding:40px 36px;width:320px;text-align:center;box-shadow:0 24px 80px rgba(0,0,0,0.7);animation:authIn .4s ease;}@keyframes authIn{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}.auth-logo{font-size:26px;color:#e8f0fb;margin-bottom:6px;font-weight:900;letter-spacing:2px;}.auth-sub{font-size:12px;color:#5a7a9a;margin-bottom:24px;}.auth-label{font-size:11px;font-weight:700;color:#5a7a9a;letter-spacing:1px;margin-bottom:10px;text-align:left;}.auth-input{width:100%;padding:13px 16px;background:#ffffff;border:1px solid rgba(0,0,0,0.09);border-radius:10px;color:#e8f0fb;font-size:16px;text-align:center;outline:none;margin-bottom:14px;letter-spacing:3px;transition:border-color .2s;}.auth-input:focus{border-color:rgba(42,127,255,0.6);}.auth-btn{width:100%;padding:14px;background:linear-gradient(135deg,#1d5bd4,#2a7fff);color:white;border:none;border-radius:10px;font-size:15px;font-weight:700;cursor:pointer;}.auth-error{font-size:12px;color:#fca5a5;margin-top:10px;min-height:18px;}.auth-shake{animation:shake .4s ease;}@keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
+/* ── 사이드바 접기 버튼 (사이드바 내부) ── */
+.sb-collapse-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 9px 12px;
+  border-radius: 10px;
+  border: 1px solid rgba(220,38,38,0.30);
+  background: rgba(220,38,38,0.06);
+  color: #dc2626;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  font-family: 'Noto Sans KR', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif;
+  transition: all .2s;
+  width: 100%;
+  margin-top: 4px;
+  touch-action: manipulation;
+}
+.sb-collapse-btn:hover,
+.sb-collapse-btn:active {
+  background: rgba(220,38,38,0.14);
+  border-color: rgba(220,38,38,0.50);
+  color: #b91c1c;
+}
+
+/* ── 탑바 열기 버튼 (사이드바 숨김 시 노출) ── */
+.sb-top-btn {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  position: absolute;
+  left: 16px;
+  top: 50%;
+  transform: translateY(-50%);
+  height: 36px;
+  padding: 0 14px;
+  gap: 6px;
+  border-radius: 8px;
+  white-space: nowrap;
+  font-size: 13px;
+  font-weight: 700;
+  font-family: 'Noto Sans KR', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif;
+  border: 1px solid rgba(29,78,216,0.25);
+  background: rgba(29,78,216,0.08);
+  color: #1d4ed8;
+  font-size: 18px;
+  cursor: pointer;
+  transition: all .2s;
+  touch-action: manipulation;
+  z-index: 20;
+}
+.sb-top-btn:hover,
+.sb-top-btn:active {
+  background: rgba(29,78,216,0.15);
+  border-color: rgba(29,78,216,0.4);
+}
+</style>`;
+
+function showAccessGate(onSuccess){
+  if(INOTI_AUTH.isLoggedIn()){onSuccess();return;}
+  document.head.insertAdjacentHTML("beforeend",AUTH_CSS);
+  const ov=document.createElement("div");ov.className="auth-overlay";ov.id="accessGate";
+  ov.innerHTML=`<div class="auth-box"><div class="auth-logo">INOTI</div><div class="auth-sub">Eyecare Solution</div><div class="auth-label">접속 비밀번호</div><input class="auth-input" type="password" id="accPw" placeholder="••••••••" autocomplete="off"><button class="auth-btn" id="accBtn">입장하기</button><div class="auth-error" id="accErr"></div></div>`;
+  document.body.prepend(ov);
+  const inp=document.getElementById("accPw"); inp.focus();
+  function tryLogin(){
+    if(inp.value===INOTI_AUTH.ACCESS_PW){INOTI_AUTH.login();ov.style.transition="opacity .3s";ov.style.opacity="0";setTimeout(()=>{ov.remove();onSuccess();},300);}
+    else{const b=ov.querySelector(".auth-box");b.classList.remove("auth-shake");void b.offsetWidth;b.classList.add("auth-shake");document.getElementById("accErr").textContent="비밀번호가 올바르지 않습니다";inp.value="";inp.focus();}
+  }
+  document.getElementById("accBtn").addEventListener("click",tryLogin);
+  inp.addEventListener("keydown",e=>{if(e.key==="Enter")tryLogin();});
+}
+
+/* [FIX] showAdminGate 제거 — 이 페이지에서 미사용 */
+
+/* 페이지 로드 완료 후 실행 */
+
+function initRxBanner(){
+  try {
+    var vd = JSON.parse(localStorage.getItem('visionAnalysisData')||'{}');
+    if(!vd.r && !vd.l) return;
+    function fmt(v){
+      var n = parseFloat(String(v||'0').replace('+',''));
+      if(isNaN(n)) return '—';
+      return (n>=0?'+':'')+n.toFixed(2);
+    }
+    var rEl  = document.getElementById('rDisp');
+    var rcEl = document.getElementById('rcDisp');
+    var lEl  = document.getElementById('lDisp');
+    var lcEl = document.getElementById('lcDisp');
+    if(rEl)  rEl.textContent  = 'S ' + fmt(vd.r && vd.r.sph);
+    if(rcEl) rcEl.textContent = 'C ' + fmt(vd.r && vd.r.cyl);
+    if(lEl)  lEl.textContent  = 'S ' + fmt(vd.l && vd.l.sph);
+    if(lcEl) lcEl.textContent = 'C ' + fmt(vd.l && vd.l.cyl);
+  } catch(e){}
+}
+
+/* ── 왜곡 히트맵 ── */
+const grades=[
+  {id:"hm-custom",  factor:0.08},
+  {id:"hm-premium", factor:0.30},
+  {id:"hm-double",  factor:0.52},
+  {id:"hm-uv",      factor:0.70},
+  {id:"hm-uvbase",  factor:0.92}
+];
+
+/* [FIX] global lerp·heatColor 제거 — buildHeatmap 내부 정의 사용, heatColor 미사용 */
+
+function buildHeatmap(id, df, ts, cyl, axis, sph){
+  cyl  = cyl  || 0;
+  axis = axis !== undefined ? axis : 180;
+  sph  = sph  || 0;
+  const SIZE=100, cx=50, cy=50, r=47;
+  const cvs = `<canvas id="${id}_cv" width="${SIZE}" height="${SIZE}" style="display:block;"></canvas>`;
+  setTimeout(()=>{
+    const el = document.getElementById(id+'_cv');
+    if(!el) return;
+    const ctx = el.getContext('2d');
+    function fade(t){ return t*t*t*(t*(t*6-15)+10); }
+    function lerp(a,b,t){ return a+t*(b-a); }
+    function grad(h,x,y){ const v=h&3; return v===0?x+y:v===1?-x+y:v===2?x-y:-x-y; }
+    const seed=[151,160,137,91,90,15,131,13,201,95,96,53,194,233,7,225,140,36,103,
+                30,69,142,8,99,37,240,21,10,23,190,6,148,247,120,234,75,0,26,197,62];
+    const perm=new Uint8Array(512);
+    for(let i=0;i<256;i++) perm[i]=perm[i+256]=seed[i%seed.length]^(i*7&255);
+    function perlin(x,y){
+      const X=Math.floor(x)&255,Y=Math.floor(y)&255;
+      const xf=x-Math.floor(x),yf=y-Math.floor(y);
+      const u=fade(xf),v=fade(yf);
+      const aa=perm[perm[X]+Y],ab=perm[perm[X]+Y+1];
+      const ba=perm[perm[X+1]+Y],bb=perm[perm[X+1]+Y+1];
+      return lerp(lerp(grad(aa,xf,yf),grad(ba,xf-1,yf),u),
+                  lerp(grad(ab,xf,yf-1),grad(bb,xf-1,yf-1),u),v);
+    }
+    function fbm(x,y,octs){
+      let v=0,amp=0.5,freq=1,max=0;
+      for(let i=0;i<octs;i++){v+=perlin(x*freq,y*freq)*amp;max+=amp;amp*=0.45;freq*=2.1;}
+      return v/max;
+    }
+    function heatCol(t){
+      t=Math.max(0,Math.min(1,t));
+      let rv,gv,bv;
+      if(t<0.18){const s=t/0.18;      rv=0;              gv=Math.round(s*80);        bv=Math.round(180+s*75);}
+      else if(t<0.35){const s=(t-0.18)/0.17; rv=0;        gv=Math.round(80+s*175);   bv=Math.round(255-s*255);}
+      else if(t<0.55){const s=(t-0.35)/0.20; rv=Math.round(s*220); gv=255;           bv=0;}
+      else if(t<0.75){const s=(t-0.55)/0.20; rv=255;      gv=Math.round(255-s*220);  bv=0;}
+      else            {const s=(t-0.75)/0.25; rv=255;      gv=Math.round(35-s*35);    bv=0;}
+      return [rv,gv,bv];
+    }
+    const axRad=(axis*Math.PI)/180, ca=Math.cos(axRad), sa=Math.sin(axRad);
+    const cylNorm=Math.min(1,cyl/2.5), ryRatio=1.0-cylNorm*0.62;
+    const imgData=ctx.createImageData(SIZE,SIZE);
+    const px=imgData.data;
+    for(let y=0;y<SIZE;y++){
+      for(let x=0;x<SIZE;x++){
+        const dx=(x-cx)/r, dy=(y-cy)/r;
+        const dist=Math.sqrt(dx*dx+dy*dy);
+        if(dist>1.02){px[(y*SIZE+x)*4+3]=0;continue;}
+        const rx2=dx*ca+dy*sa, ry2=(-dx*sa+dy*ca)/ryRatio;
+        const eDist=Math.sqrt(rx2*rx2+ry2*ry2);
+        const n1=fbm(dx*1.6+2.3,dy*1.6+1.1,5)*0.52*df;
+        const n2=fbm(dx*3.2+4.7,dy*3.2+3.3,4)*0.28*df;
+        const n3=fbm(dx*6.4+7.1,dy*6.4+5.9,3)*0.14*df;
+        const noise=n1+n2+n3;
+        const sphNorm=Math.min(1,sph/8);
+        const stableW=2.2+sphNorm*3.8, stableA=0.42-sphNorm*0.28;
+        const sphBoost=0.60+sphNorm*0.40;
+        const base=Math.pow(Math.max(0,eDist),1.2)*df*sphBoost;
+        const sEdge=Math.min(1,eDist*stableW*0.38);
+        const sFade=1-sEdge*sEdge*sEdge*(sEdge*(sEdge*6-15)+10);
+        const stable=Math.max(0,sFade*stableA*1.15);
+        const rim=dist>0.72?Math.pow((dist-0.72)/0.28,1.3)*(0.60+sphNorm*0.50)*df:0;
+        const d=Math.min(1,Math.max(0,base+noise-stable+rim));
+        const [rv,gv,bv]=heatCol(d);
+        const i4=(y*SIZE+x)*4;
+        px[i4]=rv;px[i4+1]=gv;px[i4+2]=bv;
+        const alpha=dist>0.96?Math.round(255*(1-(dist-0.96)/0.06)):255;
+        px[i4+3]=alpha;
+      }
+    }
+    ctx.putImageData(imgData,0,0);
+    ctx.beginPath();ctx.arc(cx,cy,r-0.5,0,Math.PI*2);
+    ctx.strokeStyle='rgba(255,255,255,0.30)';ctx.lineWidth=1.5;ctx.stroke();
+  },60);
+  return `<div style="width:${SIZE}px;height:${SIZE}px;border-radius:50%;overflow:hidden;">${cvs}</div>`;
+}
+
+function renderPair(cellId, factor){
+  const vd=JSON.parse(localStorage.getItem("visionAnalysisData")||"{}");
+  const rSph=parseFloat(String(vd.r?.sph||"0").replace("+",""))||0;
+  const lSph=parseFloat(String(vd.l?.sph||"0").replace("+",""))||0;
+  const rCyl=Math.abs(parseFloat(String(vd.r?.cyl||"0").replace("+",""))||0);
+  const lCyl=Math.abs(parseFloat(String(vd.l?.cyl||"0").replace("+",""))||0);
+  const rAxis=parseFloat(String(vd.r?.axis||"180").replace("+",""))||180;
+  const lAxis=parseFloat(String(vd.l?.axis||"180").replace("+",""))||180;
+  function fmtD(v){return (v>0?"+":"")+v.toFixed(2);}
+  const cell=document.getElementById(cellId);
+  if(!cell) return;
+  function sphFactor(s){return Math.min(0.80,Math.sqrt(Math.abs(s)/12)*0.85);}
+  function cylFactor(cyl){return Math.min(0.40,cyl/2.5*0.40);}
+  const rf=factor*(0.20+sphFactor(rSph)+cylFactor(rCyl));
+  const lf=factor*(0.20+sphFactor(lSph)+cylFactor(lCyl));
+  const rTs=Math.min(1,Math.min(1,Math.abs(rSph)/5)*0.70+Math.min(1,rCyl/2.5)*0.30);
+  const lTs=Math.min(1,Math.min(1,Math.abs(lSph)/5)*0.70+Math.min(1,lCyl/2.5)*0.30);
+  cell.innerHTML=`
+    <div style="display:flex;gap:12px;justify-content:center;align-items:center;">
+      <div style="display:flex;flex-direction:column;align-items:center;gap:3px;">
+        <div style="font-size:11px;font-weight:700;color:white;">R</div>
+        ${buildHeatmap(cellId+"_r",rf,rTs,rCyl,rAxis,Math.abs(rSph))}
+        <div style="font-size:10px;font-weight:600;color:rgba(255,255,255,0.85);">S${fmtD(rSph)} C${fmtD(-rCyl)}</div>
+      </div>
+      <div style="display:flex;flex-direction:column;align-items:center;gap:3px;">
+        <div style="font-size:11px;font-weight:700;color:white;">L</div>
+        ${buildHeatmap(cellId+"_l",lf,lTs,lCyl,lAxis,Math.abs(lSph))}
+        <div style="font-size:10px;font-weight:600;color:rgba(255,255,255,0.85);">S${fmtD(lSph)} C${fmtD(-lCyl)}</div>
+      </div>
+    </div>`;
+}
+
+window.onload = function() {
+  /* [FIX] 콘텐츠 숨김 → 인증 → 성공 후 표시 + 히트맵 렌더 */
+  var main = document.querySelector('.main');
+  var bar  = document.querySelector('.bottom-bar');
+  var side = document.querySelector('.sidebar');
+  [main, bar, side].forEach(function(el){ if(el) el.style.opacity='0'; });
+
+  showAccessGate(function() {
+    [main, bar, side].forEach(function(el){
+      if(el){ el.style.transition='opacity 0.4s ease'; el.style.opacity='1'; }
+    });
+    try { initRxBanner(); } catch(e){}
+    try { grades.forEach(g => renderPair(g.id, g.factor)); } catch(e){ console.error('renderPair 오류:', e); }
+  });
+};
+</script>
+
+
+
+<!-- 코팅 옵션 팝업 -->
+<div class="popup-overlay" id="coatingPopup" onclick="closeCoating(event)">
+  <div class="popup-box">
+    <div class="popup-header">
+      <div class="popup-title">코팅 옵션 안내</div>
+      <button class="popup-close" onclick="closeCoating()">✕</button>
+    </div>
+    <div class="coating-list">
+      <div class="coating-item">
+        <div class="ci-icon">✨</div>
+        <div class="ci-body">
+          <div class="ci-name">AR 멀티코팅 (무반사 코팅)</div>
+          <div class="ci-desc">렌즈 표면의 빛 반사를 최소화해 눈부심을 줄이고 선명도를 높입니다. 야간 운전, 형광등 환경에서 특히 효과적이며 모든 렌즈에 기본 적용을 권장합니다.</div>
+          <div class="ci-detail">
+            <span class="ci-point">📌 반사율 0.1% 이하로 억제</span>
+            <span class="ci-point">📌 야간 시인성 20~30% 향상</span>
+            <span class="ci-point">📌 렌즈 투과율 최대 99% 확보</span>
+          </div>
+          <span class="ci-tag">전 렌즈 기본 권장</span>
+        </div>
+      </div>
+      <div class="coating-item">
+        <div class="ci-icon">💧</div>
+        <div class="ci-body">
+          <div class="ci-name">발수·방오 코팅</div>
+          <div class="ci-desc">초발수 처리로 물방울이 맺히지 않고 흘러내리며, 먼지·지문·기름 오염이 쉽게 닦입니다. 건조감이 있는 고객에게 눈물막 안정에도 도움이 됩니다.</div>
+          <div class="ci-detail">
+            <span class="ci-point">📌 접촉각 110° 이상 초발수 처리</span>
+            <span class="ci-point">📌 지문·피지 오염 80% 감소</span>
+            <span class="ci-point">📌 렌즈 세척 횟수 대폭 감소</span>
+          </div>
+          <span class="ci-tag">건조감 고객 추천</span>
+        </div>
+      </div>
+      <div class="coating-item">
+        <div class="ci-icon">💻</div>
+        <div class="ci-body">
+          <div class="ci-name">블루라이트 차단 코팅</div>
+          <div class="ci-desc">스마트폰·모니터에서 방출되는 청색광(380~500nm)을 선택적으로 차단합니다. 눈 피로 감소, 수면의 질 개선에 도움이 되며 디지털 기기 사용이 많은 고객에게 필수입니다.</div>
+          <div class="ci-detail">
+            <span class="ci-point">📌 유해 블루라이트(415~455nm) 집중 차단</span>
+            <span class="ci-point">📌 눈 피로감 최대 40% 감소 효과</span>
+            <span class="ci-point">📌 멜라토닌 분비 방해 억제 → 수면 질 개선</span>
+            <span class="ci-point">📌 황반 보호 효과 (장기적 시력 보호)</span>
+          </div>
+          <span class="ci-tag">장시간 PC·스마트폰 사용</span>
+        </div>
+      </div>
+      <div class="coating-item">
+        <div class="ci-icon">🌞</div>
+        <div class="ci-body">
+          <div class="ci-name">자외선 차단 코팅 (UV400)</div>
+          <div class="ci-desc">400nm 이하의 자외선을 99% 이상 차단해 각막·수정체·망막을 보호합니다. 야외활동이 많거나 자외선 노출이 잦은 고객에게 필수 옵션입니다.</div>
+          <div class="ci-detail">
+            <span class="ci-point">📌 UVA·UVB 400nm 이하 99% 이상 차단</span>
+            <span class="ci-point">📌 백내장·황반변성 예방에 직결</span>
+            <span class="ci-point">📌 장기 착용 시 눈 노화 속도 현저히 저하</span>
+            <span class="ci-point">📌 어린이·청소년 특히 필수 (자외선 민감도 높음)</span>
+          </div>
+          <span class="ci-tag">야외활동 고객 필수</span>
+        </div>
+      </div>
+      <div class="coating-item">
+        <div class="ci-icon">🌙</div>
+        <div class="ci-body">
+          <div class="ci-name">야간 강화 코팅 (드라이브 코팅)</div>
+          <div class="ci-desc">야간 운전 시 가로등·전조등의 빛번짐과 헤이로 현상을 최소화합니다. 대비감도를 높여 야간 시인성을 확보하며 드라이브 렌즈와 함께 적용 시 효과가 극대화됩니다.</div>
+          <div class="ci-detail">
+            <span class="ci-point">📌 빛번짐(헤이로·글레어) 최대 60% 억제</span>
+            <span class="ci-point">📌 야간 대비감도 25~35% 향상</span>
+            <span class="ci-point">📌 마주 오는 차량 전조등 눈부심 완화</span>
+            <span class="ci-point">📌 우천 시 노면 반사광 감소 효과</span>
+          </div>
+          <span class="ci-tag">야간 운전 고객 추천</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<script>
+function openCoating() {
+  document.getElementById("coatingPopup").classList.add("active");
+  document.body.style.overflow = "hidden";
+}
+function closeCoating(e) {
+  if(!e || e.target === document.getElementById("coatingPopup")) {
+    document.getElementById("coatingPopup").classList.remove("active");
+    document.body.style.overflow = "";
+  }
+}
+document.addEventListener("keydown", e => { if(e.key === "Escape") closeCoating(); });
+
+</script>
+<script>
+function onGhClick(ghClass){
+  const GH_COL={'gh-custom':[2,3,4,5],'gh-premium':[6,7,8,9],'gh-double':[10,11,12,13],'gh-uv':[14,15,16,17],'gh-uvbase':[18,19,20,21]};
+  const table=document.querySelector('table.ct');
+  if(!table) return;
+  const cols=GH_COL[ghClass];
+  if(table.dataset.focusGh===ghClass&&table.classList.contains('has-focus')){
+    table.classList.remove('has-focus');
+    table.querySelectorAll('td,th').forEach(el=>el.classList.remove('focused-col'));
+    table.dataset.focusGh=''; return;
+  }
+  table.dataset.focusGh=ghClass;
+  table.classList.add('has-focus');
+  table.querySelectorAll('td,th').forEach(el=>el.classList.remove('focused-col'));
+  table.querySelectorAll('.'+ghClass).forEach(el=>el.classList.add('focused-col'));
+  table.querySelectorAll('tr').forEach(tr=>{
+    let ci=0;
+    tr.querySelectorAll('td,th').forEach(cell=>{
+      const span=parseInt(cell.getAttribute('colspan')||1);
+      if(Array.from({length:span},(_,i)=>ci+i+1).some(i=>cols.includes(i))) cell.classList.add('focused-col');
+      ci+=span;
+    });
+  });
+}
+function onRefClick(td){
+  const ref=td.getAttribute('data-ref');
+  const allTables=document.querySelectorAll('table.ct');
+  const ft=allTables[0];
+  if(ft&&ft.dataset.focusRef===ref){
+    allTables.forEach(t=>{t.classList.remove('has-ref-focus');t.querySelectorAll('td').forEach(e=>e.classList.remove('ref-focused','ref-dimmed','ref-active'));t.dataset.focusRef='';});
+    return;
+  }
+  const GH_COL={'gh-custom':[2,3,4,5],'gh-premium':[6,7,8,9],'gh-double':[10,11,12,13],'gh-uv':[14,15,16,17],'gh-uvbase':[18,19,20,21]};
+  const tr=td.closest('tr'); let ci=0,tdIdx=-1;
+  tr.querySelectorAll('td,th').forEach(cell=>{const s=parseInt(cell.getAttribute('colspan')||1);if(cell===td)tdIdx=ci+1;ci+=s;});
+  let relPos=-1;
+  for(const cols of Object.values(GH_COL)){if(cols.includes(tdIdx)){relPos=cols.indexOf(tdIdx);break;}}
+  if(relPos<0) return;
+  const PL=['권장소비자가','판매가'];
+  allTables.forEach(table=>{
+    table.dataset.focusRef=ref; table.classList.add('has-ref-focus');
+    table.querySelectorAll('td').forEach(e=>e.classList.remove('ref-focused','ref-dimmed','ref-active'));
+    table.querySelectorAll('tr').forEach(row=>{
+      const lbl=row.querySelector('.row-label');
+      if(!lbl||!PL.some(p=>lbl.textContent.trim().includes(p))) return;
+      let c2=0;
+      row.querySelectorAll('td,th').forEach(cell=>{
+        const s=parseInt(cell.getAttribute('colspan')||1);
+        const idx=Array.from({length:s},(_,i)=>c2+i+1);
+        for(const [,cols] of Object.entries(GH_COL)){
+          if(cols.some(x=>idx.includes(x))){
+            idx.includes(cols[relPos])?cell.classList.add('ref-focused'):cell.classList.add('ref-dimmed');
+          }
+        }
+        c2+=s;
+      });
+    });
+    table.querySelectorAll('td[data-ref]').forEach(el=>{
+      el.classList.remove('ref-active');
+      const etr=el.closest('tr'); let ec=0,ei=-1;
+      etr.querySelectorAll('td,th').forEach(cell=>{const s=parseInt(cell.getAttribute('colspan')||1);if(cell===el)ei=ec+1;ec+=s;});
+      for(const cols of Object.values(GH_COL)){if(cols.includes(ei)&&cols.indexOf(ei)===relPos)el.classList.add('ref-active');}
+    });
+  });
+}
+</script>
+<script>
+(function(){
+  function isMobile(){ return window.innerWidth <= 1024; }
+
+    function toggleSidebar(){
+    var sb     = document.getElementById('sidebar');
+    var ov     = document.getElementById('sbOverlay');
+    var btn    = document.getElementById('sbTopBtn');
+
+    if(isMobile()){
+      var isOpen = sb.classList.contains('sb-open');
+      if(isOpen){
+        sb.classList.remove('sb-open');
+        if(ov) ov.classList.remove('show');
+        if(btn) btn.innerHTML = '☰ 사이드바 펼치기';
+      } else {
+        sb.classList.add('sb-open');
+        if(ov) ov.classList.add('show');
+        if(btn) btn.innerHTML = '◀ 사이드바 접기';
+      }
+    } else {
+      var isHidden = sb.classList.contains('sb-hidden');
+      if(isHidden){
+        sb.classList.remove('sb-hidden');
+        document.documentElement.style.setProperty('--sidebar-w','168px');
+        if(btn) btn.innerHTML = '◀ 사이드바 접기';
+      } else {
+        sb.classList.add('sb-hidden');
+        document.documentElement.style.setProperty('--sidebar-w','0px');
+        if(btn) btn.innerHTML = '☰ 사이드바 펼치기';
+      }
+    }
+  }
+
+
+  function closeSidebar(){
+    var sb  = document.getElementById('sidebar');
+    var ov  = document.getElementById('sbOverlay');
+    sb.classList.remove('sb-open');
+    if(ov) ov.classList.remove('show');
+  }
+
+  window.toggleSidebar = toggleSidebar;
+  window.closeSidebar  = closeSidebar;
+
+  document.addEventListener('DOMContentLoaded', function(){
+    /* 태블릿 초기 상태: sbTopBtn 노출 */
+    if(isMobile()){
+      var topBtn = document.getElementById('sbTopBtn');
+      }
+
+    /* 사이드바 링크 클릭 시 닫기 */
+    document.querySelectorAll('#sidebar a').forEach(function(el){
+      el.addEventListener('click', function(){
+        if(isMobile()) setTimeout(closeSidebar, 150);
+      });
+    });
+
+    /* [FIX] 터치 기기 인터랙션 — touchstart 즉시 반응, touchmove 시 취소 */
+    var touchTargets = document.querySelectorAll('#sidebar .sb-sub, #sidebar .sb-btn');
+    touchTargets.forEach(function(el){
+      var moved = false;
+      el.addEventListener('touchstart', function(e){
+        moved = false;
+        el.classList.add('touch-active');
+      }, { passive: true });
+      el.addEventListener('touchmove', function(){
+        moved = true;
+        el.classList.remove('touch-active');
+      }, { passive: true });
+      el.addEventListener('touchend', function(){
+        if(!moved) {
+          setTimeout(function(){ el.classList.remove('touch-active'); }, 180);
+        } else {
+          el.classList.remove('touch-active');
+        }
+      }, { passive: true });
+      el.addEventListener('touchcancel', function(){
+        el.classList.remove('touch-active');
+      }, { passive: true });
+    });
+
+    /* iOS에서 :active 활성화를 위한 트릭 */
+    if(/iPhone|iPad|iPod/.test(navigator.userAgent)){
+      document.body.setAttribute('onclick','void(0)');
+    }
+  });
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,640 @@
+<!DOCTYPE html>
+<html lang="ko" translate="no">
+<head>
+<meta charset="UTF-8">
+<meta name="google" content="notranslate">
+<meta http-equiv="Content-Language" content="ko">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>콘택트렌즈 가격표</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #f4f7ff;
+  --navy: #0f1f45;
+  --blue: #1e56c8;
+  --surface: #ffffff;
+  --border: #dde5f4;
+  --text: #1a2540;
+  --muted: #8baecf;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: 'Noto Sans KR', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+}
+
+/* ── 상단 바 ── */
+.top-bar {
+  background: var(--navy);
+  padding: 10px 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.top-bar .brand { font-family: 'Noto Sans KR', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif; font-size:17px; color:white; }
+.tbtn {
+  padding:6px 13px; border-radius:7px; font-size:12px; font-weight:700;
+  cursor:pointer; border:none; font-family:'Noto Sans KR', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif;
+  background:rgba(255,255,255,.1); color:rgba(255,255,255,.8); transition:all .2s;
+}
+.tbtn:hover { background:rgba(255,255,255,.2); }
+
+/* ── 페이지 타이틀 ── */
+.page-header {
+  background: var(--navy);
+  padding: 14px 20px 22px;
+  text-align: center;
+  color: white;
+}
+.page-header h1 { font-family: 'Noto Sans KR', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif; font-size:22px; margin-bottom:3px; }
+.page-header p  { font-size:11px; opacity:.85; }
+
+/* ── 브랜드 탭 ── */
+.brand-tabs {
+  background: white;
+  border-bottom: 1px solid var(--border);
+  padding: 0 12px;
+  display: flex;
+  justify-content: center;
+  gap: 2px;
+  overflow-x: auto;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  box-shadow: 0 2px 12px rgba(15,31,69,.08);
+  scrollbar-width: none;
+}
+.brand-tabs::-webkit-scrollbar { display:none; }
+
+.brand-tab {
+  flex-shrink: 0;
+  padding: 13px 18px 11px;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  border: none;
+  background: transparent;
+  color: var(--muted);
+  border-bottom: 3px solid transparent;
+  transition: all .2s;
+  font-family: 'Noto Sans KR', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+.brand-tab:hover { color: var(--text); }
+.brand-tab.active { color: var(--text); border-bottom-color: var(--bc); }
+
+.bdot { width:8px; height:8px; border-radius:50%; background:var(--bc); flex-shrink:0; }
+
+/* ── 메인 ── */
+.main { max-width:880px; margin:0 auto; padding:18px 14px 80px; transition:opacity 0.4s ease; }
+.brand-tabs, .page-header, .bottom-bar { transition:opacity 0.4s ease; }
+
+@keyframes fadeUp {
+  from { opacity:0; transform:translateY(8px); }
+  to   { opacity:1; transform:translateY(0); }
+}
+
+/* ── 브랜드 헤더 ── */
+.brand-header {
+  border-radius:14px;
+  padding:16px 20px;
+  margin-bottom:14px;
+  color:white;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  animation:fadeUp .3s ease;
+}
+.bh-name { font-family: 'Noto Sans KR', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif; font-size:20px; margin-bottom:2px; }
+.bh-sub  { font-size:11px; opacity:.75; }
+.bh-logo { font-size:32px; }
+
+/* ── 착용주기 필터 ── */
+.period-filter {
+  display:flex; gap:6px; margin-bottom:12px; flex-wrap:wrap;
+  animation:fadeUp .35s ease;
+}
+.pf-btn {
+  padding:5px 14px; border-radius:999px;
+  border:1.5px solid var(--border);
+  background:white; font-size:12px; font-weight:700;
+  cursor:pointer; color:var(--muted); transition:all .2s;
+  font-family:'Noto Sans KR', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif;
+}
+.pf-btn:hover   { border-color:var(--blue); color:var(--blue); }
+.pf-btn.active  { background:var(--blue); border-color:var(--blue); color:white; }
+
+/* ── 테이블 ── */
+.price-table-wrap {
+  background:white; border-radius:14px; overflow:hidden;
+  box-shadow:0 2px 16px rgba(15,31,69,.07);
+  border:1px solid var(--border);
+  animation:fadeUp .4s ease;
+}
+
+.price-table { width:100%; border-collapse:collapse; }
+
+.price-table thead tr { background:var(--navy); color:white; }
+.price-table th {
+  padding:10px 12px; font-size:11px; font-weight:700;
+  letter-spacing:.4px; text-align:center; white-space:nowrap;
+}
+.price-table th.left { text-align:left; }
+
+.price-table tbody tr {
+  border-bottom:1px solid #f0f4fc; transition:background .15s;
+}
+.price-table tbody tr:last-child { border-bottom:none; }
+.price-table tbody tr:hover { background:#f8faff; }
+
+.price-table td {
+  padding:10px 12px; font-size:13px;
+  text-align:center; color:var(--text);
+  vertical-align:middle;
+}
+.price-table td.left { text-align:left; }
+
+/* 그룹 첫 행 — 구분선 강조 */
+.price-table tbody tr.group-start td {
+  border-top:2px solid #e8edf8;
+}
+
+/* 착용주기 배지 */
+.pb {
+  display:inline-block; font-size:10px; font-weight:700;
+  padding:2px 8px; border-radius:4px; white-space:nowrap;
+}
+.pb-1day   { background:#e8f5e9; color:#2e7d32; }
+.pb-color  { background:#fce4ec; color:#c62828; }
+.pb-long   { background:#e3f2fd; color:#1565c0; }
+.pb-astig  { background:#fff3e0; color:#e65100; }
+.pb-multi  { background:#f3e5f5; color:#6a1b9a; }
+
+/* 제품명 */
+.pname { font-weight:700; line-height:1.4; }
+
+/* [FIX] .qty-price-row 제거 — renderTable이 인라인 스타일로 대체 */
+.qty-chip {
+  display:inline-block; background:#f0f4fc; color:var(--navy);
+  font-size:11px; font-weight:700; padding:2px 8px; border-radius:5px;
+  white-space:nowrap; flex-shrink:0;
+}
+
+/* [FIX] .price-col, .price-msrp 제거 — 인라인 스타일로 대체됨 */
+.price-inoti { font-size:14px; font-weight:900; color:var(--blue); }
+.disc {
+  display:inline-block; background:#fff0f0; color:#e53e3e;
+  font-size:10px; font-weight:700; padding:1px 6px;
+  border-radius:4px; margin-left:5px; vertical-align:middle;
+}
+
+/* 빈 상태 */
+.empty-state { text-align:center; padding:40px 20px; color:var(--muted); }
+.empty-state .ei { font-size:32px; margin-bottom:8px; }
+
+/* ── 하단 버튼 ── */
+.bottom-bar {
+  position:sticky; bottom:0;
+  background:rgba(244,247,255,.96); backdrop-filter:blur(10px);
+  padding:10px 18px; border-top:1px solid var(--border);
+  display:flex; gap:8px; justify-content:center;
+}
+.bbtn {
+  padding:11px 24px; border:none; border-radius:10px;
+  font-size:13px; font-weight:700; cursor:pointer;
+  font-family:'Noto Sans KR', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif; transition:all .2s;
+}
+.bbtn-gray { background:#e2e8f0; color:#334155; }
+.bbtn-gray:hover { background:#cbd5e1; }
+.bbtn-navy { background:linear-gradient(135deg,#0f1f45,#1e56c8); color:white; }
+.bbtn-navy:hover { transform:translateY(-1px); }
+
+@media(max-width:600px){
+  .price-table th, .price-table td { padding:8px 7px; font-size:11px; }
+  .price-inoti { font-size:13px; }
+  .brand-tab { padding:11px 10px 9px; font-size:12px; }
+}
+
+
+
+
+/* ── PC + 태블릿 최적화 ── */
+@media screen and (max-width:1280px){
+  .cust-zs-cols{margin-left:8%!important;margin-right:8%!important;}
+}
+@media screen and (max-width:1024px){
+  /* rx-banner 고정폭 제거 */
+  .rx-banner{min-width:0!important;flex-wrap:wrap!important;}
+  /* 가격카드 마진 축소 + 줄바꿈 허용 */
+  .cust-zs-cols{margin-left:4%!important;margin-right:4%!important;flex-wrap:wrap!important;}
+  /* 에실로 가격테이블 수평스크롤 */
+  .es-img-tbl{overflow-x:auto!important;-webkit-overflow-scrolling:touch;display:block;width:100%;box-sizing:border-box;}
+  /* 수평 오버플로 차단 */
+  .cust-zs-wrap,.cust-zs-scroll{overflow-x:hidden!important;}
+  /* 비교/참조 테이블 */
+  .pc-cmp-tbl,.pc-ref-tbl{font-size:11px;}
+  .pc-cmp-tbl th,.pc-cmp-tbl td,
+  .pc-ref-tbl  th,.pc-ref-tbl  td{padding:4px 6px!important;}
+  /* 브랜드탭 가로스크롤 */
+  .brand-tabs{overflow-x:auto;-webkit-overflow-scrolling:touch;flex-wrap:nowrap!important;}
+  .brand-tab{min-width:fit-content!important;white-space:nowrap!important;}
+  /* bottom-bar 줄바꿈 */
+  .bb-col2{flex-wrap:wrap;gap:4px!important;}
+  /* 사이드바 자동 숨김 */
+  .sidebar{transform:translateX(-100%);transition:transform .3s ease;}
+  .sidebar.open{transform:translateX(0);}
+  .main{margin-left:0!important;}
+  /* 팝업박스 너비 조정 */
+  .popup-box,.pc-box{max-width:90vw!important;box-sizing:border-box;}
+}
+@media screen and (max-width:768px){
+  .cust-zs-cols{margin-left:2%!important;margin-right:2%!important;}
+  .cust-zs-col{flex:1 1 90%!important;max-width:100%!important;min-width:0!important;}
+  .badge-name{font-size:16px!important;}
+  .zs-td{font-size:11px!important;padding:2px 3px!important;}
+  .es-img-tbl th,.es-img-tbl td{font-size:11px!important;padding:4px 5px!important;}
+  .brand-tabs{gap:4px!important;}
+  .bottom-bar{padding:6px 12px!important;}
+}
+</style>
+<script>
+/* ── INOTI 인증 (인라인) ── */
+var INOTI_AUTH = {
+  ACCESS_PW:"inoti8300", ADMIN_PW:"@@inoti8300!!",
+  SESSION_KEY:"inoti_access", ADMIN_KEY:"inoti_admin", SESSION_MIN:1440,
+  isLoggedIn:function(){var t=localStorage.getItem(this.SESSION_KEY);return t&&(Date.now()-parseInt(t))/60000<this.SESSION_MIN;},
+  isAdmin:function(){var t=localStorage.getItem(this.ADMIN_KEY);return t&&(Date.now()-parseInt(t))/60000<60;},
+  login:function(){localStorage.setItem(this.SESSION_KEY,Date.now());},
+  adminLogin:function(){localStorage.setItem(this.ADMIN_KEY,Date.now());},
+  logout:function(){localStorage.removeItem(this.SESSION_KEY);localStorage.removeItem(this.ADMIN_KEY);}
+};
+function showAccessGate(onSuccess){
+  if(INOTI_AUTH.isLoggedIn()){onSuccess();return;}
+  if(!document.getElementById("_auth_style")){
+    var s=document.createElement("style");s.id="_auth_style";
+    s.textContent=".auth-ov{position:fixed;inset:0;background:linear-gradient(135deg,#060d1a,#0d1b2e);display:flex;align-items:center;justify-content:center;z-index:99999;font-family:'Noto Sans KR',sans-serif}.auth-bx{background:rgba(13,27,46,.97);border:1px solid rgba(255,255,255,.1);border-radius:20px;padding:40px 36px;width:320px;text-align:center;box-shadow:0 24px 80px rgba(0,0,0,.6);animation:authIn .4s ease}@keyframes authIn{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}.auth-logo{font-size:26px;font-weight:900;color:#e8f0fb;margin-bottom:4px;letter-spacing:2px}.auth-sub{font-size:12px;color:#5a7a9a;margin-bottom:24px}.auth-lbl{font-size:11px;font-weight:700;color:#5a7a9a;letter-spacing:1px;margin-bottom:8px;text-align:left}.auth-inp{width:100%;padding:13px 16px;background:rgba(6,13,26,.7);border:1px solid rgba(255,255,255,.1);border-radius:10px;color:#e8f0fb;font-size:15px;text-align:center;outline:none;margin-bottom:14px;letter-spacing:3px;transition:border-color .2s}.auth-inp:focus{border-color:rgba(42,127,255,.5)}.auth-btn{width:100%;padding:14px;background:linear-gradient(135deg,#1d5bd4,#2a7fff);color:#fff;border:none;border-radius:10px;font-size:15px;font-weight:700;cursor:pointer;box-shadow:0 4px 16px rgba(42,127,255,.3)}.auth-err{font-size:12px;color:#fca5a5;margin-top:10px;min-height:18px}.auth-shake{animation:shake .4s ease}@keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}";
+    document.head.appendChild(s);
+  }
+  document.body.style.overflow="hidden";
+  var ov=document.createElement("div");ov.className="auth-ov";ov.id="accessGate";
+  ov.innerHTML='<div class="auth-bx"><div class="auth-logo">INOTI</div><div class="auth-sub">Eyecare Solution</div><div class="auth-lbl">접속 비밀번호</div><input class="auth-inp" type="password" id="_apw" placeholder="••••••••" autocomplete="off"><button class="auth-btn" id="_abtn">입장하기</button><div class="auth-err" id="_aerr"></div></div>';
+  document.body.prepend(ov);
+  var inp=document.getElementById("_apw");
+  inp.focus();
+  function tryLogin(){
+    if(inp.value===INOTI_AUTH.ACCESS_PW){
+      INOTI_AUTH.login();
+      ov.style.transition="opacity .3s";ov.style.opacity="0";
+      setTimeout(function(){ov.remove();document.body.style.overflow="";onSuccess();},300);
+    } else {
+      var bx=ov.querySelector(".auth-bx");
+      bx.classList.remove("auth-shake");void bx.offsetWidth;bx.classList.add("auth-shake");
+      document.getElementById("_aerr").textContent="비밀번호가 올바르지 않습니다";
+      inp.value="";inp.focus();
+    }
+  }
+  document.getElementById("_abtn").addEventListener("click",tryLogin);
+  inp.addEventListener("keydown",function(e){if(e.key==="Enter")tryLogin();});
+}
+function showAdminGate(onSuccess){
+  if(INOTI_AUTH.isAdmin()){onSuccess();return;}
+  var ov=document.createElement("div");ov.className="auth-ov";ov.id="adminGate";
+  ov.style.background="rgba(0,0,0,.85)";ov.style.backdropFilter="blur(8px)";
+  ov.innerHTML='<div class="auth-bx"><div class="auth-logo" style="font-size:20px">🔐 관리자 인증</div><div class="auth-sub">관리자 비밀번호를 입력하세요</div><div class="auth-lbl">관리자 비밀번호</div><input class="auth-inp" type="password" id="_admpw" placeholder="••••••••" autocomplete="off"><button class="auth-btn" id="_admbtn">편집 시작</button><div class="auth-err" id="_admerr"></div><div style="margin-top:12px"><button id="_admcancel" style="background:none;border:none;color:#5a7a9a;font-size:12px;cursor:pointer">취소</button></div></div>';
+  document.body.prepend(ov);
+  var inp=document.getElementById("_admpw");inp.focus();
+  function tryAdmin(){
+    if(inp.value===INOTI_AUTH.ADMIN_PW){INOTI_AUTH.adminLogin();ov.remove();onSuccess();}
+    else{var bx=ov.querySelector(".auth-bx");bx.classList.remove("auth-shake");void bx.offsetWidth;bx.classList.add("auth-shake");document.getElementById("_admerr").textContent="관리자 비밀번호가 올바르지 않습니다";inp.value="";inp.focus();}
+  }
+  document.getElementById("_admbtn").addEventListener("click",tryAdmin);
+  inp.addEventListener("keydown",function(e){if(e.key==="Enter")tryAdmin();});
+  document.getElementById("_admcancel").addEventListener("click",function(){ov.remove();});
+}
+</script>
+</head>
+<body>
+
+<div class="top-bar">
+  <div class="brand">INOTI Eyecare</div>
+  <button class="tbtn" onclick="goHome()">🏠 홈으로</button>
+</div>
+
+<div class="page-header">
+  <h1>콘택트렌즈 가격표</h1>
+  <p>브랜드를 선택하면 제품별 가격을 확인할 수 있습니다</p>
+</div>
+
+<div class="brand-tabs" id="brandTabs"></div>
+
+<div class="main">
+  <div id="brandHeader"></div>
+  <div class="period-filter" id="periodFilter"></div>
+  <div class="price-table-wrap">
+    <table class="price-table">
+      <thead>
+        <tr>
+          <th class="left" style="width:90px;">착용주기</th>
+          <th class="left" style="width:38%;">제품명</th>
+          <th style="width:70px;">수량</th>
+          <th style="width:120px;">권장소비자가</th>
+          <th style="width:130px;">이노티 판매가</th>
+        </tr>
+      </thead>
+      <tbody id="tbody"></tbody>
+    </table>
+  </div>
+  <div style="height:70px;"></div>
+</div>
+
+<div class="bottom-bar">
+  <button class="bbtn bbtn-gray" onclick="goHome()">🏠 홈으로</button>
+</div>
+
+<script>
+/* ══════════════════════════════
+   실제 데이터 (엑셀 기반)
+══════════════════════════════ */
+const brands = [
+  {
+    id:"acuvue", name:"아큐브", full:"Johnson & Johnson ACUVUE",
+    icon:"👁️", color:"#e63946",
+    products:[
+      { period:"원데이 투명", name:"모이스트",          qty:"30ea",  msrp:43000,  price:27000 },
+      { period:"원데이 투명", name:"모이스트",          qty:"90ea",  msrp:118000, price:67000 },
+      { period:"원데이 투명", name:"오아시스",          qty:"30ea",  msrp:65000,  price:36000 },
+      { period:"원데이 투명", name:"오아시스",          qty:"90ea",  msrp:174000, price:94000 },
+      { period:"원데이 투명", name:"오아시스맥스",      qty:"30ea",  msrp:74000,  price:42000 },
+      { period:"원데이 투명", name:"오아시스맥스",      qty:"90ea",  msrp:193000, price:108000 },
+      { period:"장기착용",    name:"오아시스 (2주용)",  qty:"6ea",   msrp:51000,  price:25000 },
+      { period:"장기착용",    name:"오아시스 (2주용)",  qty:"12ea",  msrp:92000,  price:46000 },
+      { period:"장기착용",    name:"비타 (한달용)",     qty:"6ea",   msrp:70000,  price:32000 },
+      { period:"컬러 렌즈",   name:"디파인 래디언트",   qty:"30ea",  msrp:62000,  price:41000 },
+      { period:"컬러 렌즈",   name:"디파인 래디언트",   qty:"90ea",  msrp:167000, price:99000 },
+      { period:"컬러 렌즈",   name:"디파인",            qty:"30ea",  msrp:68000,  price:41000 },
+      { period:"컬러 렌즈",   name:"디파인",            qty:"90ea",  msrp:172000, price:99000 },
+      { period:"난시 렌즈",   name:"모이스트 토릭",     qty:"30ea",  msrp:54000,  price:31000 },
+      { period:"난시 렌즈",   name:"모이스트 토릭",     qty:"90ea",  msrp:148000, price:84000 },
+      { period:"난시 렌즈",   name:"오아시스 토릭",     qty:"30ea",  msrp:78000,  price:41000 },
+      { period:"난시 렌즈",   name:"오아시스 토릭",     qty:"90ea",  msrp:194000, price:104000 },
+      { period:"난시 렌즈",   name:"오아시스맥스 토릭", qty:"30ea",  msrp:85000,  price:48000 },
+      { period:"난시 렌즈",   name:"오아시스 토릭 (2주용)", qty:"6ea", msrp:69000, price:30000 },
+      { period:"난시 렌즈",   name:"비타 토릭 (한달용)",qty:"6ea",   msrp:113000, price:42000 },
+      { period:"멀티포컬",    name:"모이스트 멀티포컬", qty:"30ea",  msrp:64000,  price:35000 },
+      { period:"멀티포컬",    name:"오아시스맥스 멀티포컬", qty:"30ea", msrp:79000, price:47000 },
+      { period:"멀티포컬",    name:"오아시스맥스 멀티포컬", qty:"90ea", msrp:210000, price:125000 },
+    ]
+  },
+  {
+    id:"cooper", name:"쿠퍼비젼", full:"CooperVision",
+    icon:"🔵", color:"#2196f3",
+    products:[
+      { period:"원데이 투명", name:"프로클리어",          qty:"30ea",  msrp:34000,  price:20000 },
+      { period:"원데이 투명", name:"프로클리어",          qty:"90ea",  msrp:79000,  price:51000 },
+      { period:"원데이 투명", name:"클래리티",            qty:"30ea",  msrp:46000,  price:23000 },
+      { period:"원데이 투명", name:"클래리티",            qty:"90ea",  msrp:115000, price:58000 },
+      { period:"원데이 투명", name:"마이데이",            qty:"30ea",  msrp:55000,  price:34000 },
+      { period:"원데이 투명", name:"마이데이",            qty:"90ea",  msrp:140000, price:90000 },
+      { period:"장기착용",    name:"바이오피니티 (한달용)", qty:"6ea",  msrp:67000,  price:30000 },
+      { period:"장기착용",    name:"바이오피니티XR (한달용)", qty:"6ea", msrp:74000, price:42000 },
+      { period:"난시 렌즈",   name:"클래리티 토릭",       qty:"30ea",  msrp:54000,  price:27000 },
+      { period:"난시 렌즈",   name:"클래리티 토릭",       qty:"30ea",  msrp:150000, price:79000 },
+      { period:"난시 렌즈",   name:"마이데이 토릭",       qty:"30ea",  msrp:72000,  price:39000 },
+      { period:"난시 렌즈",   name:"바이오피니티 토릭 (한달용)", qty:"6ea", msrp:117000, price:39000 },
+      { period:"멀티포컬",    name:"프로클리어 멀티포컬", qty:"30ea",  msrp:49000,  price:31000 },
+    ]
+  },
+  {
+    id:"alcon", name:"알콘", full:"Alcon",
+    icon:"💠", color:"#1565c0",
+    products:[
+      { period:"원데이 투명", name:"아쿠아컴포트플러스",  qty:"30ea",  msrp:37000,  price:21000 },
+      { period:"원데이 투명", name:"프리시전원",          qty:"30ea",  msrp:57000,  price:27000 },
+      { period:"원데이 투명", name:"프리시전원",          qty:"90ea",  msrp:150000, price:70000 },
+      { period:"원데이 투명", name:"토탈원",              qty:"30ea",  msrp:71000,  price:40000 },
+      { period:"원데이 투명", name:"토탈원",              qty:"90ea",  msrp:189000, price:101000 },
+      { period:"장기착용",    name:"에어옵틱스 하이드라", qty:"6ea",   msrp:55000,  price:31000 },
+      { period:"장기착용",    name:"나이트앤데이",        qty:"6ea",   msrp:101000, price:46000 },
+      { period:"장기착용",    name:"토탈30",              qty:"6ea",   msrp:90000,  price:49000 },
+      { period:"장기착용",    name:"프리시전7",           qty:"12ea",  msrp:70000,  price:39000 },
+      { period:"컬러 렌즈",   name:"후레쉬룩",            qty:"30ea",  msrp:50000,  price:31000 },
+      { period:"난시 렌즈",   name:"아쿠아 토릭",         qty:"30ea",  msrp:59000,  price:33000 },
+      { period:"난시 렌즈",   name:"프리시전원 토릭",     qty:"30ea",  msrp:65000,  price:41000 },
+      { period:"난시 렌즈",   name:"프리시전원 토릭",     qty:"90ea",  msrp:152000, price:94000 },
+      { period:"난시 렌즈",   name:"토탈원 토릭",         qty:"30ea",  msrp:77000,  price:49000 },
+      { period:"난시 렌즈",   name:"토탈원 토릭",         qty:"90ea",  msrp:189000, price:129000 },
+      { period:"난시 렌즈",   name:"토탈30 토릭",         qty:"6ea",   msrp:135000, price:59000 },
+      { period:"난시 렌즈",   name:"프리시전7 토릭",      qty:"12ea",  msrp:107000, price:47000 },
+      { period:"멀티포컬",    name:"토탈원 멀티포컬",     qty:"30ea",  msrp:83000,  price:55000 },
+      { period:"멀티포컬",    name:"에어옵틱스 멀티포컬", qty:"6ea",   msrp:115000, price:64000 },
+    ]
+  },
+  {
+    id:"interojo", name:"인터로조", full:"Interojo",
+    icon:"🟢", color:"#00897b",
+    products:[
+      { period:"원데이 투명", name:"클라렌",                  qty:"30ea",  msrp:30000,  price:15000 },
+      { period:"원데이 투명", name:"클라렌",                  qty:"80ea",  msrp:76000,  price:36000 },
+      { period:"원데이 투명", name:"오투오투",                qty:"30ea",  msrp:47000,  price:28000 },
+      { period:"컬러 렌즈",   name:"아이리스",                qty:"40ea",  msrp:65000,  price:33000 },
+      { period:"컬러 렌즈",   name:"아이리스",                qty:"90ea",  msrp:149000, price:64000 },
+      { period:"컬러 렌즈",   name:"수지 그레이/브라운",      qty:"30ea",  msrp:55000,  price:28000 },
+      { period:"컬러 렌즈",   name:"수지 그레이/브라운",      qty:"90ea",  msrp:154000, price:70000 },
+      { period:"컬러 렌즈",   name:"아스트라 (글리터)",       qty:"30ea",  msrp:45000,  price:19000 },
+      { period:"컬러 렌즈",   name:"아스트라 (에스텔브라운/그레이)", qty:"30ea", msrp:50000, price:19000 },
+      { period:"컬러 렌즈",   name:"알리사 브라운",           qty:"30ea",  msrp:55000,  price:28000 },
+      { period:"컬러 렌즈",   name:"오투오투 컬러 원데이",    qty:"30ea",  msrp:65000,  price:34000 },
+      { period:"컬러 렌즈",   name:"오투오투 컬러 원데이",    qty:"90ea",  msrp:164000, price:89000 },
+      { period:"컬러 렌즈",   name:"아이리스2 (한달용)",      qty:"6ea",   msrp:30000,  price:13000 },
+      { period:"컬러 렌즈",   name:"오투오투 컬러M (한달용)", qty:"2ea",   msrp:22000,  price:13000 },
+      { period:"난시 렌즈",   name:"알리사/헤일로 토릭",      qty:"30ea",  msrp:69000,  price:34000 },
+      { period:"난시 렌즈",   name:"오투오투 원데이 토릭",    qty:"30ea",  msrp:64000,  price:32000 },
+      { period:"난시 렌즈",   name:"오투오투 컬러원데이 토릭",qty:"30ea",  msrp:79000,  price:39000 },
+    ]
+  },
+  {
+    id:"bausch", name:"바슈롬", full:"Bausch + Lomb",
+    icon:"🟠", color:"#e65100",
+    products:[
+      { period:"원데이 투명", name:"소프렌 데일리",         qty:"30ea",  msrp:37000,  price:23000 },
+      { period:"원데이 투명", name:"소프렌 데일리",         qty:"90ea",  msrp:110000, price:55000 },
+      { period:"원데이 투명", name:"바이오트루",            qty:"30ea",  msrp:52000,  price:27000 },
+      { period:"원데이 투명", name:"바이오트루",            qty:"90ea",  msrp:145000, price:69000 },
+      { period:"원데이 투명", name:"울트라",                qty:"30ea",  msrp:67000,  price:38000 },
+      { period:"원데이 투명", name:"울트라",                qty:"90ea",  msrp:180000, price:95000 },
+      { period:"장기착용",    name:"퓨어비젼2 (한달용)",    qty:"6ea",   msrp:57000,  price:28000 },
+      { period:"장기착용",    name:"울트라 (한달용)",       qty:"6ea",   msrp:69000,  price:24000 },
+      { period:"장기착용",    name:"옵티마FW (한달용)",     qty:"4ea",   msrp:60000,  price:26000 },
+      { period:"컬러 렌즈",   name:"네츄렐",                qty:"30ea",  msrp:59000,  price:31000 },
+      { period:"컬러 렌즈",   name:"네츄렐",                qty:"90ea",  msrp:165000, price:90000 },
+      { period:"컬러 렌즈",   name:"레이셀 원데이",         qty:"30ea",  msrp:59000,  price:33000 },
+      { period:"컬러 렌즈",   name:"레이셀 (한달용)",       qty:"6ea",   msrp:66000,  price:25000 },
+      { period:"난시 렌즈",   name:"소프렌 데일리 토릭",    qty:"30ea",  msrp:49000,  price:25000 },
+      { period:"난시 렌즈",   name:"바이오트루 토릭",       qty:"30ea",  msrp:55000,  price:32000 },
+      { period:"난시 렌즈",   name:"울트라 토릭 (한달용)",  qty:"6ea",   msrp:96000,  price:28000 },
+      { period:"난시 렌즈",   name:"퓨어비젼 토릭 (한달용)",qty:"6ea",   msrp:90000,  price:38000 },
+      { period:"멀티포컬",    name:"바이오트루 멀티포컬",   qty:"30ea",  msrp:67000,  price:31000 },
+      { period:"멀티포컬",    name:"울트라 원데이 멀티포컬",qty:"30ea",  msrp:85000,  price:52000 },
+      { period:"멀티포컬",    name:"울트라 멀티포컬 (한달용)", qty:"6ea", msrp:125000, price:63000 },
+    ]
+  },
+  {
+    id:"mikwang", name:"미광", full:"Mikwang Lens",
+    icon:"🟣", color:"#6a1b9a",
+    products:[
+      { period:"원데이 투명", name:"클리어 원데이",       qty:"30ea",  msrp:27000,  price:15000 },
+      { period:"원데이 투명", name:"클리어 원데이",       qty:"90ea",  msrp:69000,  price:34000 },
+      { period:"컬러 렌즈",   name:"클리어 칼라 원데이",  qty:"30ea",  msrp:32000,  price:16000 },
+      { period:"컬러 렌즈",   name:"에스쁘리 컬러",       qty:"30ea",  msrp:36000,  price:18000 },
+      { period:"난시 렌즈",   name:"클리어 원데이 토릭",  qty:"30ea",  msrp:43000,  price:21000 },
+    ]
+  }
+];
+
+/* 착용주기 → 배지 클래스 */
+function pbClass(p) {
+  if(p.includes("투명"))  return "pb-1day";
+  if(p.includes("장기"))  return "pb-long";
+  if(p.includes("컬러"))  return "pb-color";
+  if(p.includes("난시"))  return "pb-astig";
+  if(p.includes("멀티"))  return "pb-multi";
+  return "pb-1day";
+}
+
+function fmt(n)  { return n.toLocaleString() + "원"; }
+function disc(msrp, price) { return Math.round((1 - price / msrp) * 100); }
+
+let curBrand  = brands[0].id;
+let curPeriod = "전체";
+
+/* 탭 렌더 */
+function renderTabs() {
+  document.getElementById("brandTabs").innerHTML = brands.map(b => `
+    <button class="brand-tab ${b.id===curBrand?"active":""}"
+      style="--bc:${b.color}"
+      onclick="selectBrand('${b.id}')">
+      <span class="bdot" style="--bc:${b.color}"></span>${b.name}
+    </button>`
+  ).join("");
+}
+
+/* 브랜드 선택 */
+function selectBrand(id) {
+  curBrand  = id;
+  curPeriod = "전체";
+  renderTabs();
+  renderContent();
+}
+
+/* 컨텐츠 렌더 */
+function renderContent() {
+  const b = brands.find(x => x.id === curBrand);
+
+  // 헤더
+  document.getElementById("brandHeader").innerHTML = `
+    <div class="brand-header" style="background:linear-gradient(135deg,${b.color}ee,${b.color}99);">
+      <div>
+        <div class="bh-name">${b.name}</div>
+        <div class="bh-sub">${b.full} · ${b.products.length}개 제품</div>
+      </div>
+      <div class="bh-logo">${b.icon}</div>
+    </div>`;
+
+  // 기간 필터
+  const periods = ["전체", ...new Set(b.products.map(p => p.period))];
+  document.getElementById("periodFilter").innerHTML = periods.map(p => `
+    <button class="pf-btn ${p===curPeriod?"active":""}"
+      onclick="filterPeriod('${p}')">${p}</button>`
+  ).join("");
+
+  renderTable(b);
+}
+
+/* 기간 필터 */
+function filterPeriod(p) {
+  curPeriod = p;
+  document.querySelectorAll(".pf-btn").forEach(btn =>
+    btn.classList.toggle("active", btn.textContent === p)
+  );
+  renderTable(brands.find(x => x.id === curBrand));
+}
+
+/* 테이블 렌더 — 같은 제품명 묶기 */
+function renderTable(b) {
+  const list = curPeriod === "전체"
+    ? b.products
+    : b.products.filter(p => p.period === curPeriod);
+
+  if(!list.length) {
+    document.getElementById("tbody").innerHTML = `
+      <tr><td colspan="5">
+        <div class="empty-state">
+          <div class="ei">🔍</div>
+          <p>해당 착용주기의 제품이 없습니다</p>
+        </div>
+      </td></tr>`;
+    return;
+  }
+
+  // 같은 착용주기 + 제품명으로 그룹핑
+  const groups = [];
+  list.forEach(p => {
+    const last = groups[groups.length - 1];
+    if(last && last.period === p.period && last.name === p.name) {
+      last.items.push(p);
+    } else {
+      groups.push({ period:p.period, name:p.name, items:[p] });
+    }
+  });
+
+  document.getElementById("tbody").innerHTML = groups.map((g, gi) => `
+    <tr class="${gi===0?"":"group-start"}">
+      <td class="left" style="vertical-align:middle;">
+        <span class="pb ${pbClass(g.period)}">${g.period}</span>
+      </td>
+      <td class="left" style="vertical-align:middle;">
+        <div class="pname">${g.name}</div>
+      </td>
+      <td style="text-align:center;vertical-align:middle;">
+        ${g.items.map(p => `<div style="padding:4px 0;"><span class="qty-chip">${p.qty}</span></div>`).join("")}
+      </td>
+      <td style="text-align:center;vertical-align:middle;">
+        ${g.items.map(p => `<div style="padding:4px 0;color:var(--muted);font-size:12px;text-decoration:line-through;">${fmt(p.msrp)}</div>`).join("")}
+      </td>
+      <td style="text-align:center;vertical-align:middle;">
+        ${g.items.map(p => `<div style="padding:4px 0;"><span class="price-inoti">${fmt(p.price)}</span><span class="disc">-${disc(p.msrp, p.price)}%</span></div>`).join("")}
+      </td>
+    </tr>`
+  ).join("");
+}
+
+/* [FIX] 인증 게이트 */
+(function () {
+  const els = [
+    document.querySelector('.main'),
+    document.querySelector('.brand-tabs'),
+    document.querySelector('.page-header'),
+    document.querySelector('.bottom-bar'),
+  ];
+  els.forEach(el => { if (el) el.style.opacity = '0'; });
+  showAccessGate(function () {
+    els.forEach(el => { if (el) el.style.opacity = '1'; });
+    renderTabs();
+    renderContent();
+  });
+})();
+
+function goHome() { location.href = "../index.html"; }
+</script>
+
+
+
+</body>
+</html>
