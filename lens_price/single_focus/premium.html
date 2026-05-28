@@ -668,53 +668,62 @@ button, a, input, select, textarea,
   -webkit-tap-highlight-color: transparent;
 }
 
+}
 
-/* ━━ 태블릿 프리미엄렌즈 레이아웃 수정 ━━ */
+  .prem-cards { flex-direction:column !important; margin: 0 2% !important; }
+}
+
+
+/* ━━ 태블릿 가로 밀림 수정: overflow:hidden 체인 해제 ━━ */
 @media(max-width:1024px){
-  /* 좌우 여백 축소: 10% → 1% */
-  .prem-cards {
-    margin: 0 1% !important;
-    gap: 8px !important;
-  }
-  /* 카드 가로 스크롤 허용 */
-  .prem-wrap   { overflow-x: auto !important; }
-  .prem-scroll { overflow-x: auto !important; -webkit-overflow-scrolling: touch; }
+  .panel, .cust-zs-wrap, .zs-wrap, .prem-wrap,
+  .content-panel, .bb-wrap
+                      { overflow: visible !important; }
+  .cust-zs-scroll, .zs-scroll, .prem-scroll
+                      { overflow-y: auto !important; overflow-x: visible !important;
+                        -webkit-overflow-scrolling: touch; }
+  .main               { overflow-x: auto !important; }
 
-  /* 라벨 열 너비 축소 */
-  .zs-td-lbl  { width: 72px !important; font-size: 10px !important; padding: 3px 5px !important; }
+  .cust-zs-cols                 { margin: 0 1% !important; gap: 6px !important; }
+  .cust-zs-cols.grid2           { margin: 0 1% !important; }
+  [style*="margin:0 15.8%"]     { margin: 0 1% !important; }
+  [style*="margin:8.4px 15.8%"] { margin: 8px 1% 0 !important; }
+  .prem-cards                   { margin: 0 1% !important; gap: 6px !important; }
+  .zs-cols                      { margin: 0 1% !important; gap: 6px !important; }
+  .zs-subtabs                   { margin: 8px 1% 0 !important; }
+  .es-tbl-wrap                  { padding-left: 1% !important; padding-right: 1% !important; }
 
-  /* 데이터 셀 패딩·폰트 압축 */
-  .zs-td      { padding: 2px 3px !important; font-size: 11px !important; }
-  .zs-th .zs-td { font-size: 11px !important; }
+  .zs-td-lbl        { width: 64px !important; font-size: 9px !important; padding: 2px 4px !important; }
+  .es-label-rowspan { width: 64px !important; }
+  .zs-td            { padding: 2px 2px !important; font-size: 10.5px !important; }
+  .zs-th .zs-td     { font-size: 10.5px !important; }
+  .zs-p             { font-size: 11.5px !important; }
+  .zs-p s           { font-size: 9.5px !important; }
+  .zs-inoti         { font-size: clamp(11px,1.3vw,16px) !important; white-space: nowrap; }
+  .zs-name          { font-size: 14px !important; }
+  .zs-kname         { font-size: 9px !important; }
+  .zs-feat          { font-size: 10.5px !important; }
+  .zs-add           { font-size: 9.5px !important; }
+  .zs-section .zs-full { font-size: 8px !important; letter-spacing: 0.2px !important; }
+  .chemi-name-badge { font-size: 15px !important; }
+  .cpl-top          { font-size: 7px !important; }
+  .cpl-bot          { font-size: 8px !important; }
+  .es-price-sub-row:first-child { min-height: 22px !important; }
+  .es-inoti-prices  { min-height: 30px !important; }
+  .prem-col         { padding: 5px !important; }
+  .badge-name       { font-size: 15px !important; }
+  .badge-sub        { font-size: 9px !important; }
 
-  /* 권장소비자가 행 */
-  .zs-p       { font-size: 12px !important; }
-  .zs-p s     { font-size: 10px !important; }
-
-  /* 판매가 행 */
-  .zs-inoti   { font-size: clamp(13px,1.6vw,18px) !important; }
-  .es-price-sub-row:first-child { min-height: 28px !important; }
-  .es-inoti-prices               { min-height: 36px !important; }
-
-  /* 제품 헤더 */
-  .zs-name    { font-size: 17px !important; }
-  .zs-feat    { font-size: 12px !important; }
-  .zs-add     { font-size: 11px !important; }
-  .zs-kname   { font-size: 10px !important; }
-  .zs-coat    { font-size: 9.5px !important; }
-
-  /* 섹션 구분자 */
-  .zs-section .zs-full { font-size: 9px !important; letter-spacing: 0.5px !important; }
-
-  /* cpl 라벨 */
-  .cpl-top { font-size: 8.5px !important; }
-  .cpl-bot { font-size: 9.5px !important; }
+  /* 기능성렌즈 이미지 테이블 */
+  .es-img-tbl th, .es-img-tbl td { font-size: 10px !important; padding: 4px 5px !important; }
+  .bb-label-row { font-size: 9px !important; }
+  .bb-price     { font-size: 14px !important; }
+  .bb-msrp      { font-size: 10px !important; }
 }
 @media(max-width:768px){
-  .prem-cards {
-    flex-direction: column !important;
-    margin: 0 2% !important;
-  }
+  .cust-zs-cols, .cust-zs-cols.grid2 { flex-direction:column !important; margin:0 2% !important; }
+  .prem-cards                         { flex-direction:column !important; margin:0 2% !important; }
+  .zs-cols                            { flex-direction:column !important; }
 }
 
 </style>
