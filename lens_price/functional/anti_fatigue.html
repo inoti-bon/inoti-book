@@ -34,7 +34,7 @@ body{font-family:'Noto Sans KR','Apple SD Gothic Neo','Malgun Gothic',sans-serif
 .sb-spacer{flex:1;}
 
 /* ── 메인 */
-.main{flex:1;min-height:0;display:flex;flex-direction:column;overflow:hidden;}
+.main{flex:1;min-height:0;display:flex;flex-direction:column;overflow:visible;}
 
 /* ── 브랜드 탭 */
 .brand-tabs{display:flex;gap:0;border-bottom:2px solid var(--border);background:#fff;
@@ -103,7 +103,7 @@ body{font-family:'Noto Sans KR','Apple SD Gothic Neo','Malgun Gothic',sans-serif
 @keyframes sparkleFly{0%,100%{transform:translateY(0) scale(0.75);opacity:0.4;}50%{transform:translateY(-6px) scale(1.2);opacity:1;}}
 
 /* ── 패널 */
-.panel{flex:1;min-height:0;display:none;flex-direction:column;overflow:hidden;}
+.panel{flex:1;min-height:0;display:none;flex-direction:column;overflow:visible;}
 .panel.active{display:flex;}
 .price-wrap{position:relative;flex:1;min-height:0;display:flex;flex-direction:column;
   padding:8px 10px calc(var(--bottombar-h) + 8px);overflow:hidden;}
@@ -219,15 +219,11 @@ body{font-family:'Noto Sans KR','Apple SD Gothic Neo','Malgun Gothic',sans-serif
   color:#86efac;border-color:#10b981;
   box-shadow:0 2px 10px rgba(16,185,129,0.40);}
 
-
-
-
-
 /* ═══ ESSILOR 패널 ═══ */
-.es-wrap{flex:1;min-height:0;display:flex;flex-direction:column;overflow:hidden;background:#eef2f7;gap:0;}
+.es-wrap{flex:1;min-height:0;display:flex;flex-direction:column;overflow:visible;background:#eef2f7;gap:0;}
 
 /* 서브탭 */
-.es-subtabs{display:flex;gap:10px;flex-shrink:0;margin:8px 10% 0;}
+.es-subtabs{display:flex;gap:10px;flex-shrink:0;margin:8px 0 0;}
 .es-stab-col{flex:1;display:flex;align-items:center;justify-content:space-between;
   height:40px;padding:0 14px;border-radius:10px;
   border:1.5px solid;font-weight:800;letter-spacing:0.3px;}
@@ -241,7 +237,7 @@ body{font-family:'Noto Sans KR','Apple SD Gothic Neo','Malgun Gothic',sans-serif
 .es-scroll{flex:1;overflow-y:auto;padding:10px 0 calc(var(--bottombar-h)+10px);margin-top:8px;}
 
 /* 3열 flex (독립 높이) */
-.es-cols{display:flex;gap:10px;align-items:flex-start;margin:0 10%;}
+.es-cols{display:flex;gap:10px;align-items:flex-start;margin:0;}
 .es-col{flex:1;display:flex;flex-direction:column;gap:8px;min-width:0;
   padding:8px;border-radius:10px;}
 .es-col:nth-child(1){background:rgba(239,68,68,0.04);border:1px solid rgba(239,68,68,0.12);}
@@ -322,7 +318,7 @@ body{font-family:'Noto Sans KR','Apple SD Gothic Neo','Malgun Gothic',sans-serif
 .es-inoti-prices{background:#fef9c3;}
 
 /* ═══ ZEISS 패널 ═══ */
-.zs-wrap{flex:1;min-height:0;display:flex;flex-direction:column;overflow:hidden;background:#e8edf4;}
+.zs-wrap{flex:1;min-height:0;display:flex;flex-direction:column;overflow:visible;background:#e8edf4;}
 .zs-subtabs{display:flex;gap:10px;flex-shrink:0;margin:8px 12% 0;}
 .zs-stab{flex:1;display:flex;align-items:center;justify-content:space-between;
   height:40px;padding:0 14px;border-radius:10px;cursor:pointer;border:none;
@@ -401,8 +397,8 @@ body{font-family:'Noto Sans KR','Apple SD Gothic Neo','Malgun Gothic',sans-serif
   font-size:10px;font-weight:900;color:#ffffff;letter-spacing:2px;text-transform:uppercase;}
 
 /* ═══ HOYA 패널 ═══ */
-.hy-wrap{flex:1;min-height:0;display:flex;flex-direction:column;overflow:hidden;background:#e8eaf0;}
-.hy-subtabs{display:flex;gap:10px;flex-shrink:0;margin:8px 12% 0;}
+.hy-wrap{flex:1;min-height:0;display:flex;flex-direction:column;overflow:visible;background:#e8eaf0;}
+.hy-subtabs{display:flex;gap:10px;flex-shrink:0;margin:8px 0 0;}
 .hy-stab{flex:1;display:flex;align-items:center;justify-content:space-between;
   height:40px;padding:0 14px;border-radius:10px;cursor:pointer;border:none;
   font-family:'Noto Sans KR',sans-serif;font-weight:800;
@@ -613,41 +609,22 @@ body{font-family:'Noto Sans KR','Apple SD Gothic Neo','Malgun Gothic',sans-serif
 
 /* ── PC + 태블릿 최적화 ── */
 @media screen and (max-width:1280px){
-  .cust-zs-cols{margin-left:8%!important;margin-right:8%!important;}
 }
 @media screen and (max-width:1024px){
   /* rx-banner 고정폭 제거 */
-  .rx-banner{min-width:0!important;flex-wrap:wrap!important;}
   /* 가격카드 마진 축소 + 줄바꿈 허용 */
-  .cust-zs-cols{margin-left:4%!important;margin-right:4%!important;flex-wrap:wrap!important;}
   /* 에실로 가격테이블 수평스크롤 */
-  .es-img-tbl{overflow-x:auto!important;-webkit-overflow-scrolling:touch;display:block;width:100%;box-sizing:border-box;}
   /* 수평 오버플로 차단 */
-  .cust-zs-wrap,.cust-zs-scroll{overflow-x:hidden!important;}
   /* 비교/참조 테이블 */
   .pc-cmp-tbl,.pc-ref-tbl{font-size:11px;}
-  .pc-cmp-tbl th,.pc-cmp-tbl td,
-  .pc-ref-tbl  th,.pc-ref-tbl  td{padding:4px 6px!important;}
   /* 브랜드탭 가로스크롤 */
-  .brand-tabs{overflow-x:auto;-webkit-overflow-scrolling:touch;flex-wrap:nowrap!important;}
-  .brand-tab{min-width:fit-content!important;white-space:nowrap!important;}
   /* bottom-bar 줄바꿈 */
-  .bb-col2{flex-wrap:wrap;gap:4px!important;}
   /* 사이드바 자동 숨김 */
   .sidebar{transform:translateX(-100%);transition:transform .3s ease;}
   .sidebar.open{transform:translateX(0);}
-  .main{margin-left:0!important;}
   /* 팝업박스 너비 조정 */
-  .popup-box,.pc-box{max-width:90vw!important;box-sizing:border-box;}
 }
 @media screen and (max-width:768px){
-  .cust-zs-cols{margin-left:2%!important;margin-right:2%!important;}
-  .cust-zs-col{flex:1 1 90%!important;max-width:100%!important;min-width:0!important;}
-  .badge-name{font-size:16px!important;}
-  .zs-td{font-size:11px!important;padding:2px 3px!important;}
-  .es-img-tbl th,.es-img-tbl td{font-size:11px!important;padding:4px 5px!important;}
-  .brand-tabs{gap:4px!important;}
-  .bottom-bar{padding:6px 12px!important;}
 }
 
 /* ── 전역 터치 최적화 ── */
@@ -658,47 +635,58 @@ button, a, input, select, textarea,
   -webkit-tap-highlight-color: transparent;
 }
 
-  .prem-cards                         { flex-direction:column !important; margin:0 2% !important; }
-  .zs-cols                            { flex-direction:column !important; }
+}
+
+}
+
+}
+
 }
 
 
-/* ━━ 태블릿: overflow 클리핑 해제 + 여백 제거 ━━ */
-@media(max-width:1024px){
-  .panel,.cust-zs-wrap,.zs-wrap,.prem-wrap { overflow:visible !important; }
-  .cust-zs-scroll,.zs-scroll,.prem-scroll  { overflow-y:auto !important; overflow-x:visible !important; }
-  .main                                    { overflow-x:auto !important; }
-  .cust-zs-cols,.zs-cols,.prem-cards,
-  .cust-zs-cols.grid2,.es-tbl-wrap         { margin-left:0 !important; margin-right:0 !important;
-                                             padding-left:4px !important; padding-right:4px !important;
-                                             gap:6px !important; }
-  .zs-td-lbl      { width:62px !important; font-size:9px !important; padding:2px 3px !important; }
-  .es-label-rowspan { width:62px !important; }
-  .zs-td          { padding:2px 2px !important; font-size:10.5px !important; }
-  .zs-th .zs-td   { font-size:10.5px !important; }
-  .zs-p           { font-size:11.5px !important; }
-  .zs-p s         { font-size:9px !important; }
-  .zs-inoti       { font-size:clamp(11px,1.3vw,16px) !important; white-space:nowrap; }
-  .zs-name        { font-size:13px !important; }
-  .zs-kname       { font-size:9px !important; }
-  .zs-feat        { font-size:10px !important; }
-  .zs-add         { font-size:9px !important; }
-  .zs-section .zs-full { font-size:7.5px !important; letter-spacing:0.1px !important; }
-  .chemi-name-badge    { font-size:14px !important; }
-  .cpl-top        { font-size:7px !important; }
-  .cpl-bot        { font-size:8px !important; }
-  .es-price-sub-row:first-child { min-height:22px !important; }
-  .es-inoti-prices              { min-height:28px !important; }
-  .badge-name     { font-size:14px !important; }
-  .badge-sub      { font-size:9px !important; }
-  .es-img-tbl th,.es-img-tbl td { font-size:10px !important; padding:3px 4px !important; }
-  .prem-col       { padding:4px !important; }
+.cust-zs-scroll,.zs-scroll,
+
+
 }
 @media(max-width:768px){
-  .cust-zs-cols,.cust-zs-cols.grid2 { flex-direction:column !important; }
-  .prem-cards                        { flex-direction:column !important; }
 }
 
+/* ━━ 태블릿(≤1024px): 여백·overflow 처리 ━━ */
+@media(max-width:1024px){
+  .panel,.cust-zs-wrap,.zs-wrap,.prem-wrap,
+  .hy-wrap,.ch-wrap                   { overflow-x:visible !important; }
+  .cust-zs-scroll,.zs-scroll,.prem-scroll,
+  .hy-scroll,.ch-scroll               { overflow-y:auto !important; overflow-x:visible !important; }
+  .main                               { overflow-x:auto !important; }
+  .cust-zs-cols,.cust-zs-cols.grid2,
+  .zs-cols,.prem-cards,.hy-cols,
+  .ch-cols,.es-tbl-wrap               { margin-left:0 !important; margin-right:0 !important; gap:6px !important; }
+  .zs-subtabs                         { margin-left:0 !important; margin-right:0 !important; }
+  .zs-td-lbl,.es-label-rowspan        { width:62px !important; font-size:9px !important; padding:2px 3px !important; }
+  .zs-td                              { padding:2px 2px !important; font-size:10.5px !important; }
+  .zs-th .zs-td                       { font-size:10.5px !important; }
+  .zs-p                               { font-size:11px !important; }
+  .zs-p s                             { font-size:9px !important; }
+  .zs-inoti                           { font-size:clamp(11px,1.3vw,15px) !important; }
+  .zs-name                            { font-size:13px !important; }
+  .zs-kname                           { font-size:9px !important; }
+  .zs-feat                            { font-size:10px !important; }
+  .zs-add                             { font-size:9px !important; }
+  .zs-section .zs-full                { font-size:7.5px !important; letter-spacing:0 !important; }
+  .chemi-name-badge                   { font-size:14px !important; }
+  .cpl-top                            { font-size:7px !important; }
+  .cpl-bot                            { font-size:8px !important; }
+  .es-price-sub-row:first-child       { min-height:20px !important; }
+  .es-inoti-prices                    { min-height:28px !important; }
+  .badge-name                         { font-size:14px !important; }
+  .badge-sub                          { font-size:9px !important; }
+  .es-img-tbl th,.es-img-tbl td       { font-size:10px !important; padding:3px 4px !important; }
+  .prem-col                           { padding:4px !important; }
+}
+@media(max-width:768px){
+  .cust-zs-cols,.cust-zs-cols.grid2   { flex-direction:column !important; }
+  .prem-cards                          { flex-direction:column !important; }
+}
 </style>
 <script>
 /* ══════════════════════════════════════════════════
@@ -2163,25 +2151,80 @@ function esPageTab(id, btn){
 })();
 </script>
 
+
+
+
 <script>
-/* ── 태블릿 좌우 여백 강제 제거 ── */
+/* ── PC 인라인 여백 복원 ── */
 (function(){
-  var COLS = '.cust-zs-cols,.zs-cols,.prem-cards,.es-tbl-wrap,.cust-zs-cols.grid2';
-  function fix(){
-    if(window.innerWidth > 1024) return;
-    document.querySelectorAll(COLS).forEach(function(el){
-      el.style.setProperty('margin-left',  '0', 'important');
-      el.style.setProperty('margin-right', '0', 'important');
-      el.style.setProperty('padding-left', '4px','important');
-      el.style.setProperty('padding-right','4px','important');
+  function restorePC(){
+    if(window.innerWidth <= 1024) return;
+    /* 인라인 style에서 margin이 0으로 된 경우 class 기반으로 복원 */
+    document.querySelectorAll('.cust-zs-cols:not(.grid2)').forEach(function(el){
+      el.style.marginLeft = ''; el.style.marginRight = '';
+    });
+    document.querySelectorAll('.cust-zs-cols.grid2').forEach(function(el){
+      el.style.marginLeft = ''; el.style.marginRight = '';
+    });
+    document.querySelectorAll('.zs-cols,.prem-cards,.hy-cols,.ch-cols').forEach(function(el){
+      el.style.marginLeft = ''; el.style.marginRight = '';
     });
   }
+  function fixTablet(){
+    if(window.innerWidth > 1024) return;
+    /* overflow 체인 해제 */
+    document.querySelectorAll('.cust-zs-cols,.zs-cols,.prem-cards,.hy-cols,.ch-cols').forEach(function(el){
+      var p = el.parentElement;
+      while(p && p.tagName !== 'BODY'){
+        if(window.getComputedStyle(p).overflowX === 'hidden'){
+          p.style.setProperty('overflow-x','visible','important');
+        }
+        p = p.parentElement;
+      }
+      el.style.setProperty('margin-left','0','important');
+      el.style.setProperty('margin-right','0','important');
+    });
+    document.querySelectorAll('.main').forEach(function(m){
+      m.style.setProperty('overflow-x','auto','important');
+    });
+  }
+  function run(){
+    if(window.innerWidth > 1024) restorePC(); else fixTablet();
+  }
   if(document.readyState==='loading'){
-    document.addEventListener('DOMContentLoaded', fix);
-  } else { fix(); }
-  window.addEventListener('resize', fix);
+    document.addEventListener('DOMContentLoaded',function(){ setTimeout(run,50); });
+  } else { setTimeout(run,50); }
+  window.addEventListener('resize', run);
 })();
 </script>
 
+
+
+
+<script>
+/* ── 태블릿 overflow 해제 JS ── */
+(function(){
+  function fix(){
+    if(window.innerWidth > 1024) return;
+    document.querySelectorAll('.cust-zs-cols,.zs-cols,.prem-cards,.hy-cols,.ch-cols').forEach(function(el){
+      var p = el.parentElement;
+      while(p && p.tagName !== 'BODY'){
+        if(window.getComputedStyle(p).overflowX === 'hidden')
+          p.style.setProperty('overflow-x','visible','important');
+        p = p.parentElement;
+      }
+      el.style.setProperty('margin-left','0','important');
+      el.style.setProperty('margin-right','0','important');
+    });
+    document.querySelectorAll('.main').forEach(function(m){
+      m.style.setProperty('overflow-x','auto','important');
+    });
+  }
+  if(document.readyState==='loading'){
+    document.addEventListener('DOMContentLoaded',function(){ setTimeout(fix,60); });
+  } else { setTimeout(fix,60); }
+  window.addEventListener('resize',fix);
+})();
+</script>
 </body>
 </html>

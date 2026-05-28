@@ -173,9 +173,6 @@ body::before{content:"";position:fixed;top:-20%;left:-10%;width:55vw;height:55vw
   .icon-row-bottom{grid-template-columns:repeat(2,1fr)}
 }
 
-
-
-
 /* ── 코팅 버튼 (사이드바) ── */
 .coating-btn {
   display: flex;
@@ -361,24 +358,12 @@ body::before{content:"";position:fixed;top:-20%;left:-10%;width:55vw;height:55vw
 
 /* [FIX] 2차 @media 중복 제거 — 1차와 통합, 미사용 클래스 제거 */
 
-
-
-
-
-
-
 /* ─ bottom-bar 전체 가로 확장 ─ */
 .bottom-bar{left:0!important;}
 
 /* ─ sidebar 높이: 상단헤더+하단바 정확히 반영 ─ */
 .sidebar{height:calc(100vh - 44px)!important;overflow-y:auto!important;overflow-x:hidden!important;}
 
-  .cust-zs-col{flex:1 1 90%!important;max-width:100%!important;min-width:0!important;}
-  .badge-name{font-size:16px!important;}
-  .zs-td{font-size:11px!important;padding:2px 3px!important;}
-  .es-img-tbl th,.es-img-tbl td{font-size:11px!important;padding:4px 5px!important;}
-  .brand-tabs{gap:4px!important;}
-  .bottom-bar{padding:6px 12px!important;}
 }
 
 /* ── 전역 터치 최적화 ── */
@@ -389,47 +374,58 @@ button, a, input, select, textarea,
   -webkit-tap-highlight-color: transparent;
 }
 
-  .prem-cards                         { flex-direction:column !important; margin:0 2% !important; }
-  .zs-cols                            { flex-direction:column !important; }
+}
+
+}
+
+}
+
 }
 
 
-/* ━━ 태블릿: overflow 클리핑 해제 + 여백 제거 ━━ */
-@media(max-width:1024px){
-  .panel,.cust-zs-wrap,.zs-wrap,.prem-wrap { overflow:visible !important; }
-  .cust-zs-scroll,.zs-scroll,.prem-scroll  { overflow-y:auto !important; overflow-x:visible !important; }
-  .main                                    { overflow-x:auto !important; }
-  .cust-zs-cols,.zs-cols,.prem-cards,
-  .cust-zs-cols.grid2,.es-tbl-wrap         { margin-left:0 !important; margin-right:0 !important;
-                                             padding-left:4px !important; padding-right:4px !important;
-                                             gap:6px !important; }
-  .zs-td-lbl      { width:62px !important; font-size:9px !important; padding:2px 3px !important; }
-  .es-label-rowspan { width:62px !important; }
-  .zs-td          { padding:2px 2px !important; font-size:10.5px !important; }
-  .zs-th .zs-td   { font-size:10.5px !important; }
-  .zs-p           { font-size:11.5px !important; }
-  .zs-p s         { font-size:9px !important; }
-  .zs-inoti       { font-size:clamp(11px,1.3vw,16px) !important; white-space:nowrap; }
-  .zs-name        { font-size:13px !important; }
-  .zs-kname       { font-size:9px !important; }
-  .zs-feat        { font-size:10px !important; }
-  .zs-add         { font-size:9px !important; }
-  .zs-section .zs-full { font-size:7.5px !important; letter-spacing:0.1px !important; }
-  .chemi-name-badge    { font-size:14px !important; }
-  .cpl-top        { font-size:7px !important; }
-  .cpl-bot        { font-size:8px !important; }
-  .es-price-sub-row:first-child { min-height:22px !important; }
-  .es-inoti-prices              { min-height:28px !important; }
-  .badge-name     { font-size:14px !important; }
-  .badge-sub      { font-size:9px !important; }
-  .es-img-tbl th,.es-img-tbl td { font-size:10px !important; padding:3px 4px !important; }
-  .prem-col       { padding:4px !important; }
+.cust-zs-scroll,.zs-scroll,
+
+
 }
 @media(max-width:768px){
-  .cust-zs-cols,.cust-zs-cols.grid2 { flex-direction:column !important; }
-  .prem-cards                        { flex-direction:column !important; }
 }
 
+/* ━━ 태블릿(≤1024px): 여백·overflow 처리 ━━ */
+@media(max-width:1024px){
+  .panel,.cust-zs-wrap,.zs-wrap,.prem-wrap,
+  .hy-wrap,.ch-wrap                   { overflow-x:visible !important; }
+  .cust-zs-scroll,.zs-scroll,.prem-scroll,
+  .hy-scroll,.ch-scroll               { overflow-y:auto !important; overflow-x:visible !important; }
+  .main                               { overflow-x:auto !important; }
+  .cust-zs-cols,.cust-zs-cols.grid2,
+  .zs-cols,.prem-cards,.hy-cols,
+  .ch-cols,.es-tbl-wrap               { margin-left:0 !important; margin-right:0 !important; gap:6px !important; }
+  .zs-subtabs                         { margin-left:0 !important; margin-right:0 !important; }
+  .zs-td-lbl,.es-label-rowspan        { width:62px !important; font-size:9px !important; padding:2px 3px !important; }
+  .zs-td                              { padding:2px 2px !important; font-size:10.5px !important; }
+  .zs-th .zs-td                       { font-size:10.5px !important; }
+  .zs-p                               { font-size:11px !important; }
+  .zs-p s                             { font-size:9px !important; }
+  .zs-inoti                           { font-size:clamp(11px,1.3vw,15px) !important; }
+  .zs-name                            { font-size:13px !important; }
+  .zs-kname                           { font-size:9px !important; }
+  .zs-feat                            { font-size:10px !important; }
+  .zs-add                             { font-size:9px !important; }
+  .zs-section .zs-full                { font-size:7.5px !important; letter-spacing:0 !important; }
+  .chemi-name-badge                   { font-size:14px !important; }
+  .cpl-top                            { font-size:7px !important; }
+  .cpl-bot                            { font-size:8px !important; }
+  .es-price-sub-row:first-child       { min-height:20px !important; }
+  .es-inoti-prices                    { min-height:28px !important; }
+  .badge-name                         { font-size:14px !important; }
+  .badge-sub                          { font-size:9px !important; }
+  .es-img-tbl th,.es-img-tbl td       { font-size:10px !important; padding:3px 4px !important; }
+  .prem-col                           { padding:4px !important; }
+}
+@media(max-width:768px){
+  .cust-zs-cols,.cust-zs-cols.grid2   { flex-direction:column !important; }
+  .prem-cards                          { flex-direction:column !important; }
+}
 </style>
 
 <script>
@@ -896,25 +892,80 @@ document.addEventListener("keydown", e => { if(e.key === "Escape") closeCoating(
 </script>
 
 
+
+
+
 <script>
-/* ── 태블릿 좌우 여백 강제 제거 ── */
+/* ── PC 인라인 여백 복원 ── */
 (function(){
-  var COLS = '.cust-zs-cols,.zs-cols,.prem-cards,.es-tbl-wrap,.cust-zs-cols.grid2';
-  function fix(){
-    if(window.innerWidth > 1024) return;
-    document.querySelectorAll(COLS).forEach(function(el){
-      el.style.setProperty('margin-left',  '0', 'important');
-      el.style.setProperty('margin-right', '0', 'important');
-      el.style.setProperty('padding-left', '4px','important');
-      el.style.setProperty('padding-right','4px','important');
+  function restorePC(){
+    if(window.innerWidth <= 1024) return;
+    /* 인라인 style에서 margin이 0으로 된 경우 class 기반으로 복원 */
+    document.querySelectorAll('.cust-zs-cols:not(.grid2)').forEach(function(el){
+      el.style.marginLeft = ''; el.style.marginRight = '';
+    });
+    document.querySelectorAll('.cust-zs-cols.grid2').forEach(function(el){
+      el.style.marginLeft = ''; el.style.marginRight = '';
+    });
+    document.querySelectorAll('.zs-cols,.prem-cards,.hy-cols,.ch-cols').forEach(function(el){
+      el.style.marginLeft = ''; el.style.marginRight = '';
     });
   }
+  function fixTablet(){
+    if(window.innerWidth > 1024) return;
+    /* overflow 체인 해제 */
+    document.querySelectorAll('.cust-zs-cols,.zs-cols,.prem-cards,.hy-cols,.ch-cols').forEach(function(el){
+      var p = el.parentElement;
+      while(p && p.tagName !== 'BODY'){
+        if(window.getComputedStyle(p).overflowX === 'hidden'){
+          p.style.setProperty('overflow-x','visible','important');
+        }
+        p = p.parentElement;
+      }
+      el.style.setProperty('margin-left','0','important');
+      el.style.setProperty('margin-right','0','important');
+    });
+    document.querySelectorAll('.main').forEach(function(m){
+      m.style.setProperty('overflow-x','auto','important');
+    });
+  }
+  function run(){
+    if(window.innerWidth > 1024) restorePC(); else fixTablet();
+  }
   if(document.readyState==='loading'){
-    document.addEventListener('DOMContentLoaded', fix);
-  } else { fix(); }
-  window.addEventListener('resize', fix);
+    document.addEventListener('DOMContentLoaded',function(){ setTimeout(run,50); });
+  } else { setTimeout(run,50); }
+  window.addEventListener('resize', run);
 })();
 </script>
 
+
+
+
+<script>
+/* ── 태블릿 overflow 해제 JS ── */
+(function(){
+  function fix(){
+    if(window.innerWidth > 1024) return;
+    document.querySelectorAll('.cust-zs-cols,.zs-cols,.prem-cards,.hy-cols,.ch-cols').forEach(function(el){
+      var p = el.parentElement;
+      while(p && p.tagName !== 'BODY'){
+        if(window.getComputedStyle(p).overflowX === 'hidden')
+          p.style.setProperty('overflow-x','visible','important');
+        p = p.parentElement;
+      }
+      el.style.setProperty('margin-left','0','important');
+      el.style.setProperty('margin-right','0','important');
+    });
+    document.querySelectorAll('.main').forEach(function(m){
+      m.style.setProperty('overflow-x','auto','important');
+    });
+  }
+  if(document.readyState==='loading'){
+    document.addEventListener('DOMContentLoaded',function(){ setTimeout(fix,60); });
+  } else { setTimeout(fix,60); }
+  window.addEventListener('resize',fix);
+})();
+</script>
 </body>
 </html>
