@@ -148,57 +148,45 @@ button, a, input, select, textarea,
   -webkit-tap-highlight-color: transparent;
 }
 
-
-/* ━━ 태블릿 가로 밀림 수정: overflow:hidden 체인 해제 ━━ */
-@media(max-width:1024px){
-  .panel, .cust-zs-wrap, .zs-wrap, .prem-wrap,
-  .content-panel, .bb-wrap
-                      { overflow: visible !important; }
-  .cust-zs-scroll, .zs-scroll, .prem-scroll
-                      { overflow-y: auto !important; overflow-x: visible !important;
-                        -webkit-overflow-scrolling: touch; }
-  .main               { overflow-x: auto !important; }
-
-  .cust-zs-cols                 { margin: 0 1% !important; gap: 6px !important; }
-  .cust-zs-cols.grid2           { margin: 0 1% !important; }
-  [style*="margin:0 15.8%"]     { margin: 0 1% !important; }
-  [style*="margin:8.4px 15.8%"] { margin: 8px 1% 0 !important; }
-  .prem-cards                   { margin: 0 1% !important; gap: 6px !important; }
-  .zs-cols                      { margin: 0 1% !important; gap: 6px !important; }
-  .zs-subtabs                   { margin: 8px 1% 0 !important; }
-  .es-tbl-wrap                  { padding-left: 1% !important; padding-right: 1% !important; }
-
-  .zs-td-lbl        { width: 64px !important; font-size: 9px !important; padding: 2px 4px !important; }
-  .es-label-rowspan { width: 64px !important; }
-  .zs-td            { padding: 2px 2px !important; font-size: 10.5px !important; }
-  .zs-th .zs-td     { font-size: 10.5px !important; }
-  .zs-p             { font-size: 11.5px !important; }
-  .zs-p s           { font-size: 9.5px !important; }
-  .zs-inoti         { font-size: clamp(11px,1.3vw,16px) !important; white-space: nowrap; }
-  .zs-name          { font-size: 14px !important; }
-  .zs-kname         { font-size: 9px !important; }
-  .zs-feat          { font-size: 10.5px !important; }
-  .zs-add           { font-size: 9.5px !important; }
-  .zs-section .zs-full { font-size: 8px !important; letter-spacing: 0.2px !important; }
-  .chemi-name-badge { font-size: 15px !important; }
-  .cpl-top          { font-size: 7px !important; }
-  .cpl-bot          { font-size: 8px !important; }
-  .es-price-sub-row:first-child { min-height: 22px !important; }
-  .es-inoti-prices  { min-height: 30px !important; }
-  .prem-col         { padding: 5px !important; }
-  .badge-name       { font-size: 15px !important; }
-  .badge-sub        { font-size: 9px !important; }
-
-  /* 기능성렌즈 이미지 테이블 */
-  .es-img-tbl th, .es-img-tbl td { font-size: 10px !important; padding: 4px 5px !important; }
-  .bb-label-row { font-size: 9px !important; }
-  .bb-price     { font-size: 14px !important; }
-  .bb-msrp      { font-size: 10px !important; }
-}
-@media(max-width:768px){
-  .cust-zs-cols, .cust-zs-cols.grid2 { flex-direction:column !important; margin:0 2% !important; }
   .prem-cards                         { flex-direction:column !important; margin:0 2% !important; }
   .zs-cols                            { flex-direction:column !important; }
+}
+
+
+/* ━━ 태블릿: overflow 클리핑 해제 + 여백 제거 ━━ */
+@media(max-width:1024px){
+  .panel,.cust-zs-wrap,.zs-wrap,.prem-wrap { overflow:visible !important; }
+  .cust-zs-scroll,.zs-scroll,.prem-scroll  { overflow-y:auto !important; overflow-x:visible !important; }
+  .main                                    { overflow-x:auto !important; }
+  .cust-zs-cols,.zs-cols,.prem-cards,
+  .cust-zs-cols.grid2,.es-tbl-wrap         { margin-left:0 !important; margin-right:0 !important;
+                                             padding-left:4px !important; padding-right:4px !important;
+                                             gap:6px !important; }
+  .zs-td-lbl      { width:62px !important; font-size:9px !important; padding:2px 3px !important; }
+  .es-label-rowspan { width:62px !important; }
+  .zs-td          { padding:2px 2px !important; font-size:10.5px !important; }
+  .zs-th .zs-td   { font-size:10.5px !important; }
+  .zs-p           { font-size:11.5px !important; }
+  .zs-p s         { font-size:9px !important; }
+  .zs-inoti       { font-size:clamp(11px,1.3vw,16px) !important; white-space:nowrap; }
+  .zs-name        { font-size:13px !important; }
+  .zs-kname       { font-size:9px !important; }
+  .zs-feat        { font-size:10px !important; }
+  .zs-add         { font-size:9px !important; }
+  .zs-section .zs-full { font-size:7.5px !important; letter-spacing:0.1px !important; }
+  .chemi-name-badge    { font-size:14px !important; }
+  .cpl-top        { font-size:7px !important; }
+  .cpl-bot        { font-size:8px !important; }
+  .es-price-sub-row:first-child { min-height:22px !important; }
+  .es-inoti-prices              { min-height:28px !important; }
+  .badge-name     { font-size:14px !important; }
+  .badge-sub      { font-size:9px !important; }
+  .es-img-tbl th,.es-img-tbl td { font-size:10px !important; padding:3px 4px !important; }
+  .prem-col       { padding:4px !important; }
+}
+@media(max-width:768px){
+  .cust-zs-cols,.cust-zs-cols.grid2 { flex-direction:column !important; }
+  .prem-cards                        { flex-direction:column !important; }
 }
 
 </style>
@@ -617,5 +605,26 @@ function toggleSidebar(){
   sb.classList.toggle('open');
 }
 </script>
+
+<script>
+/* ── 태블릿 좌우 여백 강제 제거 ── */
+(function(){
+  var COLS = '.cust-zs-cols,.zs-cols,.prem-cards,.es-tbl-wrap,.cust-zs-cols.grid2';
+  function fix(){
+    if(window.innerWidth > 1024) return;
+    document.querySelectorAll(COLS).forEach(function(el){
+      el.style.setProperty('margin-left',  '0', 'important');
+      el.style.setProperty('margin-right', '0', 'important');
+      el.style.setProperty('padding-left', '4px','important');
+      el.style.setProperty('padding-right','4px','important');
+    });
+  }
+  if(document.readyState==='loading'){
+    document.addEventListener('DOMContentLoaded', fix);
+  } else { fix(); }
+  window.addEventListener('resize', fix);
+})();
+</script>
+
 </body>
 </html>
