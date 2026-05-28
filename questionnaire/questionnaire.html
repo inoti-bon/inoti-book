@@ -1,0 +1,621 @@
+<!DOCTYPE html>
+<html lang="ko" translate="no">
+<head>
+<meta charset="UTF-8">
+<meta name="google" content="notranslate">
+<meta http-equiv="Content-Language" content="ko">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>고객 문진</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #f0f4f8;
+  --surface: #ffffff;
+  --surface2: #e8eef5;
+  --accent: #1a6fef;
+  --accent2: #00a884;
+  --text: #0f1c2e;
+  --muted: #4b6080;
+  --border: rgba(0,0,0,0.09);
+  --card-bg: rgba(255,255,255,0.95);
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: 'Noto Sans KR', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  padding: 24px;
+}
+
+body::before {
+  content: "";
+  position: fixed;
+  top: -30%;
+  left: -20%;
+  width: 70vw;
+  height: 70vw;
+  background: radial-gradient(circle, rgba(26,111,239,0.07) 0%, transparent 70%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+.container {
+  position: relative;
+  z-index: 1;
+  max-width: 720px;
+  margin: auto;
+  /* [FIX] 로그인 후 부드러운 페이드인 */
+  transition: opacity 0.4s ease;
+}
+
+/* 상단 네비 */
+.nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 32px;
+}
+
+.nav-back {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  color: var(--muted);
+  cursor: pointer;
+  transition: color 0.2s;
+  background: none;
+  border: none;
+  padding: 0;
+}
+
+.nav-back:hover { color: var(--text); }
+
+.nav-title {
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.step-badge {
+  background: rgba(26,111,239,0.10);
+  border: 1px solid rgba(26,111,239,0.25);
+  color: #1a6fef;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 4px 12px;
+  border-radius: 999px;
+  letter-spacing: 1px;
+}
+
+/* 페이지 타이틀 */
+.page-title {
+  font-size: 26px;
+  font-weight: 900;
+  margin-bottom: 6px;
+}
+
+.page-sub {
+  color: var(--muted);
+  font-size: 14px;
+  margin-bottom: 32px;
+}
+
+/* 섹션 카드 */
+.section-card {
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 24px;
+  margin-bottom: 16px;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.07);
+}
+
+.section-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.section-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+}
+
+.icon-blue   { background: rgba(26,111,239,0.12); }
+.icon-teal   { background: rgba(0,168,132,0.12); }
+.icon-purple { background: rgba(91,63,212,0.12); }
+
+.section-title {
+  font-size: 16px;
+  font-weight: 700;
+}
+
+/* 폼 그리드 */
+.form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+.form-group label {
+  display: block;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--muted);
+  letter-spacing: 0.5px;
+  margin-bottom: 8px;
+  text-transform: uppercase;
+}
+
+input, select {
+  width: 100%;
+  padding: 12px 14px;
+  background: #f8fafc;
+  border: 1px solid rgba(0,0,0,0.12);
+  border-radius: 10px;
+  color: var(--text);
+  font-size: 15px;
+  font-family: 'Noto Sans KR', sans-serif;
+  transition: border-color 0.2s;
+  -webkit-appearance: none;
+}
+
+input:focus, select:focus {
+  outline: none;
+  border-color: rgba(42,127,255,0.5);
+}
+
+input::placeholder { color: var(--muted); }
+select option { background: #ffffff; color: #0f1c2e; }
+
+/* 성별/방문유형 토글 */
+.toggle-group {
+  display: flex;
+  gap: 8px;
+}
+
+.toggle-btn {
+  flex: 1;
+  padding: 11px;
+  background: #f1f5f9;
+  border: 1px solid rgba(0,0,0,0.10);
+  border-radius: 10px;
+  color: var(--muted);
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-family: 'Noto Sans KR', sans-serif;
+}
+
+.toggle-btn.active {
+  background: rgba(26,111,239,0.12);
+  border-color: rgba(26,111,239,0.4);
+  color: #1a6fef;
+}
+
+/* 아이콘 선택 그리드 */
+.icon-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+}
+
+.icon-item {
+  background: #f8fafc;
+  border: 1px solid rgba(0,0,0,0.09);
+  border-radius: 14px;
+  padding: 16px;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.icon-item:hover {
+  background: #e8eef5;
+  border-color: rgba(26,111,239,0.25);
+}
+
+/* 라이프스타일 선택 — 파란색 */
+.icon-item.active {
+  background: rgba(26,111,239,0.10);
+  border-color: rgba(26,111,239,0.40);
+}
+
+/* [FIX] 증상 선택 — 초록색 (기존 코드에서 누락됐던 실제 적용) */
+.icon-item.active-teal {
+  background: rgba(0,168,132,0.09);
+  border-color: rgba(0,168,132,0.40);
+}
+
+.item-emoji {
+  font-size: 26px;
+  min-width: 36px;
+  text-align: center;
+}
+
+.item-text .item-label {
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 1.3;
+}
+
+.item-text .item-desc {
+  font-size: 12px;
+  color: #6b8299;
+  margin-top: 2px;
+}
+
+/* 선택된 태그 표시 */
+.selected-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 10px;
+  min-height: 10px;
+}
+
+.tag {
+  font-size: 12px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-weight: 700;
+}
+
+.tag-blue { background: rgba(26,111,239,0.10); color: #1a6fef; border: 1px solid rgba(26,111,239,0.25); }
+.tag-teal { background: rgba(0,168,132,0.10); color: #00a884; border: 1px solid rgba(0,168,132,0.25); }
+
+/* 하단 버튼 */
+.button-row {
+  display: grid;
+  grid-template-columns: 1fr 2fr;
+  gap: 12px;
+  margin-top: 24px;
+}
+
+.btn {
+  padding: 16px;
+  border: none;
+  border-radius: 14px;
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+  font-family: 'Noto Sans KR', sans-serif;
+  transition: all 0.2s;
+}
+
+.btn-secondary {
+  background: #e8eef5;
+  color: var(--muted);
+  border: 1px solid rgba(0,0,0,0.09);
+}
+
+.btn-secondary:hover {
+  color: var(--text);
+  background: #d8e2ed;
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, #1a6fef, #2563eb);
+  color: white;
+  box-shadow: 0 4px 20px rgba(26,111,239,0.25);
+}
+
+.btn-primary:hover {
+  box-shadow: 0 6px 28px rgba(26,111,239,0.35);
+  transform: translateY(-1px);
+}
+
+@media (max-width: 600px) {
+  .form-grid  { grid-template-columns: 1fr; }
+  .icon-grid  { grid-template-columns: 1fr; }
+  .button-row { grid-template-columns: 1fr; }
+}
+
+  .cust-zs-col{flex:1 1 90%!important;max-width:100%!important;min-width:0!important;}
+  .badge-name{font-size:16px!important;}
+  .zs-td{font-size:11px!important;padding:2px 3px!important;}
+  .es-img-tbl th,.es-img-tbl td{font-size:11px!important;padding:4px 5px!important;}
+  .brand-tabs{gap:4px!important;}
+  .bottom-bar{padding:6px 12px!important;}
+}
+
+/* ── 전역 터치 최적화 ── */
+button, a, input, select, textarea,
+.toggle-btn, .icon-item, .card, .side-btn, .sb-btn,
+.tab-btn, .brand-tab, .cat-card, .icon-card {
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* ── 태블릿 반응형 (문진) ── */
+@media screen and (max-width: 1024px) {
+  .container   { max-width: 100%; padding: 24px 20px; }
+  .form-grid   { grid-template-columns: 1fr 1fr; gap: 12px; }
+  .icon-grid   { grid-template-columns: repeat(2, 1fr); }
+}
+@media screen and (max-width: 768px) {
+  body { padding: 16px; }
+  .form-grid   { grid-template-columns: 1fr; }
+  .icon-grid   { grid-template-columns: 1fr; }
+  .button-row  { grid-template-columns: 1fr; }
+}
+
+</style>
+
+<script src="../auth.js"></script>
+</head>
+<body>
+
+<div class="container">
+
+  <div class="nav">
+    <button class="nav-back" onclick="goHome()">← 홈으로</button>
+    <span class="nav-title">문진하기</span>
+    <span class="step-badge">STEP 1</span>
+  </div>
+
+  <div class="page-title">고객 문진</div>
+  <div class="page-sub">기초 정보를 입력하면 상담 시 자동 연동됩니다</div>
+
+  <!-- 고객 정보 -->
+  <div class="section-card">
+    <div class="section-header">
+      <div class="section-icon icon-blue">👤</div>
+      <div class="section-title">고객 기본 정보</div>
+    </div>
+
+    <div class="form-grid">
+      <div class="form-group">
+        <label>성명</label>
+        <input type="text" id="name" placeholder="홍길동">
+      </div>
+
+      <div class="form-group">
+        <label>연락처</label>
+        <input type="text" id="phone" placeholder="010-0000-0000" maxlength="13">
+      </div>
+
+      <div class="form-group">
+        <label>성별</label>
+        <div class="toggle-group">
+          <button class="toggle-btn active" id="btn-male"   onclick="setGender('남')">남성</button>
+          <button class="toggle-btn"        id="btn-female" onclick="setGender('여')">여성</button>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>나이</label>
+        <input type="number" id="age" placeholder="예: 35" min="1" max="120">
+      </div>
+
+      <div class="form-group">
+        <label>방문 유형</label>
+        <div class="toggle-group">
+          <button class="toggle-btn active" id="btn-new" onclick="setVisit('신규')">신규</button>
+          <button class="toggle-btn"        id="btn-re"  onclick="setVisit('재방')">재방</button>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>담당 안경사</label>
+        <input type="text" id="optician" placeholder="담당자 이름">
+      </div>
+    </div>
+  </div>
+
+  <!-- 라이프스타일 -->
+  <div class="section-card">
+    <div class="section-header">
+      <div class="section-icon icon-teal">🌿</div>
+      <div class="section-title">라이프스타일 <span style="font-size:12px;color:var(--muted);font-weight:400;">(복수 선택 가능)</span></div>
+    </div>
+
+    <div class="icon-grid" id="lifestyle">
+      <div class="icon-item" data-value="컴퓨터">
+        <div class="item-emoji">💻</div>
+        <div class="item-text">
+          <div class="item-label">장시간 컴퓨터</div>
+          <div class="item-desc">업무, 게임 등 장시간 사용</div>
+        </div>
+      </div>
+      <div class="icon-item" data-value="운전">
+        <div class="item-emoji">🚗</div>
+        <div class="item-text">
+          <div class="item-label">운전 많음</div>
+          <div class="item-desc">야간 운전 포함</div>
+        </div>
+      </div>
+      <div class="icon-item" data-value="야외활동">
+        <div class="item-emoji">🌞</div>
+        <div class="item-text">
+          <div class="item-label">야외 활동</div>
+          <div class="item-desc">골프, 등산, 스포츠</div>
+        </div>
+      </div>
+      <div class="icon-item" data-value="스마트폰">
+        <div class="item-emoji">📱</div>
+        <div class="item-text">
+          <div class="item-label">스마트폰 과다</div>
+          <div class="item-desc">장시간 근거리 사용</div>
+        </div>
+      </div>
+      <div class="icon-item" data-value="독서">
+        <div class="item-emoji">📚</div>
+        <div class="item-text">
+          <div class="item-label">독서·문서 작업</div>
+          <div class="item-desc">장시간 근거리 집중</div>
+        </div>
+      </div>
+      <div class="icon-item" data-value="정밀작업">
+        <div class="item-emoji">🔬</div>
+        <div class="item-text">
+          <div class="item-label">정밀 작업</div>
+          <div class="item-desc">세밀한 시각 집중 필요</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="selected-tags" id="lifestyle-tags"></div>
+  </div>
+
+  <!-- 불편사항 -->
+  <div class="section-card">
+    <div class="section-header">
+      <div class="section-icon icon-purple">⚡</div>
+      <div class="section-title">시각 불편사항 <span style="font-size:12px;color:var(--muted);font-weight:400;">(복수 선택 가능)</span></div>
+    </div>
+
+    <div class="icon-grid" id="symptoms">
+      <div class="icon-item" data-value="눈피로">
+        <div class="item-emoji">😵</div>
+        <div class="item-text">
+          <div class="item-label">눈 피로</div>
+          <div class="item-desc">쉽게 피곤해짐</div>
+        </div>
+      </div>
+      <div class="icon-item" data-value="야간눈부심">
+        <div class="item-emoji">🌙</div>
+        <div class="item-text">
+          <div class="item-label">야간 눈부심</div>
+          <div class="item-desc">빛 번짐, 핼로 현상</div>
+        </div>
+      </div>
+      <div class="icon-item" data-value="초점흐림">
+        <div class="item-emoji">👀</div>
+        <div class="item-text">
+          <div class="item-label">초점 흐림</div>
+          <div class="item-desc">가까운/먼 거리 불편</div>
+        </div>
+      </div>
+      <div class="icon-item" data-value="건조">
+        <div class="item-emoji">💧</div>
+        <div class="item-text">
+          <div class="item-label">건조함</div>
+          <div class="item-desc">눈 뻑뻑함, 이물감</div>
+        </div>
+      </div>
+      <div class="icon-item" data-value="두통">
+        <div class="item-emoji">🤕</div>
+        <div class="item-text">
+          <div class="item-label">두통·어지럼</div>
+          <div class="item-desc">장시간 착용 후 두통</div>
+        </div>
+      </div>
+      <div class="icon-item" data-value="근거리불편">
+        <div class="item-emoji">📖</div>
+        <div class="item-text">
+          <div class="item-label">근거리 불편</div>
+          <div class="item-desc">가까운 거리 집중 어려움</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="selected-tags" id="symptoms-tags"></div>
+  </div>
+
+  <!-- 버튼 -->
+  <div class="button-row">
+    <button class="btn btn-secondary" onclick="goHome()">홈으로</button>
+    <button class="btn btn-primary"   onclick="submitForm()">다음 단계 → 처방전 보기</button>
+  </div>
+
+</div>
+
+<script>
+let gender = '남';
+let visit  = '신규';
+
+function setGender(val) {
+  gender = val;
+  document.getElementById('btn-male').classList.toggle('active', val === '남');
+  document.getElementById('btn-female').classList.toggle('active', val === '여');
+}
+
+function setVisit(val) {
+  visit = val;
+  document.getElementById('btn-new').classList.toggle('active', val === '신규');
+  document.getElementById('btn-re').classList.toggle('active',  val === '재방');
+}
+
+/* 라이프스타일 — 파란색 토글 */
+document.querySelectorAll('#lifestyle .icon-item').forEach(item => {
+  item.addEventListener('click', () => {
+    item.classList.toggle('active');
+    updateTags('lifestyle', 'lifestyle-tags', 'tag-blue', 'active');
+  });
+});
+
+/* [FIX] 증상 — 초록색 토글 (active-teal 클래스 실제 적용) */
+document.querySelectorAll('#symptoms .icon-item').forEach(item => {
+  item.addEventListener('click', () => {
+    item.classList.toggle('active-teal');
+    updateTags('symptoms', 'symptoms-tags', 'tag-teal', 'active-teal');
+  });
+});
+
+/* [FIX] activeClass 파라미터 추가로 라이프스타일/증상 구분 */
+function updateTags(gridId, tagsId, tagClass, activeClass) {
+  const selected = [...document.querySelectorAll(`#${gridId} .${activeClass}`)].map(el => el.dataset.value);
+  const container = document.getElementById(tagsId);
+  container.innerHTML = selected.map(v => `<span class="tag ${tagClass}">${v}</span>`).join('');
+}
+
+/* 전화번호 포맷 */
+document.getElementById("phone").addEventListener("input", function () {
+  const n = this.value.replace(/[^0-9]/g, "").slice(0, 11);
+  if      (n.length <= 3) this.value = n;
+  else if (n.length <= 7) this.value = n.replace(/(\d{3})(\d+)/, "$1-$2");
+  else                    this.value = n.replace(/(\d{3})(\d{4})(\d+)/, "$1-$2-$3");
+});
+
+function submitForm() {
+  const name = document.getElementById("name").value.trim();
+  if (!name) { alert("성명을 입력해주세요."); return; }
+
+  const data = {
+    name,
+    phone:     document.getElementById("phone").value.trim(),
+    gender,
+    age:       document.getElementById("age").value,
+    visit,
+    optician:  document.getElementById("optician").value.trim(),
+    lifestyle: [...document.querySelectorAll('#lifestyle .active')].map(el => el.dataset.value),
+    symptoms:  [...document.querySelectorAll('#symptoms .active-teal')].map(el => el.dataset.value),
+    date:      new Date().toLocaleDateString('ko-KR')
+  };
+
+  localStorage.setItem("customerData", JSON.stringify(data));
+  location.href = "prescription.html";
+}
+
+function goHome() {
+  location.href = "../index.html";
+}
+
+/* [FIX] 인증 게이트 — body 최하단 실행, DOM 준비 완료 상태 */
+(function () {
+  const c = document.querySelector(".container");
+  if (c) c.style.opacity = "0";
+  showAccessGate(function () {
+    if (c) c.style.opacity = "1";
+  });
+})();
+</script>
+
+</body>
+</html>

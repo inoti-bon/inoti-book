@@ -1,0 +1,862 @@
+<!DOCTYPE html>
+<html lang="ko" translate="no">
+<head>
+<meta charset="UTF-8">
+<meta name="google" content="notranslate">
+<meta http-equiv="Content-Language" content="ko">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&display=swap" rel="stylesheet">
+<title>처방전</title>
+
+<style>
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  padding: 10px;
+  font-family: 'Noto Sans KR', Arial, sans-serif;
+  background: #f1f5f9;
+  color: #111;
+}
+
+.container {
+  max-width: 190mm;
+  width: 100%;
+  margin: auto;
+  background: #fff;
+  padding: 8px;
+}
+
+.title {
+  text-align: center;
+  font-weight: 900;
+  font-size: 25px;
+  margin-bottom: 8px;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 10.5px;
+  margin-bottom: 8px;
+  table-layout: fixed;
+}
+
+th, td {
+  border: 1px solid #111;
+  padding: 5px;
+  text-align: center;
+  vertical-align: middle;
+  height: 28px;
+}
+
+th {
+  background: #f8fafc;
+  font-weight: 700;
+}
+
+.section-title {
+  background: #e5e7eb;
+  font-weight: 900;
+}
+
+.order-title,
+.receipt-title {
+  font-size: 13px;
+  font-weight: 900;
+  height: 30px;
+}
+
+.dark-title {
+  background: #1f2937;
+  color: #fff;
+  font-weight: 800;
+}
+
+input {
+  width: 100%;
+  border: none;
+  outline: none;
+  text-align: center;
+  font-size: 10.5px;
+  background: transparent;
+}
+
+.survey-box {
+  min-height: 86px;
+  text-align: left;
+  padding: 12px;
+  line-height: 1.7;
+  background: #f8fafc;
+}
+
+.survey-title {
+  font-size: 13px;
+  font-weight: 900;
+  margin-bottom: 5px;
+}
+
+.recommend-box {
+  min-height: 64px;
+  text-align: left;
+  padding: 10px;
+  line-height: 1.55;
+  background: #eef2ff;
+}
+
+.recommend-title {
+  font-size: 13px;
+  font-weight: 900;
+  margin-bottom: 5px;
+  color: #1e3a8a;
+}
+
+.recommend-tag,
+.tag {
+  display: inline-flex;
+  align-items: center;
+  border-radius: 10px;
+  margin: 3px;
+  font-weight: 800;
+}
+
+.tag {
+  background: #dbeafe;
+  color: #1e3a8a;
+  border: 1px solid #60a5fa;
+  padding: 5px 10px;
+  font-size: 10.5px;
+  min-width: 56px;
+}
+
+.recommend-tag {
+  background: #fff;
+  color: #1e293b;
+  border: 1px solid #818cf8;
+  padding: 5px 9px;
+  font-size: 10px;
+}
+
+.label-left {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+}
+
+.label-left span {
+  width: 22px;
+  text-align: left;
+  white-space: nowrap;
+}
+
+.label-left input { flex: 1; }
+
+.unit-cell {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  width: 100%;
+}
+
+.unit-cell input {
+  flex: 1;
+  min-width: 0;
+}
+
+.unit {
+  width: 18px;
+  text-align: right;
+  font-size: 9px;
+  white-space: nowrap;
+}
+
+.inline-check {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  margin: 0 4px;
+  white-space: nowrap;
+}
+
+.inline-check input { width: auto; }
+
+.parameter-layout {
+  display: grid;
+  grid-template-columns: 38% 60%;
+  gap: 2%;
+  margin-bottom: 8px;
+  width: 100%;
+  overflow: hidden;
+}
+
+.parameter-layout table {
+  margin-bottom: 0;
+  font-size: 9px;
+}
+
+.parameter-layout th,
+.parameter-layout td {
+  padding: 3px;
+  height: 28px;
+}
+
+.parameter-layout .unit {
+  width: 13px;
+  font-size: 7.8px;
+}
+
+.parameter-image-box {
+  border: 1px solid #111;
+  height: 96px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.parameter-image-box img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.cut-line {
+  border-top: 1px dashed #111;
+  margin: 24px 0 24px;
+  position: relative;
+}
+
+.cut-line::before {
+  content: "절취선";
+  position: absolute;
+  top: -8px;
+  left: 10px;
+  background: #fff;
+  padding: 0 6px;
+  font-size: 10px;
+}
+
+.footer-store {
+  text-align: center;
+  margin-top: 14px;
+  font-size: 12px;
+  font-weight: 800;
+  color: #111;
+  letter-spacing: 0.3px;
+}
+
+.store-blank {
+  display: inline-block;
+  width: 150px;        /* 매장명 작성 공간 */
+  border-bottom: 1.5px solid #111;
+  vertical-align: bottom;
+  height: 14px;
+  margin: 0 4px;
+}
+
+.button-group {
+  display: flex;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+button {
+  flex: 1;
+  padding: 12px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.btn-primary { background: #2563eb; color: white; }
+.btn-secondary { background: #334155; color: white; }
+.btn-green { background: #059669; color: white; }
+
+@page {
+  size: A4 portrait;
+  margin: 5mm;
+}
+
+
+
+  /* [FIX] 중첩 @media print 제거 — 인쇄 스타일 단일 블록으로 통합 */
+  .footer-store {
+    margin-top: 10px;
+    font-size: 10px;
+  }
+
+  .store-blank {
+    width: 135px;
+    height: 12px;
+    vertical-align: bottom;
+  }
+
+  .container {
+    width: 200mm;
+    padding: 0;
+    margin: 0 auto;
+  }
+
+  .title {
+    font-size: 25px;
+    margin-bottom: 7px;
+  }
+
+  table {
+    font-size: 9.2px;
+    margin-bottom: 6px;
+  }
+
+  th, td {
+    padding: 3px;
+    height: 24px;
+  }
+
+  input {
+    font-size: 9.2px;
+  }
+
+  .survey-box {
+    min-height: 72px;
+    padding: 8px;
+    line-height: 1.55;
+  }
+
+  .recommend-box {
+    min-height: 54px;
+    padding: 7px;
+    line-height: 1.4;
+  }
+
+  .tag {
+    font-size: 8.8px;
+    padding: 3px 6px;
+    margin: 1.5px;
+    min-width: 44px;
+  }
+
+  .recommend-tag {
+    font-size: 8.4px;
+    padding: 3px 6px;
+    margin: 1.5px;
+  }
+
+  .parameter-image-box {
+    height: 84px;
+  }
+
+  .parameter-layout th,
+  .parameter-layout td {
+    padding: 2px;
+    height: 23px;
+  }
+
+  .order-title,
+  .receipt-title {
+    font-size: 11px;
+    height: 25px;
+  }
+
+  .cut-line {
+    margin: 22px 0 22px;
+  }
+
+  .button-group {
+    display: none;
+  }
+}
+
+  .cust-zs-col{flex:1 1 90%!important;max-width:100%!important;min-width:0!important;}
+  .badge-name{font-size:16px!important;}
+  .zs-td{font-size:11px!important;padding:2px 3px!important;}
+  .es-img-tbl th,.es-img-tbl td{font-size:11px!important;padding:4px 5px!important;}
+  .brand-tabs{gap:4px!important;}
+  .bottom-bar{padding:6px 12px!important;}
+}
+
+/* ── 전역 터치 최적화 ── */
+button, a, input, select, textarea,
+.toggle-btn, .icon-item, .card, .side-btn, .sb-btn,
+.tab-btn, .brand-tab, .cat-card, .icon-card {
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* ── 태블릿 반응형 (처방전) ── */
+@media screen and (max-width: 1024px) {
+  .container { max-width: 100%; width: 100%; padding: 12px; }
+  table { font-size: 10px; }
+}
+@media screen and (max-width: 768px) {
+  body { padding: 8px; }
+  .container { padding: 8px; }
+  .title { font-size: 18px; }
+  th, td { padding: 3px; font-size: 9.5px; height: 24px; }
+}
+@media print {
+  .container { width: 190mm; padding: 8px; }
+  .no-print  { display: none !important; }
+}
+
+</style>
+
+<script src="../auth.js"></script>
+</head>
+
+<body>
+
+<div class="container">
+
+  <div class="title">INOTI 이노티안경체인 안경 시력 검사 차트</div>
+
+  <!-- 고객 정보 -->
+  <table>
+    <colgroup>
+      <col style="width:9%">
+      <col style="width:25%">
+      <col style="width:7%">
+      <col style="width:7%">
+      <col style="width:7%">
+      <col style="width:7%">
+      <col style="width:7%">
+      <col style="width:8%">
+      <col style="width:8%">
+      <col style="width:15%">
+    </colgroup>
+    <tr>
+      <th>날짜</th>
+      <td><input id="date"></td>
+      <th>신규</th>
+      <td><input type="checkbox" id="newVisit"></td>
+      <th>재방</th>
+      <td><input type="checkbox" id="reVisit"></td>
+      <th>성별</th>
+      <td><input id="gender"></td>
+      <th>나이</th>
+      <td><input id="age"></td>
+    </tr>
+    <tr>
+      <th>고객명</th>
+      <td colspan="2"><input id="customerName"></td>
+      <th>연락처</th>
+      <td colspan="3"><input id="phone" maxlength="13"></td>
+      <th>담당자</th>
+      <td colspan="2"><input id="manager"></td>
+    </tr>
+  </table>
+
+  <!-- 문진 내용 -->
+  <table>
+    <tr>
+      <td class="survey-box">
+        <div class="survey-title">문진 내용</div>
+        <div id="surveySummary"></div>
+      </td>
+    </tr>
+  </table>
+
+  <!-- 추천 렌즈 -->
+  <table>
+    <tr>
+      <td class="recommend-box">
+        <div class="recommend-title">추천 렌즈</div>
+        <div id="lensRecommend"></div>
+      </td>
+    </tr>
+  </table>
+
+  <!-- 구안경 -->
+  <table>
+    <colgroup>
+      <col style="width:9%">
+      <col style="width:8%">
+      <col style="width:41%">
+      <col style="width:14%">
+      <col style="width:14%">
+      <col style="width:14%">
+    </colgroup>
+    <tr>
+      <th rowspan="2">구안경</th>
+      <th>O.D</th>
+      <td><input id="old_od"></td>
+      <td><div class="label-left"><span>시력</span><input id="old_od_vision"></div></td>
+      <th>동공Size R</th>
+      <td><div class="unit-cell"><input id="pupil_r"><span class="unit">mm</span></div></td>
+    </tr>
+    <tr>
+      <th>O.S</th>
+      <td><input id="old_os"></td>
+      <td><div class="label-left"><span>시력</span><input id="old_os_vision"></div></td>
+      <th>동공Size L</th>
+      <td><div class="unit-cell"><input id="pupil_l"><span class="unit">mm</span></div></td>
+    </tr>
+  </table>
+
+  <!-- 기능 검사 -->
+  <table>
+    <colgroup>
+      <col style="width:10%">
+      <col style="width:16%">
+      <col style="width:12%">
+      <col style="width:8%">
+      <col style="width:27%">
+      <col style="width:27%">
+    </colgroup>
+    <tr>
+      <th>NRA</th>
+      <td><div class="unit-cell">+ <input id="nra"><span class="unit">D</span></div></td>
+      <th rowspan="2">V-Phoria</th>
+      <th>O.D</th>
+      <td><div class="label-left"><span>분리</span><input id="vphoria_od_break"></div></td>
+      <td><div class="label-left"><span>회복</span><input id="vphoria_od_recovery"></div></td>
+    </tr>
+    <tr>
+      <th>PRA</th>
+      <td><div class="unit-cell">- <input id="pra"><span class="unit">D</span></div></td>
+      <th>O.S</th>
+      <td><div class="label-left"><span>분리</span><input id="vphoria_os_break"></div></td>
+      <td><div class="label-left"><span>회복</span><input id="vphoria_os_recovery"></div></td>
+    </tr>
+    <tr>
+      <th>우위안</th>
+      <td>
+        <span class="inline-check">R <input type="checkbox" id="dominant_r"></span>
+        <span class="inline-check">L <input type="checkbox" id="dominant_l"></span>
+      </td>
+      <th>Cover Test</th>
+      <td>
+        <span class="inline-check">EXO <input type="checkbox" id="exo"></span>
+        <span class="inline-check">ESO <input type="checkbox" id="eso"></span>
+      </td>
+      <th>폭주근점</th>
+      <td>
+        <span class="inline-check">정상 <input type="checkbox" id="npc_normal"></span>
+        <span class="inline-check">이상 <input type="checkbox" id="npc_abnormal"></span>
+      </td>
+    </tr>
+    <tr>
+      <th>조절근점</th>
+      <td colspan="5">
+        <span class="inline-check">정상 <input type="checkbox" id="ac_normal"></span>
+        <span class="inline-check">이상 <input type="checkbox" id="ac_abnormal"></span>
+        <span style="margin-left:14px;">양안</span>
+        <input id="binocular" style="width:65px;"> cpm
+        <span style="margin-left:14px;">단안</span>
+        <input id="monocular" style="width:65px;"> cpm
+      </td>
+    </tr>
+  </table>
+
+  <!-- 최종 처방 -->
+  <table>
+    <colgroup>
+      <col style="width:9%">
+      <col style="width:7%">
+      <col style="width:10%">
+      <col style="width:10%">
+      <col style="width:10%">
+      <col style="width:10%">
+      <col style="width:12%">
+      <col style="width:11%">
+      <col style="width:11%">
+      <col style="width:10%">
+    </colgroup>
+    <tr class="section-title">
+      <th rowspan="3">최종처방</th>
+      <th></th>
+      <th>SPH</th>
+      <th>CYL</th>
+      <th>AXIS</th>
+      <th>ADD</th>
+      <th>PRISM</th>
+      <th>원용PD</th>
+      <th>근용PD</th>
+      <th>교정시력</th>
+    </tr>
+    <tr>
+      <th>O.D</th>
+      <td><input id="r_sph"></td>
+      <td><input id="r_cyl"></td>
+      <td><input id="r_axis"></td>
+      <td><input id="r_add"></td>
+      <td><input id="r_prism"></td>
+      <td><div class="unit-cell"><input id="r_far_pd"><span class="unit">mm</span></div></td>
+      <td><div class="unit-cell"><input id="r_near_pd"><span class="unit">mm</span></div></td>
+      <td><input id="r_corrected"></td>
+    </tr>
+    <tr>
+      <th>O.S</th>
+      <td><input id="l_sph"></td>
+      <td><input id="l_cyl"></td>
+      <td><input id="l_axis"></td>
+      <td><input id="l_add"></td>
+      <td><input id="l_prism"></td>
+      <td><div class="unit-cell"><input id="l_far_pd"><span class="unit">mm</span></div></td>
+      <td><div class="unit-cell"><input id="l_near_pd"><span class="unit">mm</span></div></td>
+      <td><input id="l_corrected"></td>
+    </tr>
+  </table>
+
+  <!-- 매개변수 측정 -->
+  <table>
+    <tr>
+      <th colspan="8" class="section-title">FRAME</th>
+    </tr>
+    <tr>
+      <th class="dark-title">가로<br>ES</th>
+      <th class="dark-title">브릿지<br>DBL</th>
+      <th class="dark-title">대각<br>ED</th>
+      <th class="dark-title">상하<br>VL</th>
+      <th class="dark-title">OH</th>
+      <th class="dark-title">테종류</th>
+      <th class="dark-title">최소가두께<br>ET</th>
+      <th class="dark-title">커브<br>Curve</th>
+    </tr>
+    <tr>
+      <td><div class="unit-cell"><input id="es"><span class="unit">mm</span></div></td>
+      <td><div class="unit-cell"><input id="dbl"><span class="unit">mm</span></div></td>
+      <td><div class="unit-cell"><input id="ed"><span class="unit">mm</span></div></td>
+      <td><div class="unit-cell"><input id="vl"><span class="unit">mm</span></div></td>
+      <td><div class="unit-cell"><input id="oh"><span class="unit">mm</span></div></td>
+      <td><input id="frame_type"></td>
+      <td><div class="unit-cell"><input id="et"><span class="unit">mm</span></div></td>
+      <td><input id="curve"></td>
+    </tr>
+  </table>
+
+  <div class="parameter-layout">
+    <div class="parameter-image-box">
+      <img src="data:image/png;base64,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" alt="매개변수 측정 이미지">
+    </div>
+
+    <table>
+      <colgroup>
+        <col style="width:9%">
+        <col style="width:21%">
+        <col style="width:23%">
+        <col style="width:23%">
+        <col style="width:24%">
+      </colgroup>
+      <tr>
+        <th class="dark-title"></th>
+        <th class="dark-title">경사각<br>PA</th>
+        <th class="dark-title">안면각<br>FFA</th>
+        <th class="dark-title">정간거리<br>VD</th>
+        <th class="dark-title">근용거리<br>ND</th>
+      </tr>
+      <tr>
+        <th class="dark-title">R</th>
+        <td><input id="r_pa"></td>
+        <td><input id="r_ffa"></td>
+        <td><div class="unit-cell"><input id="r_vd"><span class="unit">mm</span></div></td>
+        <td><div class="unit-cell"><input id="r_nd"><span class="unit">cm</span></div></td>
+      </tr>
+      <tr>
+        <th class="dark-title">L</th>
+        <td><input id="l_pa"></td>
+        <td><input id="l_ffa"></td>
+        <td><div class="unit-cell"><input id="l_vd"><span class="unit">mm</span></div></td>
+        <td><div class="unit-cell"><input id="l_nd"><span class="unit">cm</span></div></td>
+      </tr>
+    </table>
+  </div>
+
+  <!-- 주문 차트 -->
+  <table>
+    <tr>
+      <th colspan="4" class="section-title order-title">INOTI 이노티안경체인 안경 주문차트</th>
+    </tr>
+    <tr>
+      <th style="width:12%">Frame</th>
+      <td colspan="3"><input id="frame"></td>
+    </tr>
+    <tr>
+      <th>Lens</th>
+      <td colspan="3"><input id="lens"></td>
+    </tr>
+    <tr>
+      <th>총결제</th>
+      <td><input id="total_price"></td>
+      <th>선결제</th>
+      <td><input id="prepay"></td>
+    </tr>
+    <tr>
+      <th>포인트</th>
+      <td><input id="point"></td>
+      <th>미결제</th>
+      <td><input id="unpaid"></td>
+    </tr>
+  </table>
+
+  <div class="cut-line"></div>
+
+  <!-- 인수증 -->
+  <table>
+    <tr>
+      <th colspan="4" class="section-title receipt-title">INOTI 이노티안경체인 안경 인수증 (고객용)</th>
+    </tr>
+    <tr>
+      <th>고객명</th>
+      <td><input id="receipt_name"></td>
+      <th>연락처</th>
+      <td><input id="receipt_phone" maxlength="13"></td>
+    </tr>
+    <tr>
+      <th>주문일</th>
+      <td><input id="order_date"></td>
+      <th>완성예정일</th>
+      <td><input id="complete_date"></td>
+    </tr>
+    <tr>
+      <th>담당안경사</th>
+      <td><input id="optician"></td>
+      <th>기타</th>
+      <td><input id="memo"></td>
+    </tr>
+  </table>
+
+<!-- 하단 브랜드 문구 -->
+<div class="footer-store">
+  INOTI 착한 브랜드 = 착한 안경원 - 이노티안경 (
+  <span class="store-blank"></span>
+  )점
+</div>
+
+  <div class="button-group">
+    <button class="btn-secondary" onclick="goBack()">이전페이지</button>
+    <button class="btn-green" onclick="goAnalysis()">시력데이터분석하기</button>
+    <button class="btn-primary" onclick="printPrescription()">처방전 출력</button>
+  </div>
+
+</div>
+
+<script>
+/* [FIX] 인증 게이트 — body 최하단 실행, DOM 준비 완료 상태 */
+showAccessGate(function () {
+  initPage();
+});
+
+function initPage() {
+
+const data = JSON.parse(localStorage.getItem('customerData')) || {};
+
+function setValue(id, value) {
+  const el = document.getElementById(id);
+  if (el) el.value = value || "";
+}
+
+function formatPhone(value) {
+  const numbers = String(value || "").replace(/[^0-9]/g, "").slice(0, 11);
+  if (numbers.length <= 3) return numbers;
+  if (numbers.length <= 7) return numbers.replace(/(\d{3})(\d+)/, "$1-$2");
+  return numbers.replace(/(\d{3})(\d{4})(\d+)/, "$1-$2-$3");
+}
+
+function bindPhoneFormat(id) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  el.addEventListener("input", function() {
+    this.value = formatPhone(this.value);
+  });
+}
+
+function todayText() {
+  const d = new Date();
+  return `${d.getFullYear()}년 ${String(d.getMonth()+1).padStart(2,'0')}월 ${String(d.getDate()).padStart(2,'0')}일`;
+}
+
+const customerName = data.name || "";
+const customerPhone = data.phone || "";
+
+setValue("date", todayText());
+setValue("order_date", todayText());
+
+setValue("customerName", customerName);
+setValue("receipt_name", customerName);
+
+setValue("phone", formatPhone(customerPhone));
+setValue("receipt_phone", formatPhone(customerPhone));
+
+setValue("gender", data.gender);
+setValue("age", data.age);
+setValue("manager", data.optician);
+setValue("optician", data.optician);
+
+bindPhoneFormat("phone");
+bindPhoneFormat("receipt_phone");
+
+if (data.visit === "신규") document.getElementById("newVisit").checked = true;
+if (data.visit === "재방") document.getElementById("reVisit").checked = true;
+
+/* 문진 아이콘 매핑 */
+const lifestyleIconMap = {
+  "컴퓨터": "💻",
+  "운전": "🚗",
+  "야외활동": "🌞",
+  "스마트폰": "📱",
+  "독서": "📚",
+  "정밀작업": "🔬"
+};
+
+const symptomsIconMap = {
+  "눈피로": "😵",
+  "야간눈부심": "🌙",
+  "초점흐림": "👀",
+  "건조": "💧",
+  "두통": "🤕",
+  "근거리불편": "📖"
+};
+
+function makeTags(items, iconMap) {
+  return (items || []).map(v => `
+    <span class="tag">
+      <span style="margin-right:4px;">${iconMap[v] || "•"}</span>${v}
+    </span>
+  `).join("") || "-";
+}
+
+document.getElementById("surveySummary").innerHTML = `
+  <div><b>라이프스타일:</b>
+    ${makeTags(data.lifestyle, lifestyleIconMap)}
+  </div>
+  <div style="margin-top:3px;"><b>시각 불편사항:</b>
+    ${makeTags(data.symptoms, symptomsIconMap)}
+  </div>
+`;
+
+function makeLensRecommend() {
+  const lifestyle = data.lifestyle || [];
+  const symptoms = data.symptoms || [];
+  const age = Number(data.age || 0);
+
+  let result = [];
+
+  if (age >= 40) result.push("👓 누진다초점 렌즈");
+  if (lifestyle.includes("컴퓨터") || lifestyle.includes("스마트폰") || lifestyle.includes("독서") || lifestyle.includes("정밀작업")) result.push("💻 디지털 피로 완화 렌즈");
+  if (symptoms.includes("눈피로")) result.push("😵 기능성 피로 완화 렌즈");
+  if (symptoms.includes("야간눈부심")) result.push("🌙 야간 빛번짐 완화 코팅");
+  if (symptoms.includes("건조")) result.push("💧 고급 발수·방오 코팅 렌즈");
+  if (symptoms.includes("두통")) result.push("🤕 조절기능 강화 렌즈");
+  if (symptoms.includes("근거리불편") && age < 40) result.push("📖 근거리 보조 렌즈");
+  if (lifestyle.includes("야외활동")) result.push("🌞 변색렌즈 또는 자외선 차단 렌즈");
+  if (lifestyle.includes("운전")) result.push("🚗 운전용 선명도 강화 렌즈");
+
+  if (result.length === 0) result.push("👓 기본 단초점 렌즈");
+
+  document.getElementById("lensRecommend").innerHTML =
+    result.map(v => `<span class="recommend-tag">${v}</span>`).join("");
+}
+
+makeLensRecommend();
+
+} // end initPage
+
+/* [FIX] 전역 함수로 이동 — onclick 속성에서 접근 가능하도록 */
+function goBack()             { location.href = "questionnaire.html"; }
+function goAnalysis()         { location.href = "../vision/vision_input.html"; }
+function printPrescription()  { window.print(); }
+</script>
+
+</body>
+</html>

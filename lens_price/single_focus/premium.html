@@ -1,0 +1,1142 @@
+<!DOCTYPE html>
+<html lang="ko" translate="no">
+<head>
+<meta charset="UTF-8">
+<meta name="google" content="notranslate">
+<meta http-equiv="Content-Language" content="ko">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>프리미엄렌즈</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&display=swap" rel="stylesheet">
+<style>
+
+html,body{height:100%;}
+:root{
+  --bg:#f0f4f8; --surface:#ffffff; --surface2:#e8eef5;
+  --text:#0f1c2e; --muted:#4b6080; --border:rgba(0,0,0,0.09);
+  --accent:#1d4ed8; --accent2:#0d9488; --accent3:#6d28d9;
+  --sidebar-w:168px;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Noto Sans KR', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif;background:var(--bg);color:var(--text);min-height:100vh;display:flex;flex-direction:column;font-size:13px;}
+
+/* 상단바 */
+.top-bar{position:relative;z-index:10;background:rgba(248,250,252,0.97);border-bottom:1px solid var(--border);padding:10px 24px;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(10px);}
+.top-brand{font-family: 'Noto Sans KR', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif;font-size:16px;color:var(--text);}
+.top-actions{display:flex;gap:6px;align-items:center;}
+
+
+
+/* 저장됨 토스트 */
+.toast{
+  position:fixed;bottom:80px;left:50%;transform:translateX(-50%);
+  background:#059669;color:white;
+  padding:10px 22px;border-radius:10px;
+  font-size:13px;font-weight:700;
+  opacity:0;transition:opacity .3s;
+  z-index:200;pointer-events:none;
+  white-space:nowrap;
+}
+.toast.show{opacity:1;}
+
+/* 레이아웃 */
+.layout{position:relative;z-index:1;display:flex;flex:1;}
+
+/* 사이드바 */
+.sidebar{width:var(--sidebar-w);flex-shrink:0;background:#ffffff;border-right:1px solid var(--border);position:sticky;top:0;height:100vh;display:flex;flex-direction:column;padding:20px 12px;gap:4px;overflow-y:auto;}
+.sb-label{font-size:11px;font-weight:900;letter-spacing:2px;text-transform:uppercase;color:#444444;padding:0 6px;margin-bottom:8px;margin-top:4px;}
+.sb-btn{display:flex;align-items:center;gap:8px;padding:10px 12px;border-radius:10px;border:1px solid transparent;background:transparent;color:#111111;font-size:14px;font-weight:700;cursor:pointer;font-family:'Noto Sans KR', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif;transition:all .2s;text-decoration:none;width:100%;}
+.sb-btn:hover{background:rgba(0,0,0,0.06);color:#000000;}
+.sb-btn.on-cat{background:rgba(29,78,216,0.08);border-color:rgba(37,99,235,0.35);color:#1d4ed8;}
+.sb-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0;}
+.sb-div{height:1px;background:var(--border);margin:6px 0;}
+.sb-spacer{flex:1;}
+.sb-sub{display:flex;align-items:center;gap:7px;padding:8px 10px 8px 22px;border-radius:8px;border:1px solid transparent;background:transparent;color:#111111;font-size:13px;font-weight:600;cursor:pointer;font-family:'Noto Sans KR', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif;transition:all .2s;text-decoration:none;width:100%;}
+.sb-sub:hover{color:#111111;}
+.sb-sub.active{color:#111111;font-weight:700;}
+
+/* 메인 */
+.main{flex:1;padding:16px 16px 100px;overflow-x:auto;}
+
+
+
+  25%  { background-position: 100% 0%; }
+  50%  { background-position: 100% 100%; }
+  75%  { background-position: 0% 100%; }
+  100% { background-position: 0% 0%; }
+}
+
+@keyframes fadeUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+
+
+
+/* ── 도수 배너 ── */
+.rx-banner{background:#eef2ff;border:1px solid var(--border);border-radius:12px;padding:10px 18px;display:flex;align-items:center;gap:14px;margin-bottom:12px;flex-wrap:wrap;min-width:0;box-sizing:border-box;animation:fadeUp .4s ease;}
+.rx-eye{display:flex;align-items:center;gap:7px;}
+.rx-eye-label{font-size:10px;font-weight:700;letter-spacing:1px;color:var(--muted);}
+.rx-val{font-size:14px;font-weight:900;}
+.rx-val.r-col{color:#ef4444;}
+.rx-val.l-col{color:#3b82f6;}
+.rx-sep{width:1px;height:26px;background:var(--border);}
+.rx-tags{display:flex;gap:5px;flex-wrap:wrap;margin-left:auto;}
+.rx-tag{font-size:10px;font-weight:700;padding:2px 9px;border-radius:999px;}
+.rx-tag.warn{background:rgba(245,158,11,0.15);color:#fcd34d;border:1px solid rgba(245,158,11,0.3);}
+.rx-tag.danger{background:rgba(239,68,68,0.15);color:#b91c1c;border:1px solid rgba(239,68,68,0.3);}
+.rx-tag.info{background:rgba(37,99,235,0.15);color:#1e40af;border:1px solid rgba(37,99,235,0.3);}
+.rx-tag.none{background:rgba(34,197,94,0.12);color:#166534;border:1px solid rgba(34,197,94,0.25);}
+
+/* ── 비교 테이블 ── */
+.compare-wrap{min-width:0;animation:fadeUp .45s ease;}
+
+table.ct{width:100%;border-collapse:collapse;}
+table.ct td{
+  border:1px solid rgba(0,0,0,0.09);
+  padding:7px 8px;
+  text-align:center;
+  vertical-align:middle;
+  font-size:12px;
+  line-height:1.4;
+}
+table.ct th{
+  border:1px solid rgba(0,0,0,0.09);
+  padding:7px 8px;
+  text-align:center;
+  vertical-align:middle;
+  line-height:1.4;
+}
+
+/* 등급 헤더 */
+.gh-label{background:rgba(6,10,22,0.8);font-size:11px;font-weight:700;color:var(--muted);width:80px;}
+.gh-custom {background:linear-gradient(135deg,#1e3a8a,#1d4ed8);color:#1d4ed8;font-weight:900;font-size:25px;}
+.gh-premium{background:linear-gradient(135deg,#14532d,#166534);color:#166534;font-weight:900;font-size:25px;}
+.gh-double {background:linear-gradient(135deg,#0f2a5e,#1e56c8);color:#1e40af;font-weight:900;font-size:25px;}
+.gh-uv     {background:linear-gradient(135deg,#4c1d95,#6d28d9);color:#c4b5fd;font-weight:900;font-size:25px;}
+.gh-uvbase {background:linear-gradient(135deg,#1e293b,#334155);color:#cbd5e1;font-weight:900;font-size:25px;}
+
+/* 서브 헤더 (제품 라인명) */
+.sh-row td{background:rgba(0,0,0,0.03);font-size:11px;color:var(--text);font-style:normal;font-family:'Noto Sans KR','Apple SD Gothic Neo','Malgun Gothic',sans-serif;padding:4px 8px;}
+.sh-label {background:rgba(6,10,22,0.8)!important;}
+
+/* 행 레이블 */
+.row-label{background:rgba(6,10,22,0.6);font-size:11px;font-weight:700;color:var(--muted);text-align:center;width:80px;}
+
+/* 가격 행 */
+.price-msrp{color:rgba(255,255,255,0.70);font-size:11px;text-decoration:line-through;}
+.price-sell{font-size:13px;font-weight:900;color:#1e40af;}
+.price-empty{color:rgba(255,255,255,0.15);font-size:12px;}
+
+/* 옵션 행 */
+.opt-row td{background:rgba(0,0,0,0.03);}
+.opt-val{font-size:12px;color:rgba(0,0,0,0.58);}
+.opt-val.add{color:#fcd34d;font-weight:700;}
+.opt-val.dash{color:rgba(255,255,255,0.15);}
+.opt-note{font-size:10px;color:var(--muted);margin-top:2px;}
+
+/* 성능/왜곡 행 */
+.perf-row td{background:rgba(0,0,0,0.03);font-size:11px;color:rgba(255,255,255,0.78);padding:5px 8px;}
+
+/* 왜곡 히트맵 행 */
+
+
+.eye-wrap{display:flex;flex-direction:column;align-items:center;gap:3px;}
+.eye-lbl{font-size:9px;font-weight:700;color:var(--muted);}
+.eye-sub{font-size:9px;color:rgba(255,255,255,0.65);margin-top:2px;}
+.eyes-pair{display:flex;gap:8px;justify-content:center;}
+
+/* 범례 */
+
+
+
+/* 하단 */
+.bottom-bar{position:fixed;bottom:0;left:var(--sidebar-w);right:0;background:rgba(248,250,252,0.97);backdrop-filter:blur(12px);border-top:1px solid var(--border);padding:10px 24px;display:flex;gap:8px;justify-content:center;z-index:50;transition:opacity 0.4s ease;}
+.bbtn{padding:10px 22px;border:none;border-radius:10px;font-size:13px;font-weight:700;cursor:pointer;font-family:'Noto Sans KR', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif;transition:all .2s;}
+.bbtn-ghost{background:rgba(0,0,0,0.03);color:var(--muted);border:1px solid var(--border);}
+.bbtn-ghost:hover{background:rgba(255,255,255,0.1);color:var(--text);}
+.bbtn-blue{background:linear-gradient(135deg,#1d4ed8,#2563eb);color:white;}
+.bbtn-blue:hover{transform:translateY(-1px);}
+
+@media(max-width:768px){.pt td,.pt th{font-size:10px!important;padding:4px 3px!important;}}
+
+
+
+
+
+
+
+/* ── 팝업 오버레이 ── */
+.popup-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.7);backdrop-filter:blur(4px);z-index:200;align-items:center;justify-content:center;}
+.popup-overlay.active{display:flex;}
+.popup-box{background:#ffffff;border:1px solid rgba(37,99,235,0.3);border-radius:20px;padding:28px 28px 24px;max-width:620px;width:90%;max-height:80vh;overflow-y:auto;box-shadow:0 4px 16px rgba(0,0,0,0.10);animation:popIn .3s ease;}
+@keyframes popIn{from{opacity:0;transform:scale(.94) translateY(10px)}to{opacity:1;transform:scale(1) translateY(0)}}
+.popup-header{display:flex;align-items:center;justify-content:center;margin-bottom:20px;padding-bottom:14px;border-bottom:1px solid var(--border);}
+.popup-title{font-family:'Noto Sans KR','Apple SD Gothic Neo','Malgun Gothic',sans-serif;font-size:18px;color:var(--text);}
+.popup-close{width:32px;height:32px;border-radius:50%;background:rgba(0,0,0,0.03);border:none;color:var(--muted);font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .2s;}
+.popup-close:hover{background:rgba(255,255,255,0.15);color:var(--text);}
+.coating-list{display:flex;flex-direction:column;gap:10px;}
+.coating-item{display:flex;align-items:flex-start;gap:14px;padding:14px 16px;background:rgba(0,0,0,0.03);border:1px solid var(--border);border-radius:12px;transition:background .2s;}
+.coating-item:hover{background:rgba(37,99,235,0.06);border-color:rgba(37,99,235,0.2);}
+.ci-icon{font-size:22px;min-width:36px;height:36px;display:flex;align-items:center;justify-content:center;background:rgba(37,99,235,0.1);border-radius:10px;flex-shrink:0;}
+.ci-name{font-size:13px;font-weight:700;color:var(--text);margin-bottom:4px;}
+.ci-desc{font-size:12px;color:var(--muted);line-height:1.6;}
+.ci-detail{display:flex;flex-direction:column;gap:3px;margin:8px 0 4px;padding:8px 10px;background:rgba(37,99,235,0.05);border-radius:8px;border-left:3px solid rgba(37,99,235,0.3);}
+.ci-point{font-size:11px;color:#1e40af;line-height:1.5;font-weight:600;}
+.ci-tag{display:inline-block;font-size:10px;font-weight:700;padding:2px 8px;border-radius:4px;background:rgba(37,99,235,0.15);color:#1e40af;margin-top:6px;}
+
+
+
+
+
+/* ── 옵션 행 ── */
+.option-row td { background:rgba(0,0,0,0.02); }
+.option-label  { background:rgba(6,10,22,0.6)!important; font-size:11px; font-weight:700; color:var(--muted); text-align:center; vertical-align:middle; width:80px; }
+.option-cell   { vertical-align:top; padding:8px 10px; border-left:1px solid rgba(0,0,0,0.08); }
+.option-cell:last-child { border-right:1px solid rgba(0,0,0,0.08); }
+.opt-item {
+  height:28px;
+  display:flex;
+  align-items:center;
+  justify-content:flex-start;
+  font-size:11px;
+  font-weight:600;
+  color:rgba(0,0,0,0.75);
+  border-bottom:1px solid rgba(0,0,0,0.08);
+  padding:0 8px;
+  white-space:nowrap;
+  overflow:hidden;
+}
+.opt-item:last-child { border-bottom:none; }
+
+
+/* ── 제품특징 행 ── */
+.feature-row td { background:rgba(0,0,0,0.02); }
+.feature-label { background:rgba(4,8,18,0.9)!important; font-size:11px; font-weight:700; color:var(--muted); text-align:center; vertical-align:middle; white-space:nowrap; }
+.feature-cell { vertical-align:top; padding:8px 10px; border-left:1px solid rgba(0,0,0,0.08); }
+.feature-cell:last-child { border-right:1px solid rgba(0,0,0,0.08); }
+.feat-item {
+  height:26px;
+  display:flex;
+  align-items:center;
+  justify-content:flex-start;
+  font-size:10px;
+  font-weight:500;
+  color:#854d0e;
+  border-bottom:1px solid rgba(0,0,0,0.08);
+  padding:0 6px;
+  white-space:nowrap;
+  overflow:hidden;
+}
+.feat-item:last-child { border-bottom:none; }
+
+
+
+
+
+
+
+
+/* ── 인포 이미지 ── */
+.info-img-wrap {
+  padding: 14px 0 0;
+  display: flex;
+  justify-content: center;
+}
+.info-img-wrap img {
+  width: 100%;
+  max-width: 1380px;
+  border-radius: 12px;
+  display: block;
+  margin: 0 auto;
+}
+
+
+
+/* ── 프리미엄 2단 ── */
+
+/* 헤더 */
+.gh-eyezen   {background:#f3e8ff;color:#5b21b6;font-weight:900;font-size:30px;text-align:center;padding:14px 12px;letter-spacing:0.5px;border-bottom:3px solid #7c3aed;}
+.gh-clearview{background:#dbeafe;color:#1e3a8a;font-weight:900;font-size:30px;text-align:center;padding:14px 12px;letter-spacing:0.5px;border-bottom:3px solid #1d4ed8;}
+/* 프리미엄 테이블 전용 */
+.pt{border-collapse:collapse;font-family:\'Noto Sans KR\',sans-serif;box-shadow:0 0 0 2.5px rgba(0,0,0,0.20);border-radius:2px;}
+.pt td,.pt th{border:1px solid rgba(0,0,0,0.09);vertical-align:middle;font-size:15px;color:var(--text);white-space:nowrap;}
+/* 대분류 셀 (B열) */
+.pt .cat{text-align:center;font-size:15px;font-weight:700;color:#1e3a5f;background:rgba(0,0,0,0.04);padding:6px 4px;white-space:nowrap;}
+/* 소분류 셀 (C열) */
+.pt .sub{text-align:left;font-size:14px;color:#1e3a5f;font-weight:500;padding:4px 6px;white-space:nowrap;background:rgba(0,0,0,0.03);}
+/* 브랜드/제품명/굴절률 헤더행 */
+.pt .hdr-cell{text-align:center;font-size:15px;font-weight:700;color:#0f1c2e;background:rgba(0,0,0,0.04);padding:7px 4px;}
+/* 굴절률 값 */
+.pt .idx{text-align:center;font-size:17px;font-weight:900;color:#0f1c2e;padding:7px 4px;cursor:pointer;}
+/* 권장소비자가 */
+.pt .msrp{text-align:center;font-size:14px;font-weight:700;color:rgba(0,0,0,0.35);padding:5px 3px;text-decoration:line-through;}
+.pt .msrp-dash{text-align:center;font-size:14px;font-weight:600;color:rgba(0,0,0,0.22);padding:5px 3px;}
+/* 판매가 */
+.pt .sell{text-align:center;font-size:20px;font-weight:900;color:#1e3a8a;letter-spacing:-0.5px;padding:6px 3px;background:#dbeafe;}
+.pt .sell-g{text-align:center;font-size:20px;font-weight:900;color:#14532d;letter-spacing:-0.5px;padding:6px 3px;background:#dcfce7;}
+.pt .sell-dash{text-align:center;font-size:18px;font-weight:700;color:rgba(0,0,0,0.22);padding:6px 3px;}
+/* 옵션 항목명 */
+.pt .opt-name{font-size:13px;font-weight:700;color:rgba(0,0,0,0.58);padding:4px 6px;text-align:left;background:rgba(0,0,0,0.03);white-space:nowrap;}
+/* 옵션 값 */
+.pt .opt-val{font-size:13.5px;color:rgba(0,0,0,0.75);padding:4px 8px;text-align:center;white-space:normal;}
+/* 특징 */
+.pt .feat{font-size:15px;color:#0f1c2e;padding:10px 12px;text-align:left;line-height:1.9;font-weight:500;}
+/* 주석 */
+.pt .note{font-size:14px;font-weight:700;color:#1e3a5f;padding:5px 10px;font-style:normal;font-family:'Noto Sans KR','Apple SD Gothic Neo','Malgun Gothic',sans-serif;background:rgba(29,78,216,0.04);border-top:1px solid rgba(29,78,216,0.1);}
+/* 여벌/RX 음영 */
+.yeobul-bg{background:rgba(37,99,235,0.06)!important;}
+.rx-bg{background:rgba(220,38,38,0.06)!important;}
+
+
+/* ── 사이드바 터치/토글 최적화 ── */
+.sb-btn {
+  touch-action:manipulation;
+  -webkit-tap-highlight-color:rgba(0,0,0,0.08);
+  user-select:none; -webkit-user-select:none;
+  transition:background .15s ease, color .15s ease;
+}
+.sb-btn:hover,.sb-btn:active,.sb-btn.touch-active {
+  background:rgba(0,0,0,0.07);color:#000000;
+}
+.sb-sub {
+  padding:8px 10px 8px 18px;
+  border:none;
+  border-left:3px solid transparent;
+  transition:background .15s ease, border-color .15s ease, color .15s ease;
+  touch-action:manipulation;
+  -webkit-tap-highlight-color:rgba(37,99,235,0.15);
+  user-select:none; -webkit-user-select:none;
+}
+.sb-sub:hover,.sb-sub:active,.sb-sub.touch-active {
+  background:rgba(37,99,235,0.10);border-left-color:#1d4ed8;color:#1d4ed8;
+}
+.sb-sub.active {
+  background:rgba(37,99,235,0.13);border-left-color:#1d4ed8;color:#1d4ed8;font-weight:700;
+}
+/* ── 코팅 버튼 ── */
+.coating-btn {
+  display:flex;align-items:center;gap:8px;padding:9px 10px;border-radius:10px;
+  border:1px solid transparent;background:transparent;color:#111111;
+  font-size:13px;font-weight:700;cursor:pointer;
+  font-family:'Noto Sans KR','Apple SD Gothic Neo','Malgun Gothic',sans-serif;
+  transition:all .2s;width:100%;text-align:left;touch-action:manipulation;
+}
+.coating-btn:hover,.coating-btn:active{background:rgba(0,0,0,0.06);color:#000000;}
+/* ── 접기/펼치기 버튼 ── */
+.sb-collapse-btn {
+  display:flex;align-items:center;justify-content:center;gap:6px;
+  padding:9px 12px;border-radius:10px;
+  border:1px solid rgba(220,38,38,0.30);background:rgba(220,38,38,0.06);
+  color:#dc2626;font-size:12px;font-weight:700;cursor:pointer;
+  font-family:'Noto Sans KR','Apple SD Gothic Neo','Malgun Gothic',sans-serif;
+  transition:all .2s;width:100%;margin-top:4px;touch-action:manipulation;
+}
+.sb-collapse-btn:hover,.sb-collapse-btn:active{background:rgba(220,38,38,0.14);border-color:rgba(220,38,38,0.50);color:#b91c1c;}
+.sb-top-btn {
+  display:none;align-items:center;justify-content:center;
+  position:absolute;left:16px;top:50%;transform:translateY(-50%);
+  height:36px;padding:0 14px;gap:6px;border-radius:8px;white-space:nowrap;
+  font-size:13px;font-weight:700;
+  font-family:'Noto Sans KR','Apple SD Gothic Neo','Malgun Gothic',sans-serif;
+  border:1px solid rgba(220,38,38,0.35);background:rgba(220,38,38,0.07);
+  color:#dc2626;cursor:pointer;transition:all .2s;touch-action:manipulation;z-index:20;
+}
+.sb-top-btn:hover,.sb-top-btn:active{background:rgba(220,38,38,0.15);border-color:rgba(220,38,38,0.55);color:#b91c1c;}
+/* ── 사이드바 숨김 ── */
+.sidebar.sb-hidden{width:0!important;min-width:0!important;padding:0!important;overflow:hidden!important;border-right:none!important;transition:width .3s ease,padding .3s ease;}
+/* ── 오버레이 ── */
+.sb-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.38);z-index:98;}
+.sb-overlay.show{display:block;}
+/* ── 굴절률 필터 ── */
+.pt td[data-ref]{cursor:pointer;user-select:none;}
+.pt td[data-ref]:hover{background:rgba(29,78,216,0.08)!important;}
+.pt td[data-ref].pt.has-ref-focus td.pt.has-ref-focus td/* ── 옵션 버튼 ── */
+.opt-btn-row td{background:rgba(37,99,235,0.04);}
+.opt-popup-btn{
+  display:inline-flex;align-items:center;gap:6px;
+  padding:6px 16px;border-radius:8px;
+  border:1px solid rgba(29,78,216,0.25);background:rgba(29,78,216,0.06);
+  color:#1d4ed8;font-size:12px;font-weight:700;cursor:pointer;
+  font-family:'Noto Sans KR',sans-serif;transition:all .2s;
+}
+.opt-popup-btn:hover{background:rgba(29,78,216,0.14);border-color:rgba(29,78,216,0.45);}
+/* ── 옵션 팝업 ── */
+.opt-popup-box{background:#ffffff;border:1px solid rgba(29,78,216,0.2);border-radius:20px;padding:28px 28px 24px;max-width:860px;width:92%;max-height:82vh;overflow-y:auto;box-shadow:0 4px 20px rgba(0,0,0,0.12);animation:popIn .3s ease;}
+.opt-tbl{width:100%;border-collapse:collapse;margin-top:12px;}
+.opt-tbl th{background:rgba(0,0,0,0.04);font-size:14px;font-weight:700;color:#1e3a5f;padding:9px 13px;border:1px solid rgba(0,0,0,0.08);text-align:center;}
+.opt-tbl td{padding:10px 13px;border:1px solid rgba(0,0,0,0.08);font-size:15.5px;vertical-align:middle;}
+.opt-tbl td:first-child{font-weight:700;color:#0f1c2e;background:rgba(0,0,0,0.02);white-space:normal;}
+.opt-tbl td:nth-child(2){font-weight:700;color:#1e3a8a;text-align:center;white-space:nowrap;}
+.opt-tbl td:nth-child(3){color:#4b6080;font-size:14px;text-align:center;}
+.opt-tbl td:nth-child(4){color:#4b6080;font-size:14px;line-height:1.6;}
+/* ── 태블릿 ── */
+@media(max-width:1024px){
+  html,body{height:100%;}
+:root{--sidebar-w:0px;}
+  .layout{display:block!important;}
+  .main{width:100%!important;padding:12px 10px 100px!important;}
+  .bottom-bar{left:0!important;}
+  .sidebar{position:fixed!important;top:0!important;left:0!important;width:220px!important;height:100dvh!important;z-index:99!important;transform:translateX(-100%)!important;transition:transform .3s cubic-bezier(.4,0,.2,1)!important;overflow-y:auto!important;padding:20px 12px!important;}
+  .sidebar.sb-open{transform:translateX(0)!important;box-shadow:6px 0 28px rgba(0,0,0,0.15)!important;}
+  }
+@media(max-width:768px){
+  .pt td,.pt th{font-size:10px!important;padding:4px 3px!important;}
+}
+/* ── rx-divider 정의 ── */
+.rx-divider{width:1px;height:26px;background:var(--border);}
+/* ── 좌우 테이블 높이 동일화 ── */
+
+
+
+/* ── 여벌/RX 구분선 ── */
+.pt tr.rx-divider-row td {
+  border-top: 2.5px solid rgba(29,78,216,0.30) !important;
+}
+
+
+
+
+/* 여벌 DP/BG DP 구분선 */
+.pt tr.dp-mid-div td {
+  border-bottom: 2.5px solid rgba(29,78,216,0.30) !important;
+}
+
+
+
+
+/* ─ bottom-bar 전체 가로 확장 ─ */
+.bottom-bar{left:0!important;}
+
+/* ─ sidebar 높이: 상단헤더+하단바 정확히 반영 ─ */
+.sidebar{height:calc(100vh - 44px)!important;overflow-y:auto!important;overflow-x:hidden!important;}
+
+/* ─ bottom-bar 2열 구조 ─ */
+.bottom-bar{
+  display:grid!important;
+  grid-template-columns:auto 1fr!important;
+  padding:0!important;
+  gap:0!important;
+  left:0!important;
+  justify-content:unset!important;
+  align-items:stretch!important;
+}
+.bb-col1{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  background:transparent;
+  border-right:1px solid var(--border);
+  padding:0 16px;
+  flex-shrink:0;
+}
+.bb-col2{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:8px;
+  padding:8px 16px;
+}
+.bbtn-sidebar-toggle{
+  background:transparent!important;
+  border:none!important;
+  color:#dc2626!important;
+  font-size:13px!important;
+  font-weight:700!important;
+  padding:10px 4px!important;
+  white-space:nowrap;
+  letter-spacing:0.3px;
+}
+.bbtn-sidebar-toggle:hover{
+  opacity:0.85!important;
+}
+
+/* 제품정보 버튼 */
+.prod-info-btn{
+  background:linear-gradient(135deg,#0f1c2e,#1e3a5f);
+  color:#fff;border:none;border-radius:8px;
+  padding:8px 16px;font-size:12px;font-weight:700;
+  cursor:pointer;font-family:'Noto Sans KR',sans-serif;
+  transition:opacity .2s;
+}
+.prod-info-btn:hover{opacity:0.85;}
+/* ═══ ZEISS 패널 ═══ */
+.zs-wrap{flex:1;min-height:0;display:flex;flex-direction:column;overflow:hidden;background:#e8edf4;}
+.zs-subtabs{display:flex;gap:10px;flex-shrink:0;margin:8px 12% 0;}
+.zs-stab{flex:1;display:flex;align-items:center;justify-content:space-between;
+  height:40px;padding:0 14px;border-radius:10px;cursor:pointer;border:none;
+  font-family:'Noto Sans KR',sans-serif;font-weight:800;
+  background:rgba(59,130,246,0.08);border:1.5px solid rgba(59,130,246,0.25);
+  color:#1e3a8a;transition:all .2s;}
+.zs-stab.active{background:rgba(30,58,138,0.12);border-color:rgba(30,58,138,0.40);color:#1e3a8a;}
+.zs-stab:hover{background:rgba(30,58,138,0.10);}
+.zs-stab-title{font-size:13px;}
+.zs-stab-brand{font-size:10px;font-weight:700;letter-spacing:1.5px;opacity:0.55;}
+.zs-subpanel{display:none;flex:1;min-height:0;flex-direction:column;}
+.zs-subpanel.active{display:flex;}
+.zs-scroll{flex:1;overflow-y:auto;padding:10px 0 calc(var(--bottombar-h)+10px);margin-top:8px;}
+.zs-cols{display:flex;gap:10px;align-items:flex-start;margin:0 12%;}
+.zs-col{flex:1;display:flex;flex-direction:column;gap:8px;min-width:0;
+  padding:8px;border-radius:10px;
+  background:rgba(30,58,138,0.05);border:1px solid rgba(30,58,138,0.12);}
+.zs-col:nth-child(2){background:rgba(14,116,144,0.05);border-color:rgba(14,116,144,0.12);}
+/* 카드 */
+.zs-card{border-radius:10px;overflow:visible;display:flex;flex-direction:column;height:100%;
+  border:1px solid rgba(255,255,255,0.10);box-shadow:0 2px 12px rgba(0,0,0,0.18);}
+/* 헤더 */
+.zs-hdr{display:flex;flex-direction:column;position:relative;
+  background:rgba(0,0,0,0.30);border-bottom:1px solid rgba(255,255,255,0.10);}
+.zs-name{font-size:26px;font-weight:900;color:#fff;padding:8px 12px 2px;
+  letter-spacing:0.3px;text-shadow:0 2px 8px rgba(0,0,0,0.5);}
+.zs-kname{font-size:11px;color:rgba(255,255,255,0.60);padding:0 12px 5px;font-weight:600;}
+.zs-feat{font-size:14px;color:#fff;line-height:1.55;
+  padding:6px 12px 6px;background:rgba(255,255,255,0.11);
+  border-top:1px solid rgba(255,255,255,0.10);border-bottom:1px solid rgba(255,255,255,0.10);}
+.zs-add{font-size:13px;font-weight:800;color:#e0f2fe;
+  padding:6px 12px 6px;background:rgba(14,68,180,0.65);letter-spacing:0.4px;}
+/* 테이블 */
+.zs-tbl{display:flex;flex-direction:column;background:#fff;}
+.zs-tr{display:flex;align-items:stretch;border-top:1px solid rgba(0,0,0,0.06);min-height:30px;}
+.zs-th{background:#1e293b;min-height:26px!important;}
+.zs-th .zs-td-lbl,.zs-th .zs-td{color:#fff;font-size:11px;font-weight:900;}
+.zs-td-lbl{width:90px;flex-shrink:0;display:flex;align-items:center;
+  padding:3px 7px;font-size:11px;color:#0f172a;font-weight:800;line-height:1.3;
+  background:#dbeafe;border-right:1px solid rgba(0,0,0,0.07);}
+.zs-td{flex:1;display:flex;align-items:center;justify-content:center;flex-direction:column;
+  padding:3px 4px;font-size:12px;font-weight:700;text-align:center;
+  border-right:1px solid rgba(0,0,0,0.05);}
+.zs-td:last-child{border-right:none;}
+.zs-p{color:#1e3a8a;font-size:17px;font-weight:900;white-space:nowrap;}
+.zs-o{color:#1e40af;font-size:13px;font-weight:800;}
+.zs-v{color:#1e40af;font-size:13px;font-weight:800;}
+.zs-inoti{color:#b45309;font-size:clamp(13px,2.0vw,22px);font-weight:900;background:#fef9c3;white-space:nowrap;}
+.zs-span4{flex:4;flex-direction:row!important;align-items:center;flex-wrap:wrap;gap:3px;}
+.zs-sub{font-size:70%;color:#6b7280;font-weight:400;display:block;}
+/* 섹션 구분 */
+.zs-section{background:#334155;min-height:33px!important;}
+.zs-full{flex:1;display:flex;align-items:center;justify-content:center;
+  font-size:12px;font-weight:900;color:#fbbf24;letter-spacing:2px;text-transform:uppercase;}
+/* 추가옵션 행 */
+.zs-opt-row{min-height:40px!important;background:#f0f9ff;}
+.zs-td-q{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  font-size:10px;color:#000;text-align:center;line-height:1.4;
+  padding:4px 6px;border-right:1px solid rgba(0,0,0,0.06);}
+.zs-td-q:last-child{border-right:none;}
+.zs-td-q b{font-size:13px;color:#1d4ed8;font-weight:900;}
+
+
+/* ESSILOR 가격행 높이 */
+.es-tbl .es-price-sub-row:first-child{min-height:38px;}
+.es-tbl .es-price-sub-row.es-inoti-prices{min-height:44px;}
+/* ZEISS 가격행 높이 */
+.zs-tbl .es-price-sub-row:first-child{min-height:38px;}
+.zs-tbl .es-price-sub-row.es-inoti-prices{min-height:44px;}
+
+.zs-c{color:#1e40af;font-size:11px;font-weight:600;}
+
+.zs-note{font-size:85%;display:inline;color:#94a3b8;font-weight:600;margin-left:4px;}
+.zs-section{background:#1e3a5f!important;}
+.zs-full{flex:1;display:flex;align-items:center;justify-content:center;
+  font-size:12px;font-weight:900;color:#ffffff;letter-spacing:2px;text-transform:uppercase;}
+
+/* Crizal Rock 1열 병합 */
+.es-crizal-group{
+  display:flex;
+  border-top:1px solid rgba(0,0,0,0.06);}
+.es-label-rowspan{
+  width:90px;flex-shrink:0;
+  display:flex;align-items:center;justify-content:flex-start;
+  padding:3px 7px;font-size:10px;color:#374151;font-weight:700;
+  line-height:1.3;text-align:left;
+  background:#f8fafc;border-right:1px solid rgba(0,0,0,0.07);}
+.es-crizal-prices{flex:1;display:flex;flex-direction:column;}
+.es-price-sub-row{
+  display:flex;flex:1;min-height:30px;
+  border-bottom:1px solid rgba(0,0,0,0.05);}
+.es-price-sub-row:last-child{border-bottom:none;}
+.es-price-sub-row .es-td{
+  flex:1;display:flex;align-items:center;justify-content:center;
+  padding:3px 4px;border-right:1px solid rgba(0,0,0,0.05);}
+.es-price-sub-row .es-td:last-child{border-right:none;}
+.es-inoti-prices{background:#fef9c3;}
+
+/* 프리미엄렌즈 카드 레이아웃 */
+.prem-wrap{display:flex;flex:1;min-height:0;overflow:hidden;flex-direction:column;background:#e8edf4;}
+.prem-scroll{flex:1;overflow-y:auto;overflow-x:hidden;padding:12px 0 calc(var(--bb-h,58px)+14px);}
+.prem-cards{display:flex;gap:14px;align-items:stretch;margin:0 10%;}
+.prem-col{flex:1;display:flex;flex-direction:column;gap:8px;min-width:0;padding:8px;border-radius:10px;box-sizing:border-box;}
+.prem-col:nth-child(1){background:rgba(30,58,138,0.05);border:1px solid rgba(30,58,138,0.12);}
+.prem-col:nth-child(2){background:rgba(30,58,138,0.05);border:1px solid rgba(30,58,138,0.12);}
+.zs-tbl .es-price-sub-row:first-child{min-height:38px;}
+.zs-tbl .es-price-sub-row.es-inoti-prices{min-height:44px;}
+.prem-opt-btn{padding:8px 16px;border:none;border-radius:8px;cursor:pointer;
+  font-size:12px;font-weight:700;font-family:'Noto Sans KR',sans-serif;
+  background:rgba(30,58,138,0.12);color:#1e3a8a;transition:background .2s;}
+.prem-opt-btn:hover{background:rgba(30,58,138,0.22);}
+.prem-note{font-size:10px;color:#6b7280;padding:5px 10px;background:#f8fafc;
+  border-top:1px solid rgba(0,0,0,0.05);text-align:center;line-height:1.6;}
+
+
+/* ─── 굴절률 하이라이트 ─── */
+.zs-td[data-ref]{cursor:pointer;transition:background .15s,opacity .15s;}
+.zs-td[data-ref]:hover{background:rgba(251,191,36,0.18)!important;}
+.prem-name-active .zs-name{text-shadow:0 0 16px rgba(251,191,36,0.8),0 2px 8px rgba(0,0,0,0.5);}
+
+/* 코팅 안내 행 */
+.zs-coat{display:flex;align-items:center;min-height:28px;
+  background:#f0f4f9;border-top:1px solid rgba(0,0,0,0.07);padding:5px 10px;
+  font-size:10.5px;color:#374151;font-weight:600;line-height:1.4;}
+.zs-coat span{color:#1d4ed8;font-weight:700;}
+
+/* ── 권장소비자가 / 판매가 분리 라벨 ── */
+.cust-price-lbl{
+  flex-direction:column !important;
+  justify-content:center !important;
+  align-items:center !important;
+  padding:4px 6px !important;
+}
+.cpl-top{
+  font-size:10.5px;font-weight:800;color:#475569;
+  line-height:1.4;text-align:center;white-space:nowrap;
+}
+.cpl-div{
+  width:80%;height:0;
+  border-top:1.5px dashed rgba(100,116,139,0.55);
+  margin:3px 0;
+}
+.cpl-bot{
+  font-size:11px;font-weight:900;color:#b45309;
+  line-height:1.4;text-align:center;
+}
+
+/* ── 굴절율 하이라이트 ── */
+.zs-td[data-ref]{cursor:pointer;transition:background .15s,opacity .25s;}
+.zs-td[data-ref]:hover{background:rgba(251,191,36,0.20)!important;}
+.ref-ac{background:rgba(251,191,36,0.40)!important;color:#92400e!important;border-radius:4px;font-weight:900!important;}
+.ref-dm{opacity:0.18!important;transition:opacity .25s;}
+.ref-fc{background:rgba(59,130,246,0.16)!important;}
+
+/* ── 제품명 하이라이트 ── */
+.zs-name{cursor:pointer;transition:text-shadow .2s;}
+.zs-name:hover{text-shadow:0 0 12px rgba(251,191,36,0.6),0 2px 8px rgba(0,0,0,0.4);}
+.prem-col.name-hl .zs-name{
+  text-shadow:0 0 20px rgba(251,191,36,0.95),0 2px 10px rgba(0,0,0,0.5)!important;
+  background:rgba(251,191,36,0.12);border-radius:4px;
+}
+.prem-col.name-dm{
+  opacity:0.28!important;
+  filter:blur(1.5px);
+  transition:opacity .3s,filter .3s;
+  pointer-events:none;
+}
+
+/* ── 제품명 분리 배지 v2 ── */
+.prod-name-badge {
+  display: inline-block;
+  width: fit-content;
+  align-self: flex-start;
+  padding: 6px 12px 5px;
+  border-radius: 6px;
+  margin-bottom: 2px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.prod-name-badge .badge-name {
+  font-size: 22px;
+  font-weight: 900;
+  color: #fff;
+  letter-spacing: 0.3px;
+  line-height: 1.3;
+}
+.prod-name-badge .badge-sub {
+  font-size: 11px;
+  font-weight: 600;
+  color: rgba(255,255,255,0.60);
+  margin-top: 1px;
+  line-height: 1.3;
+}
+.cust-zs-col, .zs-col, .prem-col {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: flex-start !important;
+}
+.cust-zs-col .zs-card,
+.zs-col .zs-card,
+.prem-col .zs-card { width: 100%; }
+
+/* ── 전역 터치 최적화 ── */
+button, a, input, select, textarea,
+.toggle-btn, .icon-item, .card, .side-btn, .sb-btn,
+.tab-btn, .brand-tab, .cat-card, .icon-card {
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+}
+
+</style>
+<script src="../../auth.js"></script>
+</head>
+<body>
+
+</div>
+
+<div class="sb-overlay" id="sbOverlay" onclick="closeSidebar()"></div>
+<div class="layout">
+  <nav class="sidebar" id="sidebar">
+    <div class="sb-label">렌즈 카테고리</div>
+    <a class="sb-btn on-cat" href="single_focus.html"><span class="sb-dot" style="background:#1d4ed8;"></span>단초점 렌즈</a>
+    <a class="sb-btn" href="../functional/functional.html"><span class="sb-dot" style="background:#0d9488;"></span>기능성 렌즈</a>
+    <a class="sb-btn" href="../multifocal/multifocal.html"><span class="sb-dot" style="background:#6d28d9;"></span>다초점 렌즈</a>
+
+    <div class="sb-div"></div>
+    <div class="sb-label">단초점 항목</div>
+    <a class="sb-sub" href="single_vision.html">🛡️ 싱글비젼</a>
+    <a class="sb-sub" href="aspheric.html">🔬 양면비구면렌즈</a>
+    <a class="sb-sub active" href="premium.html">💎 프리미엄렌즈</a>
+    <a class="sb-sub" href="custom.html">⚙️ 개인맞춤형렌즈</a>
+    <a class="sb-sub" href="photochromic.html">🔄 변색렌즈</a>
+    <a class="sb-sub" href="sunglass.html">🕶️ 선글라스/편광렌즈</a>
+    <div class="sb-spacer"></div>
+  </nav>
+  <main class="main" style="display:flex;flex-direction:column;">
+    <!-- 도수 배너 -->
+    <div class="rx-banner" id="rxBanner">
+      <div class="rx-eye">
+        <span class="rx-eye-label">R</span>
+        <span class="rx-val r-col" id="rDisp">S —</span>
+        <span class="rx-val r-col" id="rcDisp">C —</span>
+      </div>
+      <div class="rx-sep"></div>
+      <div class="rx-eye">
+        <span class="rx-eye-label">L</span>
+        <span class="rx-val l-col" id="lDisp">S —</span>
+        <span class="rx-val l-col" id="lcDisp">C —</span>
+      </div>
+      <div class="rx-tags" id="rxTags"></div>
+    </div>
+    
+      <div class="prem-wrap">
+        <div class="prem-scroll">
+          <div class="prem-cards">
+            <div class="prem-col">
+              <div class="zs-card" style="background:linear-gradient(160deg,#093448,#051f2e);">
+              <div class="zs-hdr">
+                <div class="zs-name" onclick="onNameClickPrem(this)">아이젠 스타트</div>
+                <div class="zs-kname">에실로 · ESSILOR</div>
+                <div class="zs-feat">원·근거리 모두에서 선명한 시야를 넓히는 설계로 눈의 피로도를 감소시키는 단초점렌즈</div>
+              </div>
+              <div class="zs-tbl">
+                <div class="zs-tr zs-th">
+                  <span class="zs-td-lbl"></span>
+                  <span class="zs-td" data-ref="1.74" onclick="onRefClickPt(this)" style="cursor:pointer;">1.74</span>
+                  <span class="zs-td" data-ref="1.67" onclick="onRefClickPt(this)" style="cursor:pointer;">1.67</span>
+                  <span class="zs-td" data-ref="1.60" onclick="onRefClickPt(this)" style="cursor:pointer;">1.60</span>
+                  <span class="zs-td" data-ref="1.56" onclick="onRefClickPt(this)" style="cursor:pointer;">1.56</span>
+                </div>
+                
+                  <div class="zs-tr zs-section"><span class="zs-full">여벌</span></div>
+                  <div class="es-crizal-group">
+                    <span class="zs-td-lbl es-label-rowspan cust-price-lbl">
+              <span class="cpl-top">권장소비자가</span>
+              <span class="cpl-div"></span>
+              <span class="cpl-bot">판매가</span>
+            </span>
+                    <div class="es-crizal-prices">
+                      <div class="es-price-sub-row"><span class="zs-td zs-p" data-col="74"><s>—</s></span><span class="zs-td zs-p" data-col="67"><s>—</s></span><span class="zs-td zs-p" data-col="60"><s>19만원</s></span><span class="zs-td zs-p" data-col="56"><s>14만원</s></span></div>
+                      <div class="es-price-sub-row es-inoti-prices"><span class="zs-td zs-inoti" data-col="74">—</span><span class="zs-td zs-inoti" data-col="67">—</span><span class="zs-td zs-inoti" data-col="60">15.2만원</span><span class="zs-td zs-inoti" data-col="56">11.2만원</span></div>
+                    </div>
+                  </div>
+<div class="zs-coat">기본코팅 · <span>Crizal Sapphire HR</span>&nbsp;/ BlueUV Capture</div>
+                  <div class="zs-tr zs-section"><span class="zs-full">RX</span></div>
+                  <div class="es-crizal-group">
+                    <span class="zs-td-lbl es-label-rowspan cust-price-lbl">
+              <span class="cpl-top">권장소비자가</span>
+              <span class="cpl-div"></span>
+              <span class="cpl-bot">판매가</span>
+            </span>
+                    <div class="es-crizal-prices">
+                      <div class="es-price-sub-row"><span class="zs-td zs-p" data-col="74"><s>60만원</s></span><span class="zs-td zs-p" data-col="67"><s>40만원</s></span><span class="zs-td zs-p" data-col="60"><s>30만원</s></span><span class="zs-td zs-p" data-col="56"><s>25만원</s></span></div>
+                      <div class="es-price-sub-row es-inoti-prices"><span class="zs-td zs-inoti" data-col="74">48만원</span><span class="zs-td zs-inoti" data-col="67">32만원</span><span class="zs-td zs-inoti" data-col="60">24만원</span><span class="zs-td zs-inoti" data-col="56">20만원</span></div>
+                    </div>
+                  </div>
+<div class="zs-coat">기본코팅 · <span>Crizal Rock</span></div>
+                <div class="zs-tr zs-section"><span class="zs-full">옵션 / 정보</span></div>
+                <div class="zs-tr" style="min-height:48px!important;background:#f0f9ff;justify-content:center;">
+                  <span class="zs-td zs-span4" style="flex-direction:row;gap:8px;padding:8px;">
+                    <button class="prem-opt-btn" onclick="openOptPopup('eyezen')">🔍 옵션 상세 안내</button>
+                    <button class="prem-opt-btn" onclick="openProdInfo('eyezen')">📋 제품정보</button>
+                  </span>
+                </div>
+              </div><div class="prem-note">RX: Crizal Rock 기본 코팅 적용</div>
+            </div>
+            </div>
+            <div class="prem-col">
+              <div class="zs-card" style="background:linear-gradient(160deg,#0b1e38,#060c1e);">
+              <div class="zs-hdr">
+                <div class="zs-name" onclick="onNameClickPrem(this)">클리어뷰</div>
+                <div class="zs-kname">자이스 · ZEISS</div>
+                <div class="zs-feat">700개 지점 최적화와 낮은 커브 적용, 평균 3배 더 넓은 선명 시야, 뛰어난 투과율로 깨끗한 시야</div>
+              </div>
+              <div class="zs-tbl">
+                <div class="zs-tr zs-th">
+                  <span class="zs-td-lbl"></span>
+                  <span class="zs-td" data-ref="1.74" onclick="onRefClickPt(this)" style="cursor:pointer;">1.74</span>
+                  <span class="zs-td" data-ref="1.67" onclick="onRefClickPt(this)" style="cursor:pointer;">1.67</span>
+                  <span class="zs-td" data-ref="1.60" onclick="onRefClickPt(this)" style="cursor:pointer;">1.60</span>
+                  <span class="zs-td" data-ref="1.56" onclick="onRefClickPt(this)" style="cursor:pointer;">1.56</span>
+                </div>
+                
+                  <div class="zs-tr zs-section"><span class="zs-full">여벌 DP</span></div>
+                  <div class="es-crizal-group">
+                    <span class="zs-td-lbl es-label-rowspan cust-price-lbl">
+              <span class="cpl-top">권장소비자가</span>
+              <span class="cpl-div"></span>
+              <span class="cpl-bot">판매가</span>
+            </span>
+                    <div class="es-crizal-prices">
+                      <div class="es-price-sub-row"><span class="zs-td zs-p" data-col="74"><s>45만원</s></span><span class="zs-td zs-p" data-col="67"><s>26만원</s></span><span class="zs-td zs-p" data-col="60"><s>16만원</s></span><span class="zs-td zs-p" data-col="56"><s>10만원</s></span></div>
+                      <div class="es-price-sub-row es-inoti-prices"><span class="zs-td zs-inoti" data-col="74">36만원</span><span class="zs-td zs-inoti" data-col="67">20.8만원</span><span class="zs-td zs-inoti" data-col="60">13만원</span><span class="zs-td zs-inoti" data-col="56">8만원</span></div>
+                    </div>
+                  </div>
+                  <div class="zs-tr zs-section"><span class="zs-full">여벌 BG DP</span></div>
+                  <div class="es-crizal-group">
+                    <span class="zs-td-lbl es-label-rowspan cust-price-lbl">
+              <span class="cpl-top">권장소비자가</span>
+              <span class="cpl-div"></span>
+              <span class="cpl-bot">판매가</span>
+            </span>
+                    <div class="es-crizal-prices">
+                      <div class="es-price-sub-row"><span class="zs-td zs-p" data-col="74"><s>50만원</s></span><span class="zs-td zs-p" data-col="67"><s>28만원</s></span><span class="zs-td zs-p" data-col="60"><s>18만원</s></span><span class="zs-td zs-p" data-col="56"><s>13만원</s></span></div>
+                      <div class="es-price-sub-row es-inoti-prices"><span class="zs-td zs-inoti" data-col="74">40만원</span><span class="zs-td zs-inoti" data-col="67">22.4만원</span><span class="zs-td zs-inoti" data-col="60">14.4만원</span><span class="zs-td zs-inoti" data-col="56">10.4만원</span></div>
+                    </div>
+                  </div>
+                  <div class="zs-tr zs-section"><span class="zs-full">RX</span></div>
+                  <div class="es-crizal-group">
+                    <span class="zs-td-lbl es-label-rowspan cust-price-lbl">
+              <span class="cpl-top">권장소비자가</span>
+              <span class="cpl-div"></span>
+              <span class="cpl-bot">판매가</span>
+            </span>
+                    <div class="es-crizal-prices">
+                      <div class="es-price-sub-row"><span class="zs-td zs-p" data-col="74"><s>60만원</s></span><span class="zs-td zs-p" data-col="67"><s>40만원</s></span><span class="zs-td zs-p" data-col="60"><s>30만원</s></span><span class="zs-td zs-p" data-col="56"><s>24만원</s></span></div>
+                      <div class="es-price-sub-row es-inoti-prices"><span class="zs-td zs-inoti" data-col="74">48만원</span><span class="zs-td zs-inoti" data-col="67">32만원</span><span class="zs-td zs-inoti" data-col="60">24만원</span><span class="zs-td zs-inoti" data-col="56">19.2만원</span></div>
+                    </div>
+                  </div>
+                <div class="zs-tr zs-section"><span class="zs-full">옵션 / 정보</span></div>
+                <div class="zs-tr" style="min-height:48px!important;background:#f0f9ff;justify-content:center;">
+                  <span class="zs-td zs-span4" style="flex-direction:row;gap:8px;padding:8px;">
+                    <button class="prem-opt-btn" onclick="openOptPopup('clearview')">🔍 옵션 상세 안내</button>
+                    <button class="prem-opt-btn" onclick="openProdInfo('clearview')">📋 제품정보</button>
+                  </span>
+                </div>
+              </div>
+              
+            </div>
+            </div>
+          </div>
+  </main>
+  <div class="bottom-bar">
+    <div class="bb-col1">
+      <button class="bbtn-sidebar-toggle" id="sbTopBtn" onclick="toggleSidebar()">◀ 사이드바 접기</button>
+    </div>
+    <div class="bb-col2">
+      <button class="bbtn bbtn-ghost" onclick="location.href='../main.html'">🏠 홈으로</button>
+      <button class="bbtn bbtn-blue" onclick="location.href='single_focus.html'">◀ 단초점</button>
+    </div>
+  </div>
+     
+<script>
+const AUTH_CSS=`<style>.auth-overlay{position:fixed;inset:0;background:linear-gradient(135deg,#060d1a,#0d1b2e);display:flex;align-items:center;justify-content:center;z-index:99999;font-family:'Noto Sans KR',sans-serif;}.auth-box{background:rgba(13,27,46,0.97);border:1px solid rgba(0,0,0,0.09);border-radius:20px;padding:40px 36px;width:320px;text-align:center;box-shadow:0 4px 16px rgba(0,0,0,0.10);animation:authIn .4s ease;}@keyframes authIn{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}.auth-logo{font-size:26px;color:#e8f0fb;margin-bottom:6px;font-weight:900;letter-spacing:2px;}.auth-sub{font-size:12px;color:#5a7a9a;margin-bottom:24px;}.auth-label{font-size:11px;font-weight:700;color:#5a7a9a;letter-spacing:1px;margin-bottom:10px;text-align:left;}.auth-input{width:100%;padding:13px 16px;background:#ffffff;border:1px solid rgba(0,0,0,0.09);border-radius:10px;color:#e8f0fb;font-size:16px;text-align:center;outline:none;margin-bottom:14px;letter-spacing:3px;transition:border-color .2s;}.auth-input:focus{border-color:rgba(42,127,255,0.6);}.auth-btn{width:100%;padding:14px;background:linear-gradient(135deg,#1a6fef,#2563eb);color:white;border:none;border-radius:10px;font-size:15px;font-weight:700;cursor:pointer;}.auth-error{font-size:12px;color:#fca5a5;margin-top:10px;min-height:18px;}.auth-shake{animation:shake .4s ease;}@keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
+/* 코팅 안내 행 */
+.zs-coat{display:flex;align-items:center;min-height:28px;
+  background:#f0f4f9;border-top:1px solid rgba(0,0,0,0.07);padding:5px 10px;
+  font-size:10.5px;color:#374151;font-weight:600;line-height:1.4;}
+.zs-coat span{color:#1d4ed8;font-weight:700;}
+</style>`;
+
+
+
+
+/* ── 좌우 테이블 높이 동기화 ── */
+function equalizePremium(){
+  var tables = document.querySelectorAll('.premium-set .pt');
+  if(tables.length < 2) return;
+  /* 초기화 */
+  tables.forEach(function(t){ t.style.height=''; });
+  requestAnimationFrame(function(){
+    var h0 = tables[0].getBoundingClientRect().height;
+    var h1 = tables[1].getBoundingClientRect().height;
+    var maxH = Math.max(h0, h1);
+    /* 테이블 자체에 height 설정 → 행들이 공간 분배 */
+    tables.forEach(function(t){ t.style.height = maxH + 'px'; });
+    /* 컨테이너도 맞춤 */
+    var sets = document.querySelectorAll('.premium-set');
+    sets.forEach(function(s){ s.style.minHeight = maxH + 'px'; });
+  });
+}
+window.addEventListener('resize', function(){ equalizePremium(); });
+
+/* ── 도수 배너 ── */
+function initRxBanner(){
+  try {
+    var vd=JSON.parse(localStorage.getItem('visionAnalysisData')||'{}');
+    if(!vd.r&&!vd.l)return;
+    function fmt(v){var n=parseFloat(v);if(isNaN(n))return'—';return(n>0?'+':'')+n.toFixed(2);}
+    if(document.getElementById('rDisp'))  document.getElementById('rDisp').textContent ='S'+fmt(vd.r&&vd.r.sph);
+    if(document.getElementById('rcDisp'))document.getElementById('rcDisp').textContent='C'+fmt(vd.r&&vd.r.cyl);
+    if(document.getElementById('lDisp'))  document.getElementById('lDisp').textContent ='S'+fmt(vd.l&&vd.l.sph);
+    if(document.getElementById('lcDisp'))document.getElementById('lcDisp').textContent='C'+fmt(vd.l&&vd.l.cyl);
+  }catch(e){}
+}
+
+/* ── 인증 후 페이지 초기화 ── */
+(function(){
+  var main=document.querySelector('.main');
+  var bar=document.querySelector('.bottom-bar');
+  var side=document.querySelector('.sidebar');
+  [main,bar,side].forEach(function(el){if(el)el.style.opacity='0';});
+  showAccessGate(function(){
+    [main,bar,side].forEach(function(el){if(el){el.style.transition='opacity 0.4s ease';el.style.opacity='1';}});
+    try{initRxBanner();}catch(e){}
+    setTimeout(equalizePremium, 400);
+  });
+})();
+
+/* ── 코팅 팝업 ── */
+function openCoating(){document.getElementById("coatingPopup").classList.add("active");document.body.style.overflow="hidden";}
+function closeCoating(e){if(!e||e.target===document.getElementById("coatingPopup")){document.getElementById("coatingPopup").classList.remove("active");document.body.style.overflow="";}}
+document.addEventListener("keydown",function(e){if(e.key==="Escape"){closeCoating();closeOptPopup();}});
+
+/* ── 옵션 팝업 ── */
+var OPT_DATA = {
+  eyezen: {
+    title: '아이젠 스타트 — 옵션 안내 (RX)',
+    rows: [
+      ['Crizal Sapphire HR', '+5만', '전 굴절률', '최고등급 반사방지 코팅. 눈부심·반사 99%↑ 억제'],
+      ['BlueUV Capture', '+5만', '전 굴절률', '블루라이트(HEV) 선택 차단. 황반 보호'],
+      ["Transitions Gen'S", '+17만', '전 굴절률', '1.74 - 그레이/브라운<br>1.56~1.67 - 기본컬러+스타일컬러'],
+      ['Transitions XTRACTIVE', '+20만', '1.67 이하', '야외·실내 모두 변색. 1.74 불가. 변색편광 +5만 추가'],
+    ]
+  },
+  clearview: {
+    title: '클리어뷰 — 옵션 안내 (RX)',
+    rows: [
+      ['골드코팅', 'BG GD +8만 / GD +5만', '전 굴절률', 'DuraVision 골드 계열 고급 코팅'],
+      ['블루라이트차단', 'BG DP / BP +5만', '전 굴절률', 'DuraVision BlueProtect / BP 코팅'],
+      ['착색', '+3만', '1.67 이하', '1.74 불가'],
+      ['포토퓨전X/<br>어댑티브선', '+20만', '전 굴절률', '포토퓨전 - 블랙, 브라운, 그레이, 엑스트라그레이, 버건디, 파이오니아, 블루.<br>어댑티브선 - 그레이, 브라운, 파이오니아.<br>1.74는 포토퓨전X만 가능. 1.67 어댑티브선 블루 불가.'],
+      ['편광', '+23만', '1.67 이하', '완전 편광 필터. 반사광 차단. 드라이브·야외 최적'],
+      ['스카이렛 / 골프', '+20만', '1.67 이하', '스포츠·아웃도어 특수 컬러 계열'],
+      ['미러 / 반미러', '+4만(착색포함)', '1.67 이하', '미러 효과. 1.67 반미러만 가능'],
+      ['프리즘', '+5만', '전 굴절률', '5프리즘 초과 시 별도 가격 적용'],
+      ['옵티마', '+3만', '전 굴절률', '렌즈 중심 두께 최적화'],
+    ]
+  }
+};
+function openOptPopup(type){
+  var d=OPT_DATA[type];if(!d)return;
+  document.getElementById('optPopupTitle').textContent=d.title;
+  var html='<table class="opt-tbl"><thead><tr><th>옵션명</th><th>추가금액</th><th style="white-space:normal;line-height:1.5;">적용<br>굴절률</th><th>설명</th></tr></thead><tbody>';
+  d.rows.forEach(function(r,idx){
+    var refHtml='<div style="font-weight:700;text-align:center;">'+r[2]+'</div>';
+    var descStyle=(type==='clearview'&&idx===3)?'font-size:10.5px;white-space:nowrap;':'';
+    html+='<tr><td>'+r[0]+'</td><td>'+r[1]+'</td><td>'+refHtml+'</td>'+'<td style="'+descStyle+'">'+r[3]+'</td></tr>';
+  });
+  html+='</tbody></table>';
+  var colorChart = type==='eyezen'
+    ? '<div style="margin-top:16px;border-radius:8px;overflow:hidden;border:1px solid rgba(0,0,0,0.09);">'
+      + '<img src="images/premium_lens_img_1.jpg"'
+      + ' alt="변색 컬러 차트" style="width:100%;display:block;">'
+      + '</div>'
+    : '';
+    document.getElementById('optPopupContent').innerHTML=html+colorChart;
+  document.getElementById('optionPopup').classList.add('active');
+  document.body.style.overflow='hidden';
+}
+function closeOptPopup(e){
+  if(!e||e.target===document.getElementById('optionPopup')){
+    document.getElementById('optionPopup').classList.remove('active');
+    document.body.style.overflow='';
+  }
+}
+
+/* ── 굴절률 필터링 ── */
+var colMap={'1.74':'74','1.67':'67','1.60':'60','1.56':'56'};
+function onRefClickPt(el){
+  var refVal=el.getAttribute('data-ref');
+  var focusCol=colMap[refVal]; if(!focusCol) return;
+  var isActive=el.classList.contains('ref-ac');
+  /* 전체 초기화 */
+  document.querySelectorAll('.zs-td[data-ref],.zs-td[data-col]').forEach(function(s){
+    s.classList.remove('ref-ac','ref-dm','ref-fc');
+  });
+  if(isActive) return; /* 재클릭 → 해제 */
+  /* 양쪽 카드 동시 적용 */
+  document.querySelectorAll('.zs-card').forEach(function(card){
+    card.querySelectorAll('.zs-td[data-ref]').forEach(function(s){
+      s.getAttribute('data-ref')===refVal ? s.classList.add('ref-ac') : s.classList.add('ref-dm');
+    });
+    card.querySelectorAll('.zs-td[data-col]').forEach(function(s){
+      s.getAttribute('data-col')===focusCol ? s.classList.add('ref-fc') : s.classList.add('ref-dm');
+    });
+  });
+}
+
+/* ── 사이드바 토글 ── */
+(function(){
+  function isMobile(){return window.innerWidth<=1024;}
+    function toggleSidebar(){
+    var sb     = document.getElementById('sidebar');
+    var ov     = document.getElementById('sbOverlay');
+    var btn    = document.getElementById('sbTopBtn');
+
+    if(isMobile()){
+      var isOpen = sb.classList.contains('sb-open');
+      if(isOpen){
+        sb.classList.remove('sb-open');
+        if(ov) ov.classList.remove('show');
+        if(btn) btn.innerHTML = '☰ 사이드바 펼치기';
+      } else {
+        sb.classList.add('sb-open');
+        if(ov) ov.classList.add('show');
+        if(btn) btn.innerHTML = '◀ 사이드바 접기';
+      }
+    } else {
+      var isHidden = sb.classList.contains('sb-hidden');
+      if(isHidden){
+        sb.classList.remove('sb-hidden');
+        document.documentElement.style.setProperty('--sidebar-w','168px');
+        if(btn) btn.innerHTML = '◀ 사이드바 접기';
+      } else {
+        sb.classList.add('sb-hidden');
+        document.documentElement.style.setProperty('--sidebar-w','0px');
+        if(btn) btn.innerHTML = '☰ 사이드바 펼치기';
+      }
+    }
+  }
+
+
+  function closeSidebar(){
+    var sb=document.getElementById('sidebar');var ov=document.getElementById('sbOverlay');
+    sb.classList.remove('sb-open');if(ov)ov.classList.remove('show');
+  }
+  window.toggleSidebar=toggleSidebar;
+  window.closeSidebar=closeSidebar;
+  document.addEventListener('DOMContentLoaded',function(){
+    if(isMobile()){var t=document.getElementById('sbTopBtn');if(t)t.style.display='flex';}
+    document.querySelectorAll('#sidebar a').forEach(function(el){
+      el.addEventListener('click',function(){if(isMobile())setTimeout(closeSidebar,150);});
+    });
+    var targets=document.querySelectorAll('#sidebar .sb-sub,#sidebar .sb-btn');
+    targets.forEach(function(el){
+      var moved=false;
+      el.addEventListener('touchstart',function(){moved=false;el.classList.add('touch-active');},{passive:true});
+      el.addEventListener('touchmove',function(){moved=true;el.classList.remove('touch-active');},{passive:true});
+      el.addEventListener('touchend',function(){if(!moved)setTimeout(function(){el.classList.remove('touch-active');},180);else el.classList.remove('touch-active');},{passive:true});
+      el.addEventListener('touchcancel',function(){el.classList.remove('touch-active');},{passive:true});
+    });
+    if(/iPhone|iPad|iPod/.test(navigator.userAgent)){document.body.setAttribute('onclick','void(0)');}
+  });
+})();
+
+
+/* ── 제품명 클릭 하이라이트 ── */
+function onNameClickPrem(el){
+  var col = el.closest('.prem-col');
+  if(!col) return;
+  var isAc = col.classList.contains('name-hl');
+  document.querySelectorAll('.prem-col').forEach(function(c){
+    c.classList.remove('name-hl','name-dm');
+  });
+  if(!isAc){
+    col.classList.add('name-hl');
+    document.querySelectorAll('.prem-col').forEach(function(c){
+      if(c !== col) c.classList.add('name-dm');
+    });
+  }
+}
+
+/* 제품정보 팝업 */
+var PROD_IMG = {
+  eyezen:    'images/premium_lens_img_2.jpg',
+  clearview: 'images/premium_lens_img_3.jpg'
+};
+var PROD_TITLE = {
+  eyezen:    '에실로 아이젠 스타트 — 제품 정보',
+  clearview: '자이스 클리어뷰 — 제품 정보'
+};
+function openProdInfo(type){
+  var popup = document.getElementById('prodInfoPopup');
+  document.getElementById('prodInfoTitle').textContent = PROD_TITLE[type] || '제품 정보';
+  document.getElementById('prodInfoImg').src = PROD_IMG[type] || '';
+  popup.style.display = 'flex';
+}
+function closeProdInfo(){
+  document.getElementById('prodInfoPopup').style.display = 'none';
+  document.getElementById('prodInfoImg').src = '';
+}
+document.addEventListener('keydown', function(e){
+  if(e.key === 'Escape') closeProdInfo();
+});
+document.addEventListener('DOMContentLoaded', function(){
+  var _pp = document.getElementById('prodInfoPopup');
+  if(_pp) _pp.addEventListener('click', function(e){ if(e.target === this) closeProdInfo(); });
+});
+document.addEventListener('keydown', function(e){
+  if(e.key === 'Escape') closeProdInfo();
+});
+document.addEventListener('DOMContentLoaded', function(){
+  var _pp = document.getElementById('prodInfoPopup');
+  if(_pp) _pp.addEventListener('click', function(e){ if(e.target === this) closeProdInfo(); });
+});
+</script>
+</script><!-- 옵션 안내 팝업 --><div class="popup-overlay" id="optionPopup" onclick="closeOptPopup(event)">
+  <div class="opt-popup-box">
+    <div class="popup-header">
+      <div class="popup-title" id="optPopupTitle">옵션 안내</div><button class="popup-close" onclick="closeOptPopup()">✕</button></div><div id="optPopupContent"></div></div></div><!-- 코팅 옵션 팝업 --><div class="popup-overlay" id="coatingPopup" onclick="closeCoating(event)">
+  <div class="popup-box">
+    <div class="popup-header">
+      <div class="popup-title">코팅 옵션 안내</div><button class="popup-close" onclick="closeCoating()">✕</button></div><div class="coating-list">
+      <div class="coating-item"><div class="ci-icon">✨</div><div class="ci-body"><div class="ci-name">AR 멀티코팅 (무반사 코팅)</div><div class="ci-desc">렌즈 표면의 빛 반사를 최소화해 눈부심을 줄이고 선명도를 높입니다.</div><div class="ci-detail"><span class="ci-point">📌 반사율 0.1% 이하로 억제</span><span class="ci-point">📌 야간 시인성 20~30% 향상</span></div><span class="ci-tag">전 렌즈 기본 권장</span></div></div><div class="coating-item"><div class="ci-icon">💧</div><div class="ci-body"><div class="ci-name">발수·방오 코팅</div><div class="ci-desc">초발수 처리로 물방울·지문·기름 오염이 쉽게 닦입니다.</div><div class="ci-detail"><span class="ci-point">📌 접촉각 110° 이상 초발수</span><span class="ci-point">📌 지문·피지 오염 80% 감소</span></div><span class="ci-tag">건조감 고객 추천</span></div></div><div class="coating-item"><div class="ci-icon">💻</div><div class="ci-body"><div class="ci-name">블루라이트 차단 코팅</div><div class="ci-desc">스마트폰·모니터 청색광(380~500nm)을 선택적으로 차단합니다.</div><div class="ci-detail"><span class="ci-point">📌 유해 블루라이트 집중 차단</span><span class="ci-point">📌 눈 피로감 최대 40% 감소</span></div><span class="ci-tag">장시간 PC·스마트폰 사용</span></div></div><div class="coating-item"><div class="ci-icon">🌞</div><div class="ci-body"><div class="ci-name">자외선 차단 코팅 (UV400)</div><div class="ci-desc">400nm 이하 자외선을 99% 이상 차단해 각막·황반을 보호합니다.</div><div class="ci-detail"><span class="ci-point">📌 UVA·UVB 400nm 이하 99%+ 차단</span><span class="ci-point">📌 백내장·황반변성 예방</span></div><span class="ci-tag">야외활동 고객 필수</span></div></div></div></div></div><!-- 제품정보 팝업 --><div id="prodInfoPopup" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.65);z-index:300;align-items:center;justify-content:center;">
+  <div style="background:#fff;border-radius:16px;max-width:90vw;max-height:88vh;overflow:hidden;display:flex;flex-direction:column;box-shadow:0 20px 60px rgba(0,0,0,0.4);">
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 20px;border-bottom:1px solid rgba(0,0,0,0.09);background:#f8fafc;">
+      <span id="prodInfoTitle" style="font-size:16px;font-weight:800;color:#0f1c2e;"></span>
+      <button onclick="closeProdInfo()" style="background:none;border:none;font-size:22px;cursor:pointer;color:#666;line-height:1;">×</button>
+    </div><div style="overflow:auto;padding:16px;">
+      <img id="prodInfoImg" src="" style="max-width:100%;height:auto;display:block;border-radius:8px;">
+    </div></div></div>
+<script>
+(function(){
+  /* Case 1: 변색렌즈 이미 수동 분리된 배지 → kname 추가 (기존 유지) */
+  document.querySelectorAll('.prod-name-badge').forEach(function(b){
+    if(b.querySelector('.badge-name'))return;
+    var ex=b.innerHTML, nc=b.nextElementSibling;
+    var kn=nc?nc.querySelector('.zs-kname'):null;
+    b.innerHTML='<div class="badge-name">'+ex+'</div>'+(kn?'<div class="badge-sub">'+kn.innerHTML+'</div>':'');
+    if(kn)kn.style.cssText='display:none!important';
+  });
+
+  /* 공통 처리 함수: nm/sub를 숨기고 배지 생성, 클릭은 nm에 프록시 */
+  function lift(card, hdrCls, nameCls, subCls){
+    var hdr=card.querySelector('.'+hdrCls);if(!hdr)return;
+    var nm=hdr.querySelector('.'+nameCls);if(!nm)return;
+    var sub=subCls?hdr.querySelector('.'+subCls):null;
+    var col=((card.style.background||'').match(/#[0-9a-fA-F]{3,6}/g)||['#1e293b'])[0];
+    var b=document.createElement('div');
+    b.className='prod-name-badge';b.style.background=col;
+    b.innerHTML='<div class="badge-name">'+nm.innerHTML+'</div>'+
+      (sub?'<div class="badge-sub">'+sub.innerHTML+'</div>':'');
+    /* 클릭 → 원본 nm에 이벤트 위임 (하이라이트 기능 보존) */
+    b.style.cursor='pointer';
+    b.addEventListener('click',function(e){
+      e.stopPropagation();
+      nm.dispatchEvent(new MouseEvent('click',{bubbles:false,cancelable:true}));
+    });
+    card.parentNode.insertBefore(b,card);
+    /* DOM에서 제거하지 않고 숨김 - 기존 JS가 여전히 찾을 수 있도록 */
+    nm.style.cssText='display:none!important';
+    if(sub)sub.style.cssText='display:none!important';
+  }
+
+  document.querySelectorAll('.zs-card').forEach(function(c){lift(c,'zs-hdr','zs-name','zs-kname');});
+  document.querySelectorAll('.es-card').forEach(function(c){lift(c,'es-hdr','es-name','es-feat');});
+  document.querySelectorAll('.hy-card').forEach(function(c){lift(c,'hy-hdr','hy-name','hy-feat');});
+})();
+</script>
+</body>
+</html>

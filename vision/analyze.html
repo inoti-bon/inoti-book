@@ -1,0 +1,952 @@
+<!DOCTYPE html>
+<html lang="ko" translate="no">
+<head>
+<meta charset="UTF-8">
+<meta name="google" content="notranslate">
+<meta http-equiv="Content-Language" content="ko">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>시력 분석 결과</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&family=DM+Serif+Display&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #f0f4f8;
+  --navy: #0f1c2e;
+  --blue: #1a6fef;
+  --sky: #2563eb;
+  --amber: #d97706;
+  --red: #dc2626;
+  --green: #16a34a;
+  --surface: #ffffff;
+  --border: rgba(0,0,0,0.09);
+  --text: #0f1c2e;
+  --muted: #4b6080;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: 'Noto Sans KR', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  font-size: 14px;
+}
+
+/* ── 상단 바 ── */
+.top-bar {
+  background: var(--navy);
+  padding: 10px 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.top-bar .brand { font-family: 'Noto Sans KR', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif; font-size:17px; color:white; }
+.top-bar .customer-label { font-size:12px; color:rgba(255,255,255,.6); display:flex; align-items:center; gap:6px; }
+.top-bar .customer-name  { font-size:14px; font-weight:700; color:white; }
+.top-btns { display:flex; gap:6px; }
+.tbtn {
+  padding:6px 13px; border-radius:7px; font-size:12px; font-weight:700;
+  cursor:pointer; border:none; font-family:'Noto Sans KR', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif; transition:all .2s;
+}
+.tbtn-ghost { background:rgba(255,255,255,.1); color:rgba(255,255,255,.8); }
+.tbtn-ghost:hover { background:rgba(255,255,255,.2); }
+
+/* ── 메인 ── */
+.main { max-width:1060px; margin:0 auto; padding:16px 18px 80px; }
+
+.section-label {
+  font-size:12px; font-weight:900; letter-spacing:2px;
+  text-transform:uppercase; color:var(--navy); margin-bottom:12px;
+}
+
+@keyframes fadeUp {
+  from { opacity:0; transform:translateY(10px); }
+  to   { opacity:1; transform:translateY(0); }
+}
+
+/* ══════════════════════════════
+   ① 눈 카드 — 시각적 그래프 추가
+══════════════════════════════ */
+.hero-grid {
+  display:grid; grid-template-columns:1fr 1fr;
+  gap:12px; margin-bottom:16px;
+}
+
+.eye-card {
+  border-radius:16px; padding:18px 20px;
+  position:relative; overflow:hidden;
+  color:white; display:flex; flex-direction:column; gap:12px;
+  animation:fadeUp .5s ease both;
+}
+.eye-card-r { background:linear-gradient(145deg,#b91c1c,#ef4444); }
+.eye-card-l { background:linear-gradient(145deg,#1e3fa8,#3b82f6); }
+
+.eye-card::before {
+  content:""; position:absolute; top:-30px; right:-30px;
+  width:130px; height:130px; border-radius:50%;
+  background:rgba(255,255,255,.07); pointer-events:none;
+}
+
+/* 카드 상단 행 */
+.ec-top { display:flex; justify-content:space-between; align-items:flex-start; }
+.ec-label { font-size:11px; font-weight:700; opacity:1; letter-spacing:1.5px; text-transform:uppercase; }
+.ec-badge {
+  font-size:12px; font-weight:700; padding:2px 9px;
+  border-radius:999px; background:rgba(255,255,255,.2); border:1px solid rgba(255,255,255,.3);
+}
+
+/* 도수 타이틀 */
+.ec-title { font-family: 'Noto Sans KR', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif; font-size:30px; line-height:1.1; font-weight:900; }
+.ec-sub   { font-size:13px; opacity:1; color:rgba(255,255,255,.9); margin-top:3px; font-weight:700; }
+
+/* 도수 칩 */
+.ec-chips { display:flex; flex-wrap:wrap; gap:5px; }
+.ev-chip {
+  background:rgba(255,255,255,.18); border:1px solid rgba(255,255,255,.25);
+  border-radius:6px; padding:3px 8px; font-size:12px; font-weight:700;
+}
+.ev-chip span { opacity:.88; font-weight:400; margin-right:2px; }
+
+/* 시력 수치 바 */
+.vision-bars { display:flex; flex-direction:column; gap:6px; }
+.vb-row { display:flex; flex-direction:column; gap:3px; }
+.vb-label-row {
+  display:flex; justify-content:space-between;
+  font-size:12px; opacity:.8;
+}
+.vb-track {
+  height:7px; background:rgba(255,255,255,.18);
+  border-radius:999px; overflow:hidden;
+}
+.vb-fill {
+  height:100%; border-radius:999px;
+  background:rgba(255,255,255,.85);
+  transition:width 1s ease;
+}
+
+/* SVG 레이더(방사형) 차트 */
+.ec-radar-wrap {
+  display:flex; justify-content:center; align-items:center;
+  background:rgba(255,255,255,0.15); border-radius:12px; padding:10px 0;
+}
+
+/* ══════════════════════════════
+   ② 원형 게이지 — 절반 크기
+══════════════════════════════ */
+/* [FIX] gauge-grid 제거됨 (미사용 섹션) */
+
+.gauge-card {
+  background:var(--surface); border-radius:12px; padding:10px 8px;
+  border:1px solid var(--border);
+  box-shadow:0 2px 6px rgba(15,31,69,.05);
+  text-align:center; animation:fadeUp .5s ease both;
+}
+.gauge-card:nth-child(1){animation-delay:.04s}
+.gauge-card:nth-child(2){animation-delay:.08s}
+.gauge-card:nth-child(3){animation-delay:.12s}
+.gauge-card:nth-child(4){animation-delay:.16s}
+.gauge-card:nth-child(5){animation-delay:.20s}
+.gauge-card:nth-child(6){animation-delay:.24s}
+
+.circle-wrap { position:relative; width:52px; height:52px; margin:0 auto 6px; }
+.circle-wrap svg { transform:rotate(-90deg); width:52px; height:52px; }
+.circle-bg   { fill:none; stroke:#edf2f7; stroke-width:6; }
+.circle-fill { fill:none; stroke-width:6; stroke-linecap:round; transition:stroke-dasharray 1.2s ease; }
+
+.circle-center {
+  position:absolute; top:50%; left:50%;
+  transform:translate(-50%,-50%); text-align:center; line-height:1.1;
+}
+.circle-score { font-size:14px; font-weight:900; display:block; }
+.circle-unit  { font-size:11px; color:var(--muted); font-weight:700; }
+
+.gauge-name { font-size:12px; font-weight:700; color:var(--text); margin-bottom:2px; }
+.gauge-status {
+  display:inline-block; font-size:11px; font-weight:700;
+  padding:1px 7px; border-radius:999px; margin-top:4px;
+}
+.s-good   { background:#dcfce7; color:#166534; }
+.s-warn   { background:#fef9c3; color:#854d0e; }
+.s-danger { background:#fee2e2; color:#991b1b; }
+
+/* ══════════════════════════════
+   ③ 눈 상태 해석 — 타이틀만
+══════════════════════════════ */
+.explain-grid {
+  display:grid; grid-template-columns:repeat(3,1fr);
+  gap:8px; margin-bottom:16px;
+}
+
+.explain-card {
+  border-radius:12px; padding:12px 14px;
+  border-left:4px solid;
+  background:white;
+  box-shadow:0 2px 6px rgba(15,31,69,.05);
+  animation:fadeUp .5s ease both;
+  display:flex; align-items:center; gap:8px;
+}
+.explain-card.level-good   { border-color:var(--green); }
+.explain-card.level-warn   { border-color:var(--amber); }
+.explain-card.level-danger { border-color:var(--red); }
+.explain-card.level-info   { border-color:var(--sky); }
+
+.explain-icon  { font-size:22px; flex-shrink:0; }
+.explain-title { font-size:14px; font-weight:900; color:var(--navy); line-height:1.4; }
+
+/* ══════════════════════════════
+   ④ 렌즈 추천
+══════════════════════════════ */
+.lens-grid {
+  display:grid; grid-template-columns:repeat(2,1fr);
+  gap:10px; margin-bottom:16px;
+}
+
+.lens-card {
+  background:white; border-radius:16px; padding:16px 18px;
+  border:2px solid var(--border);
+  box-shadow:0 2px 10px rgba(15,31,69,.05);
+  transition:all .2s; animation:fadeUp .5s ease both;
+  position:relative; overflow:hidden;
+}
+.lens-card.primary-pick {
+  border-color:var(--blue);
+  background:linear-gradient(145deg,#f0f6ff,#fff);
+}
+.lens-card.primary-pick::before {
+  content:"최우선 추천"; position:absolute; top:11px; right:11px;
+  background:var(--blue); color:white; font-size:11px; font-weight:700;
+  padding:2px 8px; border-radius:999px;
+}
+.lens-card:hover { transform:translateY(-2px); box-shadow:0 6px 18px rgba(15,31,69,.10); }
+
+.lens-icon   { font-size:28px; margin-bottom:8px; }
+.lens-title  { font-size:16px; font-weight:900; color:var(--navy); margin-bottom:5px; }
+.lens-age-badge {
+  display:inline-flex; align-items:center; gap:4px;
+  font-size:12px; font-weight:700;
+  background:#fef3c7; color:#92400e;
+  border:1px solid #fcd34d;
+  border-radius:6px; padding:3px 9px;
+  margin-bottom:5px;
+}
+.lens-reason { font-size:12px; font-weight:700; color:var(--blue); margin-bottom:6px; }
+.lens-desc   { font-size:13px; color:#2c3e6b; line-height:1.7; font-weight:500; }
+.lens-tags   { display:flex; flex-wrap:wrap; gap:4px; margin-top:8px; }
+.lens-tag {
+  font-size:11px; font-weight:700; padding:3px 10px; border-radius:999px;
+  background:#eff6ff; color:var(--blue); border:1px solid #bfdbfe;
+}
+
+/* ── 드라이브렌즈 배지 ── */
+.lens-card.drive-pick { border-color:#7c3aed; background:linear-gradient(145deg,#f5f3ff,#fff); }
+.lens-card.drive-pick::before {
+  content:"야간 운전 추천"; position:absolute; top:11px; right:11px;
+  background:#7c3aed; color:white; font-size:11px; font-weight:700;
+  padding:2px 8px; border-radius:999px;
+}
+
+/* ── 근시억제 비교표 ── */
+.myopia-section {
+  margin-bottom:16px; animation:fadeUp .5s ease both;
+}
+
+.myopia-compare {
+  background:white; border-radius:16px; padding:18px 20px;
+  border:2px solid #fbbf24;
+  box-shadow:0 2px 12px rgba(251,191,36,.15);
+}
+
+.myopia-header {
+  display:flex; align-items:center; gap:8px; margin-bottom:14px;
+  padding-bottom:10px; border-bottom:1px solid #fef9c3;
+}
+
+.myopia-header-icon { font-size:20px; }
+.myopia-header-title { font-size:16px; font-weight:900; color:#92400e; }
+.myopia-header-sub   { font-size:12px; color:#4a6fa8; margin-top:2px; }
+
+.myopia-grid {
+  display:grid; grid-template-columns:repeat(4,1fr); gap:10px;
+}
+
+.myopia-item {
+  border-radius:12px; padding:13px 10px; text-align:center;
+  border:1px solid var(--border); background:#fafbfd;
+  position:relative; transition:all .2s;
+}
+
+.myopia-item.best {
+  border-color:#1e56c8; background:linear-gradient(145deg,#eff6ff,#fff);
+  box-shadow:0 3px 12px rgba(30,86,200,.12);
+}
+
+.myopia-item.best::before {
+  content:"최우선 추천"; position:absolute; top:-9px; left:50%;
+  transform:translateX(-50%);
+  background:var(--blue); color:white; font-size:11px; font-weight:700;
+  padding:1px 9px; border-radius:999px; white-space:nowrap;
+}
+
+.mi-icon  { font-size:22px; margin-bottom:6px; }
+.mi-name  { font-size:12px; font-weight:900; color:var(--text); margin-bottom:8px; }
+
+/* 효과율 바 */
+.mi-bar-wrap { margin-bottom:6px; }
+.mi-bar-label {
+  display:flex; justify-content:space-between;
+  font-size:12px; font-weight:700; color:var(--muted); margin-bottom:3px;
+}
+.mi-bar-track {
+  height:8px; background:#e2e8f0; border-radius:999px; overflow:hidden;
+}
+.mi-bar-fill {
+  height:100%; border-radius:999px; transition:width 1s ease;
+}
+.fill-blue   { background:linear-gradient(90deg,#1e56c8,#3b82f6); }
+.fill-green  { background:linear-gradient(90deg,#059669,#10b981); }
+.fill-purple { background:linear-gradient(90deg,#7c3aed,#a78bfa); }
+.fill-amber  { background:linear-gradient(90deg,#d97706,#fbbf24); }
+
+.mi-tags { display:flex; flex-direction:column; gap:3px; margin-top:8px; }
+.mi-tag  {
+  font-size:12px; padding:2px 0; color:var(--muted);
+  border-top:1px solid #f1f5f9; text-align:left;
+}
+.mi-correction-badge {
+  display:inline-flex; align-items:center; gap:3px;
+  font-size:9.5px; font-weight:700;
+  background:#fef3c7; color:#92400e;
+  border:1px solid #fcd34d;
+  border-radius:5px; padding:2px 8px;
+  margin-bottom:6px;
+}
+
+/* ── 하단 버튼 ── */
+.bottom-bar {
+  position:sticky; bottom:0;
+  background:rgba(240,244,255,.96); backdrop-filter:blur(10px);
+  padding:10px 18px; border-top:1px solid var(--border);
+  display:flex; align-items:center; justify-content:center; gap:10px;
+}
+.bbtn-nav {
+  padding:8px 14px; border:none; border-radius:8px;
+  font-size:12px; font-weight:700; cursor:pointer;
+  font-family:'Noto Sans KR', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif; transition:all .2s;
+  background:#e2e8f0; color:#334155; white-space:nowrap;
+  flex-shrink:0;
+}
+.bbtn-nav:hover { background:#cbd5e1; }
+.bbtn-lens {
+  padding:13px 32px; border:none; border-radius:12px;
+  font-size:14px; font-weight:700; cursor:pointer;
+  font-family:'Noto Sans KR', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif; transition:all .2s;
+  background:linear-gradient(135deg,#0ab99d,#0891b2); color:white;
+  box-shadow:0 4px 16px rgba(10,185,157,.3);
+  flex-shrink:0;
+}
+.bbtn-lens:hover { transform:translateY(-1px); box-shadow:0 6px 20px rgba(10,185,157,.4); }
+
+.spacer { height:70px; }
+
+@media (max-width:768px) {
+  .hero-grid    { grid-template-columns:1fr; }
+  .gauge-grid   { grid-template-columns:repeat(3,1fr); }
+  .explain-grid { grid-template-columns:1fr 1fr; }
+  .lens-grid    { grid-template-columns:1fr; }
+  .main { padding:12px 12px 16px; }
+}
+
+@media print {
+  @page { size: A4; margin: 6mm; }
+  body { background: white !important; }
+  .top-bar { display: none !important; }
+  .bottom-bar { display: none !important; }
+  .main { padding: 0 !important; }
+  * { animation: none !important; transition: none !important; }
+
+  /* 전체 폰트 축소 */
+  body { font-size: 11px !important; }
+
+  .section-label { font-size: 9px !important; margin-bottom: 5px !important; }
+
+  /* 히어로 눈 카드 */
+  .hero-grid { gap: 8px !important; margin-bottom: 10px !important; }
+  .eye-card { min-height: 120px !important; padding: 12px 14px !important; }
+  .ec-title { font-size: 16px !important; }
+  .ec-sub   { font-size: 9px !important; }
+  .ev-chip  { font-size: 9px !important; padding: 2px 6px !important; }
+
+  /* 눈 상태 해석 */
+  .explain-grid { gap: 6px !important; margin-bottom: 10px !important; }
+  .explain-card { padding: 8px 10px !important; }
+  .explain-title { font-size: 10px !important; }
+  .explain-icon  { font-size: 14px !important; }
+
+  /* 렌즈 추천 */
+  .lens-grid { gap: 6px !important; margin-bottom: 10px !important; }
+  .lens-card { padding: 10px 12px !important; }
+  .lens-title  { font-size: 11px !important; }
+  .lens-reason { font-size: 9px !important; }
+  .lens-desc   { font-size: 10px !important; line-height: 1.4 !important; }
+  .lens-tag    { font-size: 9px !important; padding: 1px 5px !important; }
+  .lens-icon   { font-size: 18px !important; margin-bottom: 4px !important; }
+
+  /* 근시억제 비교 */
+  .myopia-compare { padding: 12px 14px !important; }
+  .myopia-grid { gap: 6px !important; }
+  .myopia-item { padding: 8px 6px !important; }
+  .mi-name { font-size: 10px !important; }
+  .mi-bar-track { height: 5px !important; }
+
+  /* spacer 제거 */
+  .spacer { display: none !important; }
+}
+
+  .cust-zs-col{flex:1 1 90%!important;max-width:100%!important;min-width:0!important;}
+  .badge-name{font-size:16px!important;}
+  .zs-td{font-size:11px!important;padding:2px 3px!important;}
+  .es-img-tbl th,.es-img-tbl td{font-size:11px!important;padding:4px 5px!important;}
+  .brand-tabs{gap:4px!important;}
+  .bottom-bar{padding:6px 12px!important;}
+}
+
+/* ── 전역 터치 최적화 ── */
+button, a, input, select, textarea,
+.toggle-btn, .icon-item, .card, .side-btn, .sb-btn,
+.tab-btn, .brand-tab, .cat-card, .icon-card {
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* ── 태블릿 반응형 (분석 결과) ── */
+@media screen and (max-width: 1024px) {
+  .main        { padding: 16px 16px 80px; }
+  .hero-grid, .explain-grid, .lens-grid { gap: 12px; }
+}
+@media screen and (max-width: 768px) {
+  .main        { padding: 12px 12px 70px; }
+  .bottom-bar  { padding: 6px 12px; gap: 6px; }
+}
+
+</style>
+
+<script src="../auth.js"></script>
+</head>
+<body>
+
+<!-- 상단 바 (출력버튼 없음) -->
+<div class="top-bar">
+  <div class="brand">INOTI Eyecare</div>
+  <div class="customer-label">
+    <span>고객명</span>
+    <span class="customer-name" id="hd-name">—</span>
+    <span id="hd-age" style="opacity:.85;font-size:12px;"></span>
+  </div>
+  <div class="top-btns">
+    <button class="tbtn tbtn-ghost" onclick="goBack()">← 이전</button>
+    <button class="tbtn tbtn-ghost" onclick="goHome()">홈으로</button>
+  </div>
+</div>
+
+<div class="main">
+
+  <!-- ① 눈 카드 -->
+  <div class="section-label">현재 시력 데이터</div>
+  <div class="hero-grid" id="heroGrid"></div>
+
+  <!-- ③ 눈 상태 해석 -->
+  <div class="section-label">눈 상태 해석</div>
+  <div class="explain-grid" id="explainGrid"></div>
+
+  <!-- ④ 렌즈 추천 -->
+  <div class="section-label">맞춤 렌즈 추천</div>
+  <div class="lens-grid" id="lensGrid"></div>
+
+  <!-- ⑤ 근시억제 옵션 비교 (근시 억제 선택 시만 표시) -->
+  <div id="myopiaSection" style="display:none; margin-bottom:16px;">
+    <div class="section-label">근시 억제 옵션 비교</div>
+    <div class="myopia-compare" id="myopiaCompare"></div>
+  </div>
+
+  <div class="spacer"></div>
+</div>
+
+<!-- 하단 버튼 -->
+<div class="bottom-bar">
+  <button class="bbtn-nav" onclick="goBack()">← 이전</button>
+  <button class="bbtn-lens" onclick="goLensPrice()">👓 안경렌즈 가격표</button>
+  <button class="bbtn-nav" onclick="goHome()">홈 🏠</button>
+</div>
+
+<script>
+/* [FIX] 인증 게이트 — body 최하단 실행, DOM 준비 완료 상태 */
+document.body.style.visibility = "hidden";
+showAccessGate(function () {
+  document.body.style.visibility = "visible";
+  initPage();
+});
+
+/* ── 네비게이션 함수 (전역 스코프 유지) ── */
+function goBack()      { location.href = "vision_input.html"; }
+function goHome()      { location.href = "../index.html"; }
+function goLensPrice() { location.href = "../lens_price/main.html"; }
+
+function initPage() {
+const data = JSON.parse(localStorage.getItem("visionAnalysisData")) || {};
+
+/* ── 유틸 ── */
+function num(v)  { const n=parseFloat(String(v||"").replace("+","")); return isNaN(n)?0:n; }
+function absV(v) { return Math.abs(num(v)); }
+function ss(v)   { return {없음:0,약함:25,보통:60,심함:90}[v]||0; }
+
+const age    = Number(data.age||0);
+const rSph   = num(data.r?.sph),    lSph  = num(data.l?.sph);
+const rCyl   = absV(data.r?.cyl),   lCyl  = absV(data.l?.cyl);
+const rAxis  = num(data.r?.axis),   lAxis = num(data.l?.axis);
+const rPrism = absV(data.r?.prism), lPrism= absV(data.l?.prism);
+const add    = num(data.add);
+const maxSph  = Math.max(absV(rSph),absV(lSph));
+const maxCyl  = Math.max(rCyl,lCyl);
+const sphDiff = Math.abs(rSph-lSph);
+
+const nearScore  = Math.min(100, ss(data.symptoms?.nearDiscomfort)+(age>=40?25:0)+(add>0?20:0));
+const fatigScore = Math.min(100, ss(data.symptoms?.eyeFatigue)+(maxSph>=3?15:0));
+const glareScore = Math.min(100, ss(data.symptoms?.nightGlare)+(maxCyl>=1?25:0));
+const dryScore   = Math.min(100, ss(data.symptoms?.dryness));
+const rxScore    = Math.min(100, maxSph*18+maxCyl*20);
+const ageScore   = age>=40?Math.min(100,40+(age-40)*2):15;
+
+function sphLevel(s) {
+  const a=Math.abs(s);
+  if(a===0)   return {label:"정시",   sub:"굴절 이상 없음",      color:"#22c55e"};
+  if(a<=3.00) return {label:"경도",   sub:"약한 굴절 이상",      color:"#84cc16"};
+  if(a<=6.00) return {label:"중도",   sub:"일상 교정 필요",      color:"#f59e0b"};
+  if(a<=9.00) return {label:"고도",   sub:"선명도 저하 뚜렷",    color:"#ef4444"};
+  return             {label:"초고도", sub:"두께·무게 관리 필요", color:"#dc2626"};
+}
+function cylLevel(c) {
+  if(c===0)  return {label:"난시 없음", color:"#22c55e"};
+  if(c<0.75) return {label:"경도 난시",color:"#84cc16"};
+  if(c<1.5)  return {label:"중도 난시",color:"#f59e0b"};
+  return           {label:"고도 난시", color:"#ef4444"};
+}
+function isOblique(axis,cyl){ return cyl>=0.5&&((axis>=30&&axis<=60)||(axis>=120&&axis<=150)); }
+
+/* ── 도수 → 5각형 레이더 SVG ──
+   꼭짓점: 근시, 난시, 양안균형, ADD부담, 도수강도
+*/
+function buildRadar(sph, cyl, diff, addVal, prism) {
+  const cx=70, cy=70, r=50;
+  // 5개 축 각도 (상단부터 시계방향)
+  const angles = [-90,-18,54,126,198].map(a=>a*Math.PI/180);
+
+  // 정규화 (0~1) + 최솟값 0.18 보정 → 저도수도 시각적으로 표현
+  // 실제 값이 있으면 0.18~1.0 구간으로 스케일, 없으면(0이면) 0으로 처리
+  function norm(raw, max, hasVal) {
+    if(!hasVal) return 0;
+    return 0.18 + Math.min(0.82, (raw/max)*0.82);
+  }
+  const vals = [
+    norm(absV(sph), 8,   absV(sph)>0),       // 근시/원시
+    norm(cyl,       3,   cyl>0),             // 난시
+    norm(diff,      4,   diff>0),            // 양안 불균형
+    norm(addVal,    3,   addVal>0),          // ADD
+    norm(prism,     4,   prism>0)            // 프리즘
+  ];
+
+  const pts = angles.map((a,i)=>[
+    cx + Math.cos(a)*r*vals[i],
+    cy + Math.sin(a)*r*vals[i]
+  ]);
+
+  const polygon = pts.map(p=>p.join(",")).join(" ");
+
+  // 배경 5각형
+  const bgPts = angles.map(a=>[cx+Math.cos(a)*r, cy+Math.sin(a)*r]);
+  const bgPolygon = bgPts.map(p=>p.join(",")).join(" ");
+
+  // 라벨
+  const labels=["근시","난시","양안차","ADD","프리즘"];
+  const labelPts = angles.map((a,i)=>[
+    cx+Math.cos(a)*(r+14),
+    cy+Math.sin(a)*(r+14)
+  ]);
+
+  return `
+    <svg width="140" height="140" viewBox="0 0 140 140">
+      <!-- 배경선 -->
+      ${[.25,.5,.75,1].map(s=>`
+        <polygon points="${angles.map(a=>[cx+Math.cos(a)*r*s,cy+Math.sin(a)*r*s].join(",")).join(" ")}"
+          fill="none" stroke="rgba(255,255,255,.15)" stroke-width="0.8"/>
+      `).join("")}
+      <!-- 축선 -->
+      ${angles.map((a,i)=>`
+        <line x1="${cx}" y1="${cy}" x2="${bgPts[i][0]}" y2="${bgPts[i][1]}"
+          stroke="rgba(255,255,255,.15)" stroke-width="0.8"/>
+      `).join("")}
+      <!-- 데이터 폴리곤 -->
+      <polygon points="${polygon}" fill="rgba(255,255,255,.35)" stroke="rgba(255,255,255,.9)" stroke-width="1.5"/>
+      <!-- 라벨 -->
+      ${labelPts.map((p,i)=>`
+        <text x="${p[0]}" y="${p[1]}" text-anchor="middle" dominant-baseline="middle"
+          font-size="7.5" font-weight="700" fill="rgba(255,255,255,.8)"
+          font-family="'Noto Sans KR',sans-serif">${labels[i]}</text>
+      `).join("")}
+    </svg>`;
+}
+
+/* ── ① 눈 카드 빌드 ── */
+document.getElementById("hd-name").textContent = data.customerName||"—";
+document.getElementById("hd-age").textContent  = age?age+"세":"";
+
+function buildEyeCard(side, sph, cyl, axis, prism, raw, corrected) {
+  const isR=side==="R";
+  const sl=sphLevel(sph), cl=cylLevel(cyl);
+  const rawPct   = Math.min(100,parseFloat(raw||0)*100);
+  const cvPct    = Math.min(100,parseFloat(corrected||0)*100);
+  const cls      = isR?"eye-card-r":"eye-card-l";
+  const label    = isR?"우안 (O.D)":"좌안 (O.S)";
+  const diff     = sphDiff; // [FIX] 양안 차이는 공통값 — 불필요한 삼항 제거
+
+  return `
+  <div class="eye-card ${cls}">
+    <div class="ec-top">
+      <div>
+        <div class="ec-label">${label}</div>
+        <div class="ec-title">${sl.label}${Math.abs(sph)>0?" "+(sph>0?"+":"")+sph.toFixed(2)+"D":""}</div>
+        <div class="ec-sub">${sl.sub}${cyl>0?" · "+cl.label:""}</div>
+      </div>
+      <div class="ec-radar-wrap">${buildRadar(sph,cyl,diff,add,prism)}</div>
+    </div>
+
+    <div class="ec-chips">
+      ${sph!==0?`<div class="ev-chip"><span>SPH</span>${sph>0?"+":""}${sph.toFixed(2)}</div>`:""}
+      ${cyl>0?`<div class="ev-chip"><span>CYL</span>-${cyl.toFixed(2)}</div>`:""}
+      ${cyl>0?`<div class="ev-chip"><span>AXIS</span>${axis}°</div>`:""}
+      ${prism>0?`<div class="ev-chip"><span>PRISM</span>${prism.toFixed(1)}</div>`:""}
+      ${add>0?`<div class="ev-chip"><span>ADD</span>+${add.toFixed(2)}</div>`:""}
+    </div>
+
+    ${(raw||corrected)?`
+    <div class="vision-bars">
+      ${raw?`<div class="vb-row">
+        <div class="vb-label-row"><span>나안시력</span><span>${raw}</span></div>
+        <div class="vb-track"><div class="vb-fill" style="width:${rawPct}%"></div></div>
+      </div>`:""}
+      ${corrected?`<div class="vb-row">
+        <div class="vb-label-row"><span>교정시력</span><span>${corrected}</span></div>
+        <div class="vb-track"><div class="vb-fill" style="width:${cvPct}%"></div></div>
+      </div>`:""}
+    </div>`:""}
+  </div>`;
+}
+
+document.getElementById("heroGrid").innerHTML =
+  buildEyeCard("R",rSph,rCyl,rAxis,rPrism,data.r?.raw,data.r?.corrected)+
+  buildEyeCard("L",lSph,lCyl,lAxis,lPrism,data.l?.raw,data.l?.corrected);
+
+/* [FIX] buildGauge 제거 — 미사용 dead code */
+
+/* ── ③ 눈 상태 해석 — 타이틀만 ── */
+let explains=[];
+
+if(sphDiff>=2.0)
+  explains.push({level:"danger",icon:"⚖️",title:"양안 균형 차이가 큽니다"});
+if(maxSph>=4)
+  explains.push({level:"warn",  icon:"🔭",title:"고도수 — 두께 관리 필요"});
+if(maxCyl>=1)
+  explains.push({level:"warn",  icon:"🌀",title:`난시 있음 (${maxCyl.toFixed(2)}D)`});
+if(isOblique(rAxis,rCyl)||isOblique(lAxis,lCyl))
+  explains.push({level:"warn",  icon:"📐",title:"사축 난시 — 적응 기간 필요"});
+if(rPrism>0||lPrism>0)
+  explains.push({level:"info",  icon:"🔀",title:"프리즘 처방 포함"});
+if(nearScore>=60)
+  explains.push({level:"warn",  icon:"📖",title:age>=40?"근거리 부담 — 노안 초기":"근거리 초점 부담"});
+if(fatigScore>=60)
+  explains.push({level:"warn",  icon:"😵",title:"눈 피로 누적 주의"});
+if(glareScore>=60)
+  explains.push({level:"warn",  icon:"🌙",title:"야간 빛번짐 가능성"});
+if(dryScore>=60)
+  explains.push({level:"info",  icon:"💧",title:"건조감 관리 필요"});
+if(explains.length===0)
+  explains.push({level:"good",  icon:"✅",title:"전반적으로 양호한 상태"});
+
+document.getElementById("explainGrid").innerHTML=explains.map((e,i)=>`
+  <div class="explain-card level-${e.level}" style="animation-delay:${i*.07}s">
+    <div class="explain-icon">${e.icon}</div>
+    <div class="explain-title">${e.title}</div>
+  </div>`
+).join("");
+
+/* ── ④ 렌즈 추천 ── */
+let lenses=[];
+const hasDigitalFirst = add>0 && add<1.0;
+const nearVal = data.symptoms?.nearDiscomfort || "";
+
+// 근시 여부 (SPH 음수) — 원시(양수) 제외
+const isMyopia = rSph < 0 || lSph < 0;
+
+// 15세 미만 근시: 특이사항 선택 여부와 무관하게 근시억제 최우선
+const autoMyopiaKid = age > 0 && age <= 16 && isMyopia;
+
+if(autoMyopiaKid || data.special==="근시 억제") {
+  lenses.push({primary:true, icon:"🧒", title:"근시 억제 설계 렌즈",
+    ageBased: autoMyopiaKid,
+    reason: autoMyopiaKid
+      ? `${age}세 성장기 근시 — 자동 최우선 추천`
+      : "특이사항 — 근시 억제 최우선",
+    desc:"성장기 근시 진행을 늦추는 전용 설계 렌즈입니다. 정기 검진과 병행하여 진행 속도를 모니터링하세요.",
+    tags:["근시 억제","성장기 관리","최우선 추천"]
+  });
+}
+
+// 누진: ADD>=1 이면 최우선급, 40세 이상이면 목록에 포함(primary는 앞 항목 없을 때만)
+const wantsProgressive = !hasDigitalFirst && (
+  add >= 1.0 ||
+  age >= 40 ||
+  (nearVal !== "없음" && nearVal !== "" && nearScore >= 60)
+);
+
+if(wantsProgressive) {
+  const progPrimary = lenses.length === 0 && (add >= 1.0 || (nearVal !== "없음" && nearVal !== ""));
+  const progAgeBased = age >= 40 && add === 0 && (nearVal === "없음" || nearVal === "");
+  lenses.push({primary: progPrimary, icon:"👓", ageBased: progAgeBased,
+    title:"누진다초점 렌즈",
+    reason:`${age}세${add>0?" · ADD +"+add.toFixed(2):""}${nearVal&&nearVal!=="없음"?" · 근거리 "+nearVal:""}`,
+    desc:"원거리·중간·근거리를 하나의 렌즈로 자연스럽게 연결합니다. 생활 패턴에 따라 근거리 중시형(오피스)과 원거리 중시형을 선택하세요.",
+    tags:["노안 대응", add>0?`ADD +${add.toFixed(2)}`:"", age>=50?"광폭 설계 권장":"입문형 가능"].filter(Boolean)
+  });
+}
+
+if(hasDigitalFirst) {
+  lenses.push({primary:true,icon:"💻",
+    title:"디지털 피로 완화 디자인 렌즈",
+    reason:`ADD +${add.toFixed(2)} (1.00 미만) — 최우선 추천`,
+    desc:"ADD값이 낮은 경우 누진보다 디지털 피로 완화 디자인 렌즈가 더 자연스럽습니다. 근거리 릴렉싱 설계로 조절 부담을 줄이고 적응도 빠릅니다.",
+    tags:["ADD 1.00 미만 최적","릴렉싱 설계","블루라이트 차단"]
+  });
+} else if(fatigScore>=60||(data.symptoms?.eyeFatigue&&data.symptoms.eyeFatigue!=="없음"&&data.symptoms.eyeFatigue!=="")) {
+  lenses.push({primary:lenses.length===0,icon:"💻",
+    title:"디지털 피로 완화 디자인 렌즈",
+    reason:`눈 피로도 ${Math.round(fatigScore)}%`,
+    desc:"블루라이트 차단과 중·근거리 릴렉싱 설계로 장시간 화면 작업 시 눈의 조절 부담을 줄여줍니다.",
+    tags:["블루라이트 차단","릴렉싱 설계","장시간 PC 최적화"]
+  });
+}
+
+if(glareScore>=60||maxCyl>=1) {
+  lenses.push({primary:lenses.length===0,icon:"🌙",
+    title:"고선명 비구면 + AR코팅 렌즈",
+    reason:`야간 빛번짐 ${Math.round(glareScore)}%${maxCyl>=1?" · 난시 "+maxCyl.toFixed(2)+"D":""}`,
+    desc:"비구면 설계로 가장자리 왜곡을 줄이고, 고급 AR 멀티코팅으로 야간 반사·번짐을 최소화합니다.",
+    tags:["고선명 비구면","야간 운전 최적화",maxCyl>=1?"난시 정밀 교정":""].filter(Boolean)
+  });
+}
+
+if(dryScore>=60) {
+  lenses.push({primary:false,icon:"💧",
+    title:"초발수 방오 코팅 렌즈",
+    reason:`건조감 ${Math.round(dryScore)}%`,
+    desc:"표면 발수력이 높아 눈물막이 균일하게 유지되고, 먼지·지문이 잘 묻지 않아 관리가 편합니다.",
+    tags:["초발수 코팅","방오 내구성","쾌적한 착용감"]
+  });
+}
+
+if(maxSph>=4) {
+  const idx=maxSph>=6?"1.76":maxSph>=5?"1.74":"1.67";
+  lenses.push({primary:false,icon:"🔍",
+    title:`고굴절 압축 렌즈 (${idx})`,
+    reason:`도수 부담 ${Math.round(rxScore)}% · SPH ${maxSph.toFixed(2)}D`,
+    desc:`굴절률 ${idx} 렌즈로 두께를 크게 줄여 외관도 자연스럽고 착용도 가볍습니다.`,
+    tags:[`굴절률 ${idx}`,"두께 최소화","경량화"]
+  });
+}
+
+/* ── 고도근시 / 고도난시 → 양면비구면 렌즈 ── */
+const isHighMyopia = maxSph >= 5.0;
+const isHighAstig  = maxCyl >= 2.0;
+
+if(isHighMyopia || isHighAstig) {
+  const reasons = [];
+  if(isHighMyopia) reasons.push(`고도근시 SPH ${maxSph.toFixed(2)}D`);
+  if(isHighAstig)  reasons.push(`고도난시 CYL ${maxCyl.toFixed(2)}D`);
+  lenses.push({primary:false, icon:"🔬",
+    title:"양면비구면 렌즈",
+    reason:reasons.join(" · "),
+    desc:"앞면과 뒷면 모두 비구면으로 설계해 고도수의 가장자리 왜곡과 수차를 최소화합니다. 일반 비구면 대비 훨씬 선명하고 넓은 시야를 제공합니다.",
+    tags:["양면비구면 설계","주변부 왜곡 최소화","넓은 시야각",
+      isHighMyopia?"고도근시 최적":"",
+      isHighAstig?"고도난시 정밀 교정":""].filter(Boolean)
+  });
+}
+
+/* ── 개인맞춤형 렌즈 — 고도근시 / 고도난시 / 프리즘 / 양안도수차 ── */
+const needsCustom = isHighMyopia || isHighAstig || (rPrism>0||lPrism>0) || sphDiff>=2.0;
+
+if(needsCustom) {
+  const customReasons = [];
+  if(isHighMyopia)          customReasons.push(`고도근시 ${maxSph.toFixed(2)}D`);
+  if(isHighAstig)           customReasons.push(`고도난시 ${maxCyl.toFixed(2)}D`);
+  if(rPrism>0||lPrism>0)   customReasons.push("프리즘 처방");
+  if(sphDiff>=2.0)          customReasons.push(`양안 도수차 ${sphDiff.toFixed(2)}D`);
+  lenses.push({primary:false, icon:"⚙️",
+    title:"개인맞춤형 렌즈",
+    reason:customReasons.join(" · "),
+    desc:"일반 규격 렌즈로는 대응이 어려운 처방입니다. 고객의 도수·프리즘·양안 균형을 정밀 반영한 맞춤 설계 렌즈로 최적의 시야와 착용감을 제공합니다.",
+    tags:["개인 맞춤 설계","정밀 처방 대응","광학 중심 최적화",
+      rPrism>0||lPrism>0?"프리즘 정밀 가공":"",
+      sphDiff>=2.0?"양안 균형 맞춤":""].filter(Boolean)
+  });
+}
+
+if(data.special==="라식/라섹")
+  lenses.push({primary:false,icon:"✨",title:"수술 후 맞춤형 고선명 렌즈",
+    reason:"특이사항 — 라식/라섹",
+    desc:"빛번짐과 건조감에 특히 주의합니다. 개인 맞춤 수차 교정 설계를 우선 검토하세요.",
+    tags:["수술 후 관리","빛번짐 완화","맞춤 수차 교정"]});
+
+if(data.special==="백내장")
+  lenses.push({primary:false,icon:"🛡️",title:"대비감도 강화 + 황변 필터 렌즈",
+    reason:"특이사항 — 백내장",
+    desc:"황변 필터로 대비 감도를 높이고 눈부심을 줄입니다.",
+    tags:["황변 필터","대비감도 향상","눈부심 방지"]});
+
+/* 드라이브렌즈 — 야간 빛번짐 없음/미선택이 아닌 경우 전체 포함 */
+const nightGlareVal = data.symptoms?.nightGlare || "";
+if(nightGlareVal !== "" && nightGlareVal !== "없음") {
+  lenses.push({primary:false, drive:true, icon:"🚗",
+    title:"드라이브렌즈",
+    reason:`야간 빛번짐 ${nightGlareVal} — 운전 최적화`,
+    desc:"야간 운전 시 발생하는 빛번짐·눈부심을 전용 코팅으로 최소화합니다. 대비감도를 높여 야간 시인성을 확보하고 안전한 운전 환경을 만들어 줍니다.",
+    tags:["야간 빛번짐 완화","대비감도 향상","운전 전용 코팅","야간 시인성"]
+  });
+}
+
+/* ── 난시가 있는 모든 경우 → 비구면 렌즈 (양면비구면 미해당 구간) ── */
+if(maxCyl > 0 && !isHighAstig) {
+  lenses.push({primary:false, icon:"🔭",
+    title:"비구면 렌즈",
+    reason:`난시 CYL ${maxCyl.toFixed(2)}D — 선명도 개선`,
+    desc:"구면 렌즈 대비 가장자리 왜곡이 줄어들고 시야 전반의 선명도가 향상됩니다. 난시가 있는 경우 비구면 설계가 착용 편의성에 도움이 됩니다.",
+    tags:["비구면 설계","난시 대응","선명도 향상","왜곡 감소"]
+  });
+}
+
+/* ── 기본 단초점 렌즈 — 조건 없이 항상 포함 ── */
+const basicPrimary = lenses.length === 0;
+lenses.push({primary:basicPrimary, icon:"✅",
+  title:"기본 단초점 AR코팅 렌즈",
+  reason:"기본 처방 렌즈",
+  desc:"현재 처방에 맞는 일반 단초점 렌즈입니다. AR 멀티코팅을 기본 적용하면 선명도와 눈 피로가 개선됩니다.",
+  tags:["단초점","AR 멀티코팅","일상용"]
+});
+
+document.getElementById("lensGrid").innerHTML=lenses.map((l,i)=>`
+  <div class="lens-card ${l.primary?"primary-pick":l.drive?"drive-pick":""}" style="animation-delay:${i*.08}s">
+    <div class="lens-icon">${l.icon}</div>
+    <div class="lens-title">${l.title}</div>
+    ${l.ageBased?`<div class="lens-age-badge">🎂 나이반영추천 (${age}세)</div>`:""}
+    <div class="lens-reason">📌 ${l.reason}</div>
+    <div class="lens-desc">${l.desc}</div>
+    <div class="lens-tags">${l.tags.map(t=>`<span class="lens-tag">${t}</span>`).join("")}</div>
+  </div>`
+).join("");
+
+/* ── 추천 렌즈 키 저장 → 안경렌즈 가격표 연동 ── */
+const recKeys = { 단초점:[], 기능성:[], 다초점:[], primary:[] };
+
+lenses.forEach(l => {
+  const t = l.title;
+  if(l.primary) recKeys.primary.push(t);
+
+  // 카테고리 + 세부 키 매핑
+  if(t.includes("누진")||t.includes("다초점")||t.includes("오피스")||t.includes("이중초점")) {
+    recKeys.다초점.push(t);
+    if(t.includes("누진"))   recKeys.다초점.push("누진다초점");
+    if(t.includes("오피스")) recKeys.다초점.push("오피스형");
+  } else if(t.includes("디지털")||t.includes("드라이브")||t.includes("근시 억제")||t.includes("변색")||t.includes("UV")) {
+    recKeys.기능성.push(t);
+    if(t.includes("디지털"))  recKeys.기능성.push("디지털피로완화");
+    if(t.includes("드라이브"))recKeys.기능성.push("드라이브");
+    if(t.includes("근시 억제"))recKeys.기능성.push("근시억제");
+  } else {
+    recKeys.단초점.push(t);
+  }
+
+  // 단초점 세부 공통
+  if(t.includes("양면비구면")) recKeys.단초점.push("양면비구면");
+  if(t.includes("비구면")&&!t.includes("양면")) recKeys.단초점.push("비구면");
+  if(t.includes("고굴절"))     recKeys.단초점.push("고굴절");
+  if(t.includes("개인맞춤"))   { recKeys.단초점.push("개인맞춤형"); recKeys.다초점.push("개인맞춤형"); }
+});
+
+Object.keys(recKeys).forEach(k=>{ recKeys[k]=[...new Set(recKeys[k])]; });
+localStorage.setItem("lensRecommendKeys", JSON.stringify(recKeys));
+
+/* ── ⑤ 근시억제 옵션 비교표 — 근시억제 선택 또는 15세 미만 근시 시 표시 ── */
+if(data.special==="근시 억제" || autoMyopiaKid) {
+  document.getElementById("myopiaSection").style.display="block";
+
+  const options=[
+    {
+      icon:"🔬", name:"근시 억제 렌즈", best:true,
+      fillClass:"fill-blue", needsCorrection:false,
+      effect:67,
+      tags:["근시 억제 효과 최고","일상 착용 가능","안경원 전문 피팅","정기 검진 권장"]
+    },
+    {
+      icon:"🌙", name:"드림렌즈", best:false,
+      fillClass:"fill-purple", needsCorrection:true,
+      effect:55,
+      tags:["야간 착용 / 주간 나안 생활","각막 형태 교정 방식","정기 세척·관리 필요","초기 비용 높음"]
+    },
+    {
+      icon:"💊", name:"아트로핀 처방", best:false,
+      fillClass:"fill-green", needsCorrection:true,
+      effect:48,
+      tags:["안과 처방 필수","점안액 사용 방식","일시적 눈부심 가능","근시억제렌즈 병용사용시 효과↑"]
+    },
+    {
+      icon:"👓", name:"일반 안경렌즈", best:false,
+      fillClass:"fill-amber", needsCorrection:false,
+      effect:22,
+      tags:["근시 억제 효과 낮음","교정 목적 위주","경제적 부담 낮음","정기 도수 변경 필요"]
+    }
+  ];
+
+  document.getElementById("myopiaCompare").innerHTML=`
+    <div class="myopia-header">
+      <div class="myopia-header-icon">🧒</div>
+      <div>
+        <div class="myopia-header-title">근시 억제 방법 비교</div>
+        <div class="myopia-header-sub">성장기 근시 진행을 늦추는 4가지 옵션을 비교합니다</div>
+      </div>
+    </div>
+    <div class="myopia-grid">
+      ${options.map(o=>`
+        <div class="myopia-item ${o.best?"best":""}">
+          <div class="mi-icon">${o.icon}</div>
+          <div class="mi-name">${o.name}</div>
+          ${o.needsCorrection?`<div class="mi-correction-badge">👓 안경교정 필수</div>`:""}
+          <div class="mi-bar-wrap">
+            <div class="mi-bar-label">
+              <span>근시 억제 효과</span>
+              <span style="color:${o.best?"#1e56c8":"#6b7fa8"};font-weight:900;">${o.effect}%</span>
+            </div>
+            <div class="mi-bar-track">
+              <div class="mi-bar-fill ${o.fillClass}" style="width:${o.effect}%"></div>
+            </div>
+          </div>
+          <div class="mi-tags">
+            ${o.tags.map(t=>`<div class="mi-tag">· ${t}</div>`).join("")}
+          </div>
+        </div>
+      `).join("")}
+    </div>
+  `;
+}
+
+} // end initPage
+</script>
+</body>
+</html>

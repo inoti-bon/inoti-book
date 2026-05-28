@@ -1,0 +1,1321 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>INOTI · 근시억제렌즈</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
+<style>
+:root{
+  --bg:#f0f4f8;--surface:#fff;--text:#0f1c2e;--muted:#4b6080;
+  --border:rgba(0,0,0,0.09);--blue:#1d4ed8;--sidebar-w:200px;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Noto Sans KR','Apple SD Gothic Neo','Malgun Gothic',sans-serif;background:var(--bg);color:var(--text);height:100vh;overflow:hidden;display:flex;flex-direction:column;}
+
+/* ── 레이아웃 */
+.layout{display:flex;flex:1;min-height:0;}
+
+/* ── 사이드바 */
+.sidebar{width:var(--sidebar-w);flex-shrink:0;background:#fff;border-right:1px solid var(--border);display:flex;flex-direction:column;padding:14px 10px;gap:3px;height:calc(100vh - 44px);overflow-y:auto;overflow-x:hidden;}
+.sidebar.sb-hidden{width:0!important;min-width:0!important;padding:0!important;overflow:hidden!important;border-right:none!important;transition:width .3s ease,padding .3s ease;}
+.sb-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.45);z-index:98;}
+.sb-overlay.show{display:block;}
+.sb-label{font-size:10px;font-weight:900;letter-spacing:2px;text-transform:uppercase;color:#444;padding:0 6px;margin-bottom:3px;margin-top:2px;}
+.sb-btn{display:flex;align-items:center;gap:8px;padding:7px 10px;border-radius:10px;border:1px solid transparent;background:transparent;color:#111;font-size:14px;font-weight:700;cursor:pointer;font-family:'Noto Sans KR',sans-serif;transition:all .2s;text-decoration:none;width:100%;}
+.sb-btn:hover{background:rgba(0,0,0,0.04);}
+.sb-btn.on-cat{background:rgba(20,184,166,0.10);border-color:rgba(20,184,166,0.25);color:#0d9488;}
+.sb-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
+.sb-sub{display:flex;align-items:center;gap:7px;padding:5px 8px 5px 18px;border-radius:8px;border:1px solid transparent;background:transparent;color:#111;font-size:13px;font-weight:600;cursor:pointer;font-family:'Noto Sans KR',sans-serif;transition:all .2s;text-decoration:none;width:100%;}
+.sb-sub:hover{background:rgba(0,0,0,0.04);}
+.sb-sub.active{background:rgba(20,184,166,0.12);border-color:rgba(20,184,166,0.3);color:#0d9488;}
+.sb-div{height:1px;background:var(--border);margin:3px 0;}
+.sb-spacer{flex:1;}
+
+/* ── 메인 */
+.main{flex:1;min-height:0;display:flex;flex-direction:column;overflow:hidden;}
+
+/* ── 상단 아이콘 탭 */
+.page-tabs{display:flex;gap:0;border-bottom:2px solid var(--border);background:#fff;flex-shrink:0;}
+.page-tab{
+  flex:1;
+  display:flex;
+  flex-direction:row;
+  align-items:center;
+  justify-content:center;
+  gap:10px;
+  padding:0 12px;
+  height:54px;
+  cursor:pointer;
+  border:none;
+  background:transparent;
+  font-family:'Noto Sans KR',sans-serif;
+  color:var(--muted);
+  font-weight:700;
+  transition:all .2s;
+  border-bottom:3px solid transparent;
+  margin-bottom:-2px;
+  white-space:nowrap;
+  position:relative;
+  overflow:hidden;
+}
+.page-tab:hover{background:rgba(0,0,0,0.03);color:var(--text);}
+.page-tab.active{color:#1d4ed8;border-bottom-color:#1d4ed8;background:rgba(29,78,216,0.04);}
+.tab-icon{font-size:30px;line-height:1;flex-shrink:0;}
+.tab-label{font-size:15px;font-weight:700;letter-spacing:0.2px;}
+
+/* ── 패널 공통 */
+.panel{flex:1;min-height:0;overflow:hidden;display:none;flex-direction:column;align-items:center;}
+.panel.active{
+  display:flex;
+  flex-direction:column;
+  align-items:stretch;
+  justify-content:flex-start;
+  overflow:hidden;
+  height:calc(100vh - 98px);
+}
+
+/* ── 계산기 패널 */
+.calc-wrap{flex:1;min-height:0;display:grid;grid-template-columns:280px 1fr;gap:0;overflow:hidden;}
+.calc-controls{padding:16px;border-right:1px solid var(--border);overflow-y:auto;background:#fff;}
+.calc-chart{flex:1;padding:14px;display:flex;flex-direction:column;gap:8px;background:var(--bg);min-width:0;}
+.ctrl-section{margin-bottom:16px;}
+.ctrl-title{font-size:11px;font-weight:900;letter-spacing:1px;text-transform:uppercase;color:var(--muted);margin-bottom:8px;}
+.ctrl-row{display:flex;align-items:center;gap:8px;margin-bottom:13px;overflow:hidden;}
+.ctrl-label{font-size:17px;font-weight:700;color:#111827;width:80px;flex-shrink:0;}
+.ctrl-slider{flex:1;min-width:0;accent-color:#1d4ed8;height:8px;cursor:pointer;}
+.ctrl-val{font-size:20px;font-weight:900;color:#1d4ed8;width:78px;text-align:right;flex-shrink:0;white-space:nowrap;}
+.ctrl-note{font-size:11px;color:#4b5563;line-height:1.6;background:rgba(29,78,216,0.06);border-radius:8px;padding:8px 10px;border-left:3px solid #1d4ed8;margin-bottom:10px;}
+.result-card{background:#fff;border-radius:12px;padding:10px 14px;border:1px solid var(--border);display:flex;align-items:center;gap:10px;}
+.result-label{font-size:11px;color:var(--muted);flex:1;}
+.result-val{font-size:16px;font-weight:900;}
+.result-val.red{color:#dc2626;}
+.result-val.blue{color:#1d4ed8;}
+.result-badge{font-size:10px;font-weight:700;padding:2px 8px;border-radius:999px;}
+.badge-red{background:rgba(220,38,38,0.12);color:#dc2626;}
+.badge-blue{background:rgba(29,78,216,0.12);color:#1d4ed8;}
+.chart-box{flex:1;min-height:0;background:#fff;border-radius:14px;padding:12px;border:1px solid var(--border);position:relative;}
+.chart-legend{display:flex;gap:16px;font-size:11px;font-weight:700;}
+.legend-dot{width:12px;height:3px;border-radius:2px;display:inline-block;vertical-align:middle;margin-right:4px;}
+
+/* ── 가격표 패널 (개인맞춤형 동일 구조) */
+.rec-wrap{display:flex;flex-direction:column;overflow:hidden;padding:6px 10px 0;height:calc(100vh - 110px);width:100%;}
+.scroll-wrap{overflow:hidden;flex:1;min-height:0;width:100%;}
+.rec-page{display:grid;gap:8px;height:calc(100% - 30px);overflow:hidden;}
+.rec-page.col3{grid-template-columns:repeat(3,1fr);}
+.rec-page.col4{grid-template-columns:repeat(4,1fr);}
+.rec-col{display:flex;flex-direction:column;border-radius:12px;overflow:hidden;border:1px solid var(--border);background:#1e293b;min-width:200px;margin-bottom:0;}
+.rec-col-head{padding:6px 10px;display:flex;flex-direction:column;gap:1px;flex-shrink:0;position:relative;}
+.rec-col-head-name{font-size:16px;font-weight:900;line-height:1.1;color:#fff;}
+.rec-col-head-sub{font-size:13px;color:rgba(255,255,255,0.65);line-height:1.2;}
+.rec-col-head-badge{font-size:11px;font-weight:700;color:rgba(255,255,255,0.75);margin-bottom:2px;}
+.rec-col-body{display:flex;flex-direction:column;overflow:hidden;flex:1;min-height:0;}
+.rec-product-block{border-top:1px solid rgba(255,255,255,0.08);display:flex;flex-direction:column;flex:1;min-height:0;overflow:hidden;}
+.rec-product-name-row{padding:3px 8px 2px;background:rgba(0,0,0,0.18);cursor:pointer;display:flex;flex-direction:row;align-items:center;gap:6px;flex-shrink:0;}
+.rec-product-name{font-size:14px;font-weight:900;color:#e2e8f0;}
+.rec-product-sub{font-size:10px;color:rgba(255,255,255,0.5);}
+.rec-col-label-row{display:grid;grid-template-columns:52px 1fr 1fr;padding:2px 8px;background:rgba(0,0,0,0.12);border-top:1px solid rgba(255,255,255,0.05);flex-shrink:0;}
+.rcl-idx,.rcl-msrp,.rcl-price{font-size:9px;font-weight:700;color:rgba(255,255,255,0.45);text-align:center;}
+.rec-index-row{display:grid;grid-template-columns:52px 1fr 1fr;align-items:center;padding:0 8px;border-top:1px solid rgba(255,255,255,0.05);flex:1;min-height:0;}
+.rec-idx-badge{font-size:12px;font-weight:900;color:white;background:#6d28d9;padding:2px 5px;border-radius:5px;text-align:center;cursor:pointer;width:100%;box-sizing:border-box;}
+.rec-msrp{font-size:11px;color:rgba(255,255,255,0.4);text-align:right;text-decoration:line-through;}
+.rec-price{font-size:14px;font-weight:900;color:#60a5fa;text-align:right;}
+.rec-msrp.empty,.rec-price.empty{color:rgba(255,255,255,0.2);}
+.rec-no-price{font-size:11px;color:rgba(255,255,255,0.35);text-align:center;padding:8px;}
+
+/* ── bottom-bar */
+.bottom-bar{position:fixed;bottom:0;left:0;right:0;background:rgba(248,250,252,0.97);border-top:1px solid var(--border);z-index:10;backdrop-filter:blur(12px);}
+/* ─ bottom-bar 2열 구조 ─ */
+.bottom-bar{display:grid!important;grid-template-columns:auto 1fr!important;padding:0!important;gap:0!important;left:0!important;justify-content:unset!important;align-items:stretch!important;}
+.bb-col1{
+  display:flex;align-items:center;justify-content:center;
+  background:transparent;
+  border-right:1px solid var(--border);
+  padding:0 16px;flex-shrink:0;
+}
+.bb-col2{display:flex;align-items:center;justify-content:center;gap:8px;padding:8px 16px;}
+.bbtn-sidebar-toggle{
+  background:transparent!important;border:none!important;
+  color:#dc2626!important;font-size:13px!important;
+  font-weight:700!important;padding:10px 4px!important;
+  white-space:nowrap;letter-spacing:0.3px;
+}
+.bbtn{padding:9px 18px;border:none;border-radius:10px;font-size:13px;font-weight:700;cursor:pointer;font-family:'Noto Sans KR',sans-serif;transition:all .2s;}
+.bbtn-ghost{background:rgba(0,0,0,0.06);color:var(--text);}
+.bbtn-blue{background:linear-gradient(135deg,#1a6fef,#2563eb);color:white;}
+
+/* ─ sidebar 높이 */
+.sidebar{height:calc(100vh - 44px)!important;}
+
+@media(max-width:700px){
+  :root{--sidebar-w:0px;}
+  .sidebar{position:fixed!important;top:0!important;left:0!important;width:220px!important;height:100dvh!important;z-index:99!important;transform:translateX(-100%)!important;transition:transform .3s cubic-bezier(.4,0,.2,1)!important;}
+  .sidebar.sb-open{transform:translateX(0)!important;box-shadow:6px 0 28px rgba(0,0,0,0.15)!important;}
+  .calc-wrap{grid-template-columns:1fr!important;}
+  .calc-controls{border-right:none;border-bottom:1px solid var(--border);}
+}
+
+
+
+/* ─ 계산기 레이아웃 ─ */
+.calc-layout{
+  display:grid;
+  grid-template-columns:405px minmax(0,870px);
+  gap:0;
+  width:100%;
+  max-width:1295px;
+  height:calc(100vh - 98px);
+  background:#eef2f7;
+  overflow:hidden;
+  margin:0 auto;
+}
+/* 좌측 컬럼 */
+.calc-left{
+  overflow-y:auto;
+  display:flex;
+  flex-direction:column;
+  gap:8px;
+  padding:10px 8px;
+  background:#eef2f7;
+  height:100%;
+  min-height:0;
+}
+/* 우측 컬럼 */
+.calc-right{
+  overflow-y:hidden;
+  display:flex;
+  flex-direction:column;
+  gap:6px;
+  padding:8px 10px;
+  background:#eef2f7;
+  width:100%;
+  height:100%;
+  min-height:0;
+}
+/* 독립 박스 */
+.calc-box{
+  background:#fff;
+  border-radius:10px;
+  border:1px solid var(--border);
+  padding:0;
+  box-shadow:0 1px 6px rgba(0,0,0,0.08);
+  flex-shrink:0;
+  overflow:hidden;
+}
+.box-title{
+  font-size:11px;font-weight:900;letter-spacing:1.5px;
+  text-transform:uppercase;color:#1e3a5f;
+  padding:8px 14px;
+  background:linear-gradient(90deg,#e0e7ff,#eff6ff);
+  border-bottom:1px solid #c7d2fe;
+  margin:0;
+}
+/* 제품 설명 박스 */
+.product-box{}
+.prod-tag{display:inline-block;font-size:11px;font-weight:700;padding:3px 9px;border-radius:999px;margin-bottom:7px;background:rgba(29,78,216,0.10);color:#1d4ed8;}
+.prod-desc p{font-size:12px;color:#374151;line-height:1.8;}
+.brand-essilor{color:#065f46!important;font-size:16px!important;letter-spacing:0!important;background:linear-gradient(90deg,#d1fae5,#ecfdf5)!important;border-bottom-color:#6ee7b7!important;}
+.brand-hoya{color:#075985!important;font-size:16px!important;letter-spacing:0!important;background:linear-gradient(90deg,#e0f2fe,#f0f9ff)!important;border-bottom-color:#7dd3fc!important;}
+.brand-zeiss{color:#5b21b6!important;font-size:16px!important;letter-spacing:0!important;background:linear-gradient(90deg,#ede9fe,#f5f3ff)!important;border-bottom-color:#c4b5fd!important;}
+/* 그래프 박스 */
+.chart-box-main{
+  flex:0 0 calc(100vh - 530px);
+  min-height:80px;
+  display:flex;
+  flex-direction:column;
+  overflow:hidden;
+}
+.chart-hdr{margin-bottom:6px;}
+.chart-canvas-wrap{flex:1;min-height:0;height:0;position:relative;overflow:hidden;}
+/* 컨트롤 */
+.ctrl-row{display:flex;align-items:center;gap:8px;margin-bottom:13px;overflow:hidden;}
+.ctrl-label{font-size:17px;font-weight:700;color:#111827;width:80px;flex-shrink:0;}
+.ctrl-slider{flex:1;min-width:0;accent-color:#1d4ed8;height:8px;cursor:pointer;}
+.ctrl-val{font-size:20px;font-weight:900;color:#1d4ed8;width:78px;text-align:right;flex-shrink:0;white-space:nowrap;}
+.ctrl-note{font-size:11px;color:#4b5563;line-height:1.6;background:rgba(29,78,216,0.06);border-radius:8px;padding:8px 10px;border-left:3px solid #1d4ed8;margin-bottom:10px;}
+
+/* 예측 결과 카드 */
+/* 예측 결과 카드 */
+/* 예측 결과 카드 */
+.result-cards{display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;margin-top:2px;}
+.res-card{border-radius:8px;padding:7px 9px;display:flex;flex-direction:column;gap:2px;position:relative;}
+.res-none{background:#fff0f0;border:2px solid #f87171;}
+.res-best{background:linear-gradient(135deg,#1d4ed8,#1e40af);border:2px solid rgba(147,197,253,0.4);}
+.res-late{background:#1e3a5f;border:2px solid rgba(255,255,255,0.15);}
+.res-card-top-badge{position:absolute;top:8px;right:8px;background:#fbbf24;color:#78350f;font-size:9px;font-weight:900;padding:2px 6px;border-radius:999px;}
+.res-card-label{font-size:11px;font-weight:800;color:#dc2626;}
+.res-best .res-card-label{color:rgba(255,255,255,0.85)!important;}
+.res-late .res-card-label{color:rgba(255,255,255,0.75)!important;}
+.res-card-val{font-size:22px;font-weight:900;color:#dc2626;line-height:1.1;}
+.res-best .res-card-val{color:#fff!important;}
+.res-late .res-card-val{color:#fff!important;}
+.res-card-badge{font-size:10px;font-weight:700;padding:2px 7px;border-radius:999px;align-self:flex-start;background:rgba(220,38,38,0.15);color:#dc2626;}
+.res-best .res-card-badge{background:rgba(96,165,250,0.3)!important;color:#bfdbfe!important;}
+.badge-warn{background:rgba(239,68,68,0.25)!important;color:#fca5a5!important;}
+.res-card-sub{font-size:9px;color:var(--muted);}
+.res-best .res-card-sub{font-size:9px;color:var(--muted);}
+.res-late .res-card-sub{font-size:9px;color:var(--muted);}
+
+/* 솔루션 비교 */
+.sol-compare{padding:10px 12px;background:#fff;flex-shrink:0;}
+.sol-compare-title{font-size:11px;font-weight:900;letter-spacing:1px;color:var(--muted);margin-bottom:6px;}
+.sol-row{display:flex;align-items:center;gap:8px;padding:7px 10px;border-radius:8px;border:1px solid var(--border);margin-bottom:4px;}
+.sol-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0;}
+.sol-name{font-size:13px;font-weight:700;flex:1;}
+.sol-badge{font-size:9px;font-weight:900;background:#1d4ed8;color:#fff;padding:2px 6px;border-radius:999px;}
+.sol-val{font-size:15px;font-weight:900;color:var(--text);}
+.sol-diff{font-size:12px;font-weight:700;color:#059669;background:rgba(5,150,105,0.10);padding:2px 7px;border-radius:999px;}
+.sol-highlight{background:rgba(29,78,216,0.06);border-color:rgba(29,78,216,0.25);}
+.sol-none-row .sol-val{color:#ef4444;}
+
+/* ─ 데이터 출처 ─ */
+.data-source{margin-top:8px;border-radius:8px;border:1px solid rgba(29,78,216,0.20);overflow:hidden;}
+.ds-title{background:rgba(29,78,216,0.12);padding:4px 9px;font-size:10px;font-weight:900;color:#1e40af;letter-spacing:0.5px;}
+.ds-body{padding:6px 9px;font-size:10px;color:#374151;line-height:1.7;background:#f0f4ff;}
+.ds-ref{font-size:9px;color:#6b7280;font-family:monospace;}
+.chart-source-badge{margin-left:auto;font-size:9px;font-weight:700;background:rgba(29,78,216,0.10);color:#1d4ed8;border:1px solid rgba(29,78,216,0.25);padding:2px 8px;border-radius:999px;}
+
+/* ─ 솔루션 세로열 테이블 ─ */
+.sol-col-table{display:flex;flex-direction:column;gap:3px;}
+.sol-col-head{display:grid;grid-template-columns:1fr 90px 90px;gap:0;padding:4px 8px;}
+.sol-col-row{display:grid;grid-template-columns:1fr 90px 90px;gap:0;padding:7px 10px;border-radius:8px;border:1px solid var(--border);align-items:center;}
+.sol-none-col .sol-val-c{color:#ef4444!important;}
+.sol-best-col{background:rgba(37,99,235,0.06);border-color:rgba(37,99,235,0.25)!important;}
+.sol-col-cell{font-size:12px;font-weight:600;display:flex;align-items:center;gap:6px;}
+.sol-col-label{font-size:10px;font-weight:700;color:var(--muted);letter-spacing:0.5px;text-transform:uppercase;}
+.sol-val-c{font-size:15px;font-weight:900;color:var(--text);justify-content:flex-end;}
+.sol-diff-c{font-size:12px;font-weight:700;color:#059669;background:rgba(5,150,105,0.10);padding:2px 8px;border-radius:999px;justify-content:flex-end;}
+/* ─ 승인 배지 ─ */
+.approval-badge{font-size:9px;font-weight:700;padding:2px 7px;border-radius:999px;vertical-align:middle;margin-left:4px;}
+.badge-kfda{background:rgba(220,38,38,0.12);color:#dc2626;border:1px solid rgba(220,38,38,0.30);}
+.badge-fda{background:rgba(37,99,235,0.12);color:#1d4ed8;border:1px solid rgba(37,99,235,0.30);}
+
+/* ─ calc-box 내부 패딩 ─ */
+.calc-box > :not(.box-title){padding-left:12px;padding-right:12px;}
+.calc-box > .ctrl-row{display:flex;align-items:center;gap:8px;margin-bottom:13px;overflow:hidden;}
+.calc-box > .ctrl-row:last-of-type{padding-bottom:4px;}
+.calc-box > .result-cards{padding:8px 12px;box-sizing:border-box;}
+.calc-box > .sol-table{margin:0;}
+.calc-box > .prod-desc{padding:8px 12px 10px;}
+.calc-box > .ctrl-note{font-size:11px;color:#4b5563;line-height:1.6;background:rgba(29,78,216,0.06);border-radius:8px;padding:8px 10px;border-left:3px solid #1d4ed8;margin-bottom:10px;}
+.calc-box > .data-source{margin:0 12px 10px;}
+.calc-box > .prod-tag{margin:8px 12px 4px;display:inline-block;}
+/* ─ chart-hdr 3열 구조 ─ */
+.chart-hdr{margin-bottom:4px;}
+.chart-hdr-3col{
+  display:grid;
+  grid-template-columns:auto 1fr auto;
+  align-items:stretch;
+  gap:0;
+  border-radius:8px;
+  overflow:hidden;
+  border:1px solid #c7d2fe;
+}
+.chart-hdr-left{
+  display:flex;align-items:center;gap:14px;
+  padding:7px 14px;
+  background:#f8faff;
+  border-right:1px solid #c7d2fe;
+  white-space:nowrap;
+}
+.chart-hdr-center{
+  text-align:center;
+  font-size:13px;font-weight:900;
+  color:#fff;
+  letter-spacing:0.5px;
+  padding:7px 12px;
+  background:linear-gradient(90deg,#1d4ed8,#2563eb);
+  display:flex;align-items:center;justify-content:center;
+}
+.chart-hdr-right{
+  display:flex;align-items:center;justify-content:flex-end;
+  padding:7px 12px;
+  background:#f8faff;
+  border-left:1px solid #c7d2fe;
+  white-space:nowrap;
+}
+.chart-legend-item{font-size:12px;font-weight:700;display:flex;align-items:center;gap:5px;color:#111827;}
+
+/* ─ prod-tag 2배 크기 ─ */
+.prod-tag-lg{
+  font-size:15px!important;
+  padding:5px 13px!important;
+  margin:10px 0!important;
+  display:block;
+  text-align:center;
+}
+/* ─ 탭 상시 애니메이션 ─ */
+
+/* 근시완화: 부드러운 glow pulse */
+@keyframes reliefGlow{
+  0%,100%{box-shadow:inset 0 0 0 0 rgba(20,184,166,0);}
+  50%{box-shadow:inset 0 0 18px 2px rgba(20,184,166,0.18);}
+}
+@keyframes reliefShimmer{
+  0%{background-position:-200% center;}
+  100%{background-position:200% center;}
+}
+.page-tab[onclick*="relief"]{
+  animation:reliefGlow 2.8s ease-in-out infinite;
+}
+.page-tab[onclick*="relief"] .tab-icon{
+  animation:floatUpTab 2.5s ease-in-out infinite;
+}
+
+/* 근시억제: 더 강한 pulse + shimmer + 배경 그라데이션 흐름 */
+@keyframes controlPulse{
+  0%,100%{box-shadow:inset 0 0 0 0 rgba(37,99,235,0);}
+  40%{box-shadow:inset 0 0 24px 4px rgba(37,99,235,0.22);}
+  60%{box-shadow:inset 0 0 24px 4px rgba(37,99,235,0.22);}
+}
+@keyframes controlBg{
+  0%,100%{background:transparent;}
+  50%{background:rgba(37,99,235,0.06);}
+}
+@keyframes floatUpTab{
+  0%,100%{transform:translateY(0);}
+  50%{transform:translateY(-3px);}
+}
+@keyframes controlIconPulse{
+  0%,100%{transform:scale(1);}
+  50%{transform:scale(1.18);}
+}
+@keyframes controlShimmer{
+  0%{left:-100%;}
+  100%{left:200%;}
+}
+.page-tab[onclick*="control"]{
+  animation:controlPulse 2s ease-in-out infinite, controlBg 2s ease-in-out infinite;
+}
+.page-tab[onclick*="control"] .tab-icon{
+  animation:controlIconPulse 1.6s ease-in-out infinite;
+}
+.page-tab[onclick*="control"]::after{
+  content:'';
+  position:absolute;
+  top:0;left:-100%;
+  width:60%;height:100%;
+  background:linear-gradient(90deg,transparent,rgba(255,255,255,0.35),transparent);
+  animation:controlShimmer 2.2s ease-in-out infinite;
+}
+.rec-prod-note{font-size:9px;color:rgba(255,255,255,0.45);padding:1px 8px 2px;font-style:italic;}
+.rec-info-btn{background:rgba(255,255,255,0.12);border:1px solid rgba(255,255,255,0.2);border-radius:5px;color:#fff;font-size:12px;cursor:pointer;padding:2px 7px;flex-shrink:0;transition:background .2s;}
+.rec-info-btn:hover{background:rgba(255,255,255,0.25);}
+
+
+/* ─ ctrl 3행 그리드 ─ */
+.ctrl-grid{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  grid-template-rows:auto 1fr 1fr;
+  gap:6px;
+  height:calc(100% - 30px);
+  width:70%;
+  margin:0 auto;
+  padding:6px 0;
+  box-sizing:border-box;
+  font-family:'Apple SD Gothic Neo','Noto Sans KR','Malgun Gothic',sans-serif;
+}
+.ctrl-brand-hdr{border-radius:8px;display:flex;align-items:center;justify-content:center;padding:10px;height:100%;box-sizing:border-box;}
+.ctrl-brand-label{font-size:24px;font-weight:900;color:#fff;letter-spacing:1px;}
+.ctrl-card{border-radius:8px;overflow:hidden;display:flex;flex-direction:column;border:1px solid rgba(255,255,255,0.12);min-height:0;height:100%;box-sizing:border-box;}
+.ctrl-empty{background:rgba(0,0,0,0.15);border:1px dashed rgba(255,255,255,0.1);}
+.ctrl-name-row{display:flex;align-items:center;justify-content:center;flex-wrap:wrap;gap:3px;padding:6px 8px;background:rgba(0,0,0,0.25);flex:1 1 48px;min-height:0;}
+.ctrl-prod-name{font-size:20px;font-weight:900;color:#fff;text-align:center;line-height:1.2;}
+.ctrl-note-row{font-size:12px;font-weight:600;color:rgba(255,255,255,0.85);padding:4px 10px;font-style:normal;flex-shrink:0;text-align:center;display:flex;align-items:center;justify-content:center;}
+.ctrl-lbl-row{display:grid;grid-template-columns:1fr 1fr;padding:0 10px;flex:1 1 32px;align-items:center;background:rgba(0,0,0,0.18);border-top:1px solid rgba(255,255,255,0.08);min-height:0;}
+.ctrl-lbl-idx{font-size:16px;font-weight:800;color:#fff;text-align:center;}
+.ctrl-lbl-idx,.ctrl-lbl-msrp{font-size:16px;font-weight:800;color:#fff;text-align:center;}
+.ctrl-data-row{display:grid;grid-template-columns:1fr 1fr;align-items:center;padding:0 10px;border-top:1px solid rgba(255,255,255,0.06);flex:1 1 32px;min-height:0;}
+.ctrl-idx-badge{font-size:16px;font-weight:900;color:#fff;background:#5b21b6;padding:3px 8px;border-radius:5px;text-align:center;}
+.ctrl-msrp{font-size:clamp(14px,1.6vh,22px);font-weight:800;color:#fbbf24;text-align:center;line-height:1;overflow:hidden;}
+.ctrl-info-row{display:flex;align-items:center;justify-content:center;padding:5px 8px;background:transparent;border-top:none;flex-shrink:0;}
+.ctrl-info-btn{background:rgba(255,255,255,0.14);border:1px solid rgba(255,255,255,0.25);border-radius:6px;color:#fff;font-size:12px;font-weight:700;cursor:pointer;padding:4px 12px;transition:background .2s;}
+.ctrl-info-btn:hover{background:rgba(255,255,255,0.25);}
+.ctrl-img-row{flex:1;min-height:0;background:transparent;border:none;display:flex;align-items:center;justify-content:center;overflow:hidden;padding:12px;}
+.ctrl-divider{height:1px;background:rgba(255,255,255,0.2);margin:2px 0;flex-shrink:0;}
+.ctrl-name-row-sm{display:flex;align-items:center;justify-content:center;padding:6px 10px;background:rgba(0,0,0,0.25);flex-shrink:0;min-height:32px;}
+.ctrl-img-row img{max-width:100%;max-height:100%;width:auto;height:auto;object-fit:contain;display:block;}
+.ctrl-update-row{min-height:36px;flex-shrink:0;display:flex;align-items:center;justify-content:center;color:#ef4444;font-size:13px;font-weight:700;padding:6px 8px;text-align:center;border-top:1px solid rgba(255,255,255,0.1);}
+.ctrl-age-row{display:flex;align-items:center;justify-content:center;background:rgba(99,102,241,0.2);color:#a5b4fc;font-size:11px;font-weight:700;padding:3px 8px;flex-shrink:0;letter-spacing:0.5px;}
+/* ZEISS 중간카드: ESSILOR와 동일 세로높이 (289px) */
+
+
+.ctrl-iq-row{display:flex;align-items:center;justify-content:center;gap:6px;padding:0 10px;flex:1 1 32px;min-height:0;border-top:1px solid rgba(255,255,255,0.06);}
+.ctrl-name-age{font-size:10px;color:rgba(255,255,255,0.65);font-weight:500;}
+#panel-relief .rec-wrap{padding-left:10%;padding-right:10%;;padding-top:16px;}
+.rec-info-row{display:flex;align-items:center;justify-content:center;padding:3px 8px;flex-shrink:0;border-top:1px solid rgba(255,255,255,0.06);}
+/* 근시완화렌즈 - 자이스 기준 고정 행 높이 */
+#panel-relief .rec-page{height:auto;overflow-y:auto;}
+#panel-relief .rec-product-block{flex:0 0 auto;}
+#panel-relief .rec-index-row{flex:none;height:30px;}
+#panel-relief .rec-product-name-row{height:34px;display:flex;align-items:center;padding:0 8px;}
+#panel-relief .rec-col-label-row{height:24px;min-height:0;}
+#panel-relief .rec-info-row{height:28px;}
+#panel-relief .rec-col{align-self:stretch;}
+/* === 근시완화렌즈 그리드 레이아웃 === */
+.relief-grid{display:grid;grid-template-columns:repeat(4,1fr);grid-template-rows:auto auto auto;gap:6px;height:calc(100% - 30px);width:100%;box-sizing:border-box;align-content:center;}
+#panel-relief .ctrl-data-row{grid-template-columns:1fr 1fr 1fr;}
+#panel-relief .ctrl-lbl-row{grid-template-columns:1fr 1fr 1fr;}
+.ctrl-lbl-price{font-size:16px;font-weight:800;color:#fff;text-align:center;}
+.ctrl-price{font-size:clamp(14px,1.6vh,22px);font-weight:800;color:#60a5fa;text-align:center;line-height:1;overflow:hidden;}
+#panel-relief .ctrl-msrp{text-decoration:line-through;}
+#panel-relief .relief-bot-card{display:flex;flex-direction:column;justify-content:center;background:transparent;border:1px solid rgba(255,255,255,0.08);height:auto;}
+#panel-relief .relief-bot-card .ctrl-img-row{flex:none;height:36px;}
+.ctrl-brand-name{font-size:18px;font-weight:900;color:#fff;text-align:center;letter-spacing:0.5px;line-height:1.3;}
+#panel-relief .relief-grid{padding-top:8px;}
+#panel-relief .scroll-wrap{display:flex;flex-direction:column;justify-content:center;overflow-y:auto;}
+#panel-relief .ctrl-card{height:auto;}</style>
+<script src="../../auth.js"></script>
+</head>
+<body>
+
+<div class="sb-overlay" id="sbOverlay" onclick="closeSidebar()"></div>
+
+<div class="layout">
+
+<!-- 사이드바 -->
+<nav class="sidebar" id="sidebar">
+    <div class="sb-label">렌즈 카테고리</div>
+    <a class="sb-btn" href="../single_focus/single_focus.html"><span class="sb-dot" style="background:#2563eb;"></span>단초점 렌즈</a>
+    <a class="sb-btn on-cat" href="functional.html"><span class="sb-dot" style="background:#14b8a6;"></span>기능성 렌즈</a>
+    <a class="sb-btn" href="../multifocal/multifocal.html"><span class="sb-dot" style="background:#8b5cf6;"></span>다초점 렌즈</a>
+    <div class="sb-div"></div>
+    <div class="sb-label">기능성 항목</div>
+    <a class="sb-sub active" href="myopia_control.html">🛡️ 근시억제렌즈</a>
+    <a class="sb-sub" href="anti_fatigue.html">🌿 피로완화렌즈</a>
+    <a class="sb-sub" href="drive.html">🚗 드라이브렌즈</a>
+    <a class="sb-sub" href="office.html">💼 오피스렌즈</a>
+    <div class="sb-spacer"></div>
+  </nav>
+
+<!-- 메인 -->
+<div class="main">
+
+  <!-- 상단 아이콘 탭 -->
+  <div class="page-tabs">
+    <button class="page-tab active" onclick="showTab('calc')">
+      <span class="tab-icon">📈</span>
+      <span class="tab-label">근시진행 계산기</span>
+    </button>
+    <button class="page-tab" onclick="showTab('control')">
+      <span class="tab-icon">🛡️</span>
+      <span class="tab-label">근시억제렌즈 보기</span>
+    </button>
+    <button class="page-tab" onclick="showTab('relief')">
+      <span class="tab-icon">🌿</span>
+      <span class="tab-label">근시완화렌즈 보기</span>
+    </button>
+  </div>
+
+  <!-- ① 근시진행 계산기 -->
+  <div class="panel active" id="panel-calc">
+  <div class="calc-layout">
+
+    <!-- ═══ 좌측 컬럼 ═══ -->
+    <div class="calc-left">
+
+      <!-- Box 1: 고객정보입력 + 산출근거 -->
+      <div class="calc-box">
+        <div class="box-title">고객 정보 입력</div>
+        <div class="ctrl-row">
+          <span class="ctrl-label">현재 나이</span>
+          <input type="range" class="ctrl-slider" id="sl-age" min="5" max="18" value="10" oninput="updateCalc()">
+          <span class="ctrl-val" id="val-age">10세</span>
+        </div>
+        <div class="ctrl-row">
+          <span class="ctrl-label">현재 도수</span>
+          <input type="range" class="ctrl-slider" id="sl-diopter" min="2" max="40" value="6" oninput="updateCalc()">
+          <span class="ctrl-val" id="val-diopter">-1.50D</span>
+        </div>
+        <div class="ctrl-note">
+          📌 20세까지 예측 · 0.25D 단위<br>
+          📌 아시아·한국인 평균 기준 · 개인차 있음
+        </div>
+        <div class="data-source">
+          <div class="ds-title">📊 산출 근거</div>
+          <div class="ds-body">
+            BHVI Asian DB · PMC9291478 · IOVS 2023<br>
+            <span class="ds-ref">Brien Holden Vision Institute 아시아인 데이터 기반</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Box 2: 에실로 스텔리스트 -->
+      <div class="calc-box product-box">
+        <div class="box-title brand-essilor">🔵 Essilor Stellest®
+          <span class="approval-badge badge-kfda">식약처승인</span>
+          <span class="approval-badge badge-fda">FDA승인</span>
+        </div>
+        <div class="prod-desc">
+          <div class="prod-tag prod-tag-lg">H.A.L.T. · 근시억제 67%</div>
+        </div>
+      </div>
+
+      <!-- Box 3: 호야 마이오스마트 -->
+      <div class="calc-box product-box">
+        <div class="box-title brand-hoya">🟢 HOYA MiYOSMART®
+          <span class="approval-badge badge-kfda">식약처승인</span>
+        </div>
+        <div class="prod-desc">
+          <div class="prod-tag prod-tag-lg">D.I.M.S. · 근시억제 60%</div>
+        </div>
+      </div>
+
+      <!-- Box 4: 자이스 마이오케어 -->
+      <div class="calc-box product-box">
+        <div class="box-title brand-zeiss">🟣 ZEISS MyoCare®</div>
+        <div class="prod-desc">
+          <div class="prod-tag prod-tag-lg">C.A.R.E. · 근시억제 63%</div>
+        </div>
+      </div>
+
+    </div><!-- /calc-left -->
+
+    <!-- ═══ 우측 컬럼 ═══ -->
+    <div class="calc-right">
+
+      <!-- 그래프 -->
+      <div class="calc-box chart-box-main">
+        <div class="chart-hdr">
+          <div class="chart-hdr-3col">
+            <div class="chart-hdr-left">
+              <span class="chart-legend-item"><span class="legend-dot" style="background:#ef4444;"></span>일반안경</span>
+              <span class="chart-legend-item"><span class="legend-dot" style="background:#2563eb;"></span>근시억제렌즈</span>
+            </div>
+            <div class="chart-hdr-center">근시진행 예상 계산기</div>
+            <div class="chart-hdr-right">
+              <span class="chart-source-badge">📊 BHVI · Asian Data</span>
+            </div>
+          </div>
+        </div>
+        <div class="chart-canvas-wrap">
+          <canvas id="myopiaChart"></canvas>
+        </div>
+      </div>
+
+      <!-- 예측 결과 -->
+      <div class="calc-box">
+        <div class="box-title">20세 예측 결과</div>
+        <div class="result-cards">
+          <div class="res-card res-none">
+            <div class="res-card-label">미 솔루션 (20세)</div>
+            <div class="res-card-val" id="rc-none">—</div>
+            <div class="res-card-badge" id="rc-none-risk">—</div>
+          </div>
+          <div class="res-card res-best">
+            <div class="res-card-top-badge">BEST</div>
+            <div class="res-card-label">근시억제렌즈</div>
+            <div class="res-card-val" id="rc-control">—</div>
+            <div class="res-card-badge" id="rc-control-diff">—</div>
+            <div class="res-card-sub">지금 시작 시 (강력 추천)</div>
+          </div>
+          <div class="res-card res-late">
+            <div class="res-card-label">늦게 시작하면?</div>
+            <div class="res-card-val" id="rc-late">—</div>
+            <div class="res-card-badge badge-warn" id="rc-late-diff">—</div>
+            <div class="res-card-sub">골든타임을 놓치지 마세요</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 솔루션별 비교 -->
+      <div class="calc-box">
+        <div class="box-title">솔루션별 비교</div>
+        <div class="sol-col-table">
+          <div class="sol-col-head">
+            <div class="sol-col-cell sol-col-label"></div>
+            <div class="sol-col-cell sol-col-label">20세 예측</div>
+            <div class="sol-col-cell sol-col-label">억제 효과</div>
+          </div>
+          <div class="sol-col-row sol-none-col">
+            <div class="sol-col-cell"><span class="sol-dot" style="background:#ef4444;"></span>미 솔루션</div>
+            <div class="sol-col-cell sol-val-c" id="sv-none">—</div>
+            <div class="sol-col-cell sol-diff-c">—</div>
+          </div>
+          <div class="sol-col-row sol-best-col">
+            <div class="sol-col-cell"><span class="sol-dot" style="background:#2563eb;"></span>근시억제렌즈 <span class="sol-badge">BEST</span></div>
+            <div class="sol-col-cell sol-val-c" id="sv-control">—</div>
+            <div class="sol-col-cell sol-diff-c" id="sd-control">—</div>
+          </div>
+          <div class="sol-col-row">
+            <div class="sol-col-cell"><span class="sol-dot" style="background:#7c3aed;"></span>드림렌즈</div>
+            <div class="sol-col-cell sol-val-c" id="sv-dream">—</div>
+            <div class="sol-col-cell sol-diff-c" id="sd-dream">—</div>
+          </div>
+          <div class="sol-col-row">
+            <div class="sol-col-cell"><span class="sol-dot" style="background:#d97706;"></span>아트로핀</div>
+            <div class="sol-col-cell sol-val-c" id="sv-atropine">—</div>
+            <div class="sol-col-cell sol-diff-c" id="sd-atropine">—</div>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /calc-right -->
+  </div><!-- /calc-layout -->
+</div>
+
+
+<!-- ② 근시억제렌즈 가격표 -->
+  <div class="panel" id="panel-control">
+    <div class="rec-wrap">
+      <div class="scroll-wrap">
+        <div class="ctrl-grid" id="recControl"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ③ 근시완화렌즈 가격표 -->
+  <div class="panel" id="panel-relief">
+    <div class="rec-wrap">
+      <div class="scroll-wrap">
+        <div class="relief-grid" id="recRelief"></div>
+      </div>
+    </div>
+  </div>
+
+</div><!-- /main -->
+</div><!-- /layout -->
+
+<!-- 하단 바 -->
+<div class="bottom-bar">
+  <div class="bb-col1">
+    <button class="bbtn-sidebar-toggle" id="sbTopBtn" onclick="toggleSidebar()">◀ 사이드바 접기</button>
+  </div>
+  <div class="bb-col2">
+    <button class="bbtn bbtn-ghost" onclick="location.href='../../index.html'">🏠 홈으로</button>
+    <button class="bbtn bbtn-blue" onclick="location.href='functional.html'">◀ 기능성</button>
+  </div>
+</div>
+</div>
+
+<script>function round10(v){ return Math.round(v*10)/10; }
+
+
+const AUTH_CSS=`<style>.auth-overlay{position:fixed;inset:0;background:linear-gradient(135deg,#060d1a,#0d1b2e);display:flex;align-items:center;justify-content:center;z-index:99999;font-family:'Noto Sans KR', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif;}.auth-box{background:rgba(13,27,46,0.97);border:1px solid rgba(0,0,0,0.09);border-radius:20px;padding:40px 36px;width:320px;text-align:center;box-shadow:0 24px 80px rgba(0,0,0,0.7);animation:authIn .4s ease;}@keyframes authIn{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}.auth-logo{font-size:26px;color:#e8f0fb;margin-bottom:6px;font-weight:900;letter-spacing:2px;}.auth-sub{font-size:12px;color:#5a7a9a;margin-bottom:24px;}.auth-label{font-size:11px;font-weight:700;color:#5a7a9a;letter-spacing:1px;margin-bottom:10px;text-align:left;}.auth-input{width:100%;padding:13px 16px;background:#ffffff;border:1px solid rgba(0,0,0,0.09);border-radius:10px;color:#e8f0fb;font-size:16px;text-align:center;outline:none;margin-bottom:14px;letter-spacing:3px;transition:border-color .2s;}.auth-input:focus{border-color:rgba(42,127,255,0.6);}.auth-btn{width:100%;padding:14px;background:linear-gradient(135deg,#1d5bd4,#2a7fff);color:white;border:none;border-radius:10px;font-size:15px;font-weight:700;cursor:pointer;}.auth-error{font-size:12px;color:#fca5a5;margin-top:10px;min-height:18px;}.auth-shake{animation:shake .4s ease;}@keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
+/* ── 사이드바 접기 버튼 (사이드바 내부) ── */
+.sb-collapse-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 9px 12px;
+  border-radius: 10px;
+  border: 1px solid rgba(220,38,38,0.30);
+  background: rgba(220,38,38,0.06);
+  color: #dc2626;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  font-family: 'Noto Sans KR', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif;
+  transition: all .2s;
+  width: 100%;
+  margin-top: 4px;
+  touch-action: manipulation;
+}
+.sb-collapse-btn:hover,
+.sb-collapse-btn:active {
+  background: rgba(220,38,38,0.14);
+  border-color: rgba(220,38,38,0.50);
+  color: #b91c1c;
+}
+
+/* ── 탑바 열기 버튼 (사이드바 숨김 시 노출) ── */
+.sb-top-btn {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  position: absolute;
+  left: 16px;
+  top: 50%;
+  transform: translateY(-50%);
+  height: 36px;
+  padding: 0 14px;
+  gap: 6px;
+  border-radius: 8px;
+  white-space: nowrap;
+  font-size: 13px;
+  font-weight: 700;
+  font-family: 'Noto Sans KR', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif;
+  border: 1px solid rgba(29,78,216,0.25);
+  background: rgba(29,78,216,0.08);
+  color: #1d4ed8;
+  font-size: 18px;
+  cursor: pointer;
+  transition: all .2s;
+  touch-action: manipulation;
+  z-index: 20;
+}
+.sb-top-btn:hover,
+.sb-top-btn:active {
+  background: rgba(29,78,216,0.15);
+  border-color: rgba(29,78,216,0.4);
+}
+</style>`;
+
+
+
+/* [FIX] showAdminGate 제거 — 이 페이지에서 미사용 */
+
+
+
+/* ── 페이지 로드 */
+window.onload = function() {
+  var main = document.querySelector('.main');
+  var bar  = document.querySelector('.bottom-bar');
+  var side = document.querySelector('.sidebar');
+  [main,bar,side].forEach(function(el){if(el)el.style.opacity='0';});
+  showAccessGate(function(){
+    [main,bar,side].forEach(function(el){
+      if(el){el.style.transition='opacity 0.4s ease';el.style.opacity='1';}
+    });
+    initChart();
+    renderRecPages();
+  });
+};
+
+/* ── 탭 전환 */
+function showTab(id){
+  document.querySelectorAll('.panel').forEach(function(p){p.classList.remove('active');});
+  document.querySelectorAll('.page-tab').forEach(function(t){t.classList.remove('active');});
+  document.getElementById('panel-'+id).classList.add('active');
+  var tabs=['calc','control','relief'];
+  var i=tabs.indexOf(id);
+  document.querySelectorAll('.page-tab')[i].classList.add('active');
+}
+
+/* ── 근시 진행 계산기 */
+var myChart=null;
+
+function round25(v){return Math.round(v/0.25)*0.25;}
+function fmtD(v){return v.toFixed(2)+'D';}
+
+/* ──────────────────────────────────────────────
+   BHVI Myopia Calculator 검증 데이터 기반
+   (Brien Holden Vision Institute / PMC 논문)
+   아시아인(동아시아·한국인) 연간 근시 진행 속도
+   출처: Sankaridurg P. et al. & PMC9291478
+────────────────────────────────────────────── */
+var BHVI_ASIAN_RATES = {
+  5:1.00, 6:1.00, 7:1.15, 8:1.15, 9:0.85, 10:0.85,
+  11:0.75, 12:0.75, 13:0.50, 14:0.50, 15:0.40, 16:0.40,
+  17:0.17, 18:0.17, 19:0.17
+}
+
+var CONTROL_FACTORS={
+  5:0.337,6:0.337,7:0.321,8:0.321,9:0.327,10:0.327,
+  11:0.342,12:0.342,13:0.348,14:0.348,15:0.385,16:0.385,
+  17:0.600,18:0.600
+};
+
+function getProgressionRate(age){
+  // 고도근시 보정: -5D 이상이면 진행속도 10% 감소 (BHVI 특성 반영)
+  return BHVI_ASIAN_RATES[age] || 0.00;
+}
+
+function projectAbs(startAge,startAbs,controlFactor){
+  var ages=[],values=[];
+  var d=startAbs;
+  ages.push(startAge); values.push(round10(d));
+  for(var a=startAge;a<20;a++){
+    var baseRate=getProgressionRate(a);
+    var adj=d>=10.0?0.97:1.0;
+    d=d+baseRate*controlFactor*adj;
+    ages.push(a+1); values.push(round10(d));
+  }
+  return {ages:ages,values:values};
+}
+
+function getRiskLabel(abs){
+  if(abs >= 6.0) return '고도 근시 (위험)';
+  if(abs >= 3.0) return '중도 근시';
+  if(abs >= 1.0) return '경도 근시';
+  return '정상 범위';
+}
+
+function initChart(){
+  var ctx=document.getElementById('myopiaChart').getContext('2d');
+  myChart=new Chart(ctx,{
+    plugins:[{
+      id:'endLabel',
+      afterDatasetsDraw:function(chart){
+        var ctx2=chart.ctx;
+        var clr=['#ef4444','#2563eb'];
+        chart.data.datasets.forEach(function(ds,i){
+          var meta=chart.getDatasetMeta(i);
+          if(!meta.visible||!ds.data||!ds.data.length)return;
+          var last=meta.data[meta.data.length-1];
+          if(!last)return;
+          var val=ds.data[ds.data.length-1];
+          if(typeof val!=='number')return;
+          ctx2.save();
+          ctx2.font='bold 22px Apple SD Gothic Neo,sans-serif';
+          ctx2.fillStyle=clr[i]||ds.borderColor;
+          ctx2.textAlign='left';
+          ctx2.textBaseline='middle';
+          ctx2.fillText('-'+val.toFixed(1)+'D',last.x+5,last.y);
+          ctx2.restore();
+        });
+      }
+    }],
+    type:'line',
+    data:{labels:[],datasets:[
+      {
+        label:'일반안경',
+        data:[],
+        borderColor:'#ef4444',
+        backgroundColor:'rgba(252,165,165,0.35)',
+        borderWidth:2.5,
+        pointRadius:3,
+        pointBackgroundColor:'#ef4444',
+        tension:0.3,
+        fill:'+1',
+        order:2
+      },
+      {
+        label:'근시억제렌즈',
+        data:[],
+        borderColor:'#2563eb',
+        backgroundColor:'rgba(37,99,235,0.0)',
+        borderWidth:2.5,
+        pointRadius:3,
+        pointBackgroundColor:'#2563eb',
+        tension:0.3,
+        fill:false,
+        order:1
+      }
+    ]},
+    options:{
+      responsive:true,
+      maintainAspectRatio:false,
+      layout:{padding:{right:90}},
+      animation:{duration:400},
+      plugins:{
+        legend:{display:false},
+        tooltip:{callbacks:{label:function(ctx){return ' '+ctx.dataset.label+': -'+ctx.parsed.y.toFixed(2)+'D';}}}
+      },
+      scales:{
+        x:{
+          grid:{color:'rgba(0,0,0,0.05)'},
+          ticks:{
+            color:'#4b6080',
+            font:{size:11},
+            maxTicksLimit:8,
+            callback:function(val,idx){
+              // 2세 단위만 표시
+              var lbl=this.getLabelForValue(val);
+              var age=parseInt(lbl);
+              return (idx===0||(age%2===0))?lbl:null;
+            }
+          },
+          title:{display:true,text:'나이 (세)',font:{size:11,weight:'700'},color:'#4b6080'}
+        },
+        y:{
+          min:0,
+          grid:{color:'rgba(0,0,0,0.06)'},
+          ticks:{color:'#4b6080',font:{size:11},callback:function(v){return '-'+v.toFixed(1)+'D';}},
+          title:{display:true,text:'근시도수 (D)',font:{size:11,weight:'700'},color:'#4b6080'}
+        }
+      }
+    }
+  });
+  updateCalc();
+}
+
+function updateCalc(){
+  var age    = parseInt(document.getElementById('sl-age').value);
+  var steps  = parseInt(document.getElementById('sl-diopter').value);
+  var absVal = round25(steps * 0.25);           // 절대값 (양수)
+  var diop   = -(absVal);                        // 음수 도수
+
+  document.getElementById('val-age').textContent     = age+'세';
+  document.getElementById('val-diopter').textContent = fmtD(diop);
+
+  // 진행 계산 (절대값 기준, 위로 증가)
+  var pNone    = projectAbs(age, absVal, 1.00);   // 일반안경
+    var ctrlFactor=CONTROL_FACTORS[age]||0.34;
+    var pControl=projectAbs(age,absVal,ctrlFactor);
+  var pDream   = projectAbs(age, absVal, 0.45);   // 드림렌즈 55%↓
+  var pAtro    = projectAbs(age, absVal, 0.52);   // 아트로핀 48%↓
+
+  var fNone    = pNone.values[pNone.values.length-1];
+  var fControl = pControl.values[pControl.values.length-1];
+  var fDream   = pDream.values[pDream.values.length-1];
+  var fAtro    = pAtro.values[pAtro.values.length-1];
+
+  // 늦게 시작(2년 후)
+  var pLate2 = projectAbs(age, absVal, 1.00);
+  var absAt2 = pLate2.values[2] || fNone;
+  var pLate  = projectAbs(Math.min(age+2,18), round10(absAt2), 0.48);
+  var fLate  = pLate.values[pLate.values.length-1];
+
+  // 결과 카드
+  document.getElementById('rc-none').textContent        = '-'+fNone.toFixed(2)+'D';
+  document.getElementById('rc-none-risk').textContent   = getRiskLabel(fNone);
+  document.getElementById('rc-control').textContent     = '-'+fControl.toFixed(2)+'D';
+  document.getElementById('rc-control-diff').textContent= '+'+(fNone-fControl).toFixed(2)+'D 보호';
+  document.getElementById('rc-late').textContent        = '-'+fLate.toFixed(2)+'D';
+  var lateDiff = fLate - fControl;
+  document.getElementById('rc-late-diff').textContent   = '-'+lateDiff.toFixed(2)+'D 손해';
+
+  // 솔루션 비교
+  document.getElementById('sv-none').textContent      = '-'+fNone.toFixed(1)+'D';
+  document.getElementById('sv-control').textContent   = '-'+fControl.toFixed(1)+'D';
+  document.getElementById('sv-dream').textContent     = '-'+fDream.toFixed(1)+'D';
+  document.getElementById('sv-atropine').textContent  = '-'+fAtro.toFixed(1)+'D';
+  document.getElementById('sd-control').textContent   = '+'+(fNone-fControl).toFixed(1)+'D';
+  document.getElementById('sd-dream').textContent     = '+'+(fNone-fDream).toFixed(1)+'D';
+  document.getElementById('sd-atropine').textContent  = '+'+(fNone-fAtro).toFixed(1)+'D';
+
+  // 그래프 (일반안경 + 근시억제렌즈 2개만)
+  if(myChart){
+    var labels = pNone.ages.map(function(a){return a+'세';});
+    myChart.data.labels = labels;
+    myChart.data.datasets[0].data = pNone.values;     // 일반안경 (위)
+    myChart.data.datasets[1].data = pControl.values;  // 근시억제 (아래) → fill
+    // y축 최대값 동적 조정
+    var maxVal = round25(fNone + 1.25);
+    myChart.options.scales.y.max = maxVal;
+    myChart.update('none');
+  }
+}
+
+/* ── 가격표 렌더 */
+var products = [
+  /* 근시억제렌즈 - row2 */
+  {cat:'control',row:2,brand:'ESSILOR',color:{bg:'#14532d',badge:'#86efac'},name:'스텔리스트',note:'폴리카보네이트(PC)',sub:'H.A.L.T. · 67%',index:'PC',msrp:520000,price:null},
+  {cat:'control',row:2,brand:'HOYA',color:{bg:'#1e1a2e',badge:'#c4b5fd'},name:'마이오케어',note:'',sub:'C.A.R.E. · 근시억제 63%',lbl:'굴절율',ageRec:'6~9세 추천',index:'1.50',msrp:500000,price:null},
+  {cat:'control',row:2,brand:'HOYA',color:{bg:'#1e1a2e',badge:'#c4b5fd'},name:'마이오케어',note:'',sub:'C.A.R.E. · 근시억제 63%',lbl:'굴절율',index:'1.59 / 1.60',msrp:600000,price:null},
+  {cat:'control',row:2,brand:'ZEISS',color:{bg:'#0c1a40',badge:'#93c5fd'},name:'마이오스마트',note:'1.59 (PC)',sub:'C.A.R.E. · 근시억제 63%',lbl:'코팅',index:'MS',msrp:520000,price:null},
+  {cat:'control',row:2,brand:'ZEISS',color:{bg:'#0c1a40',badge:'#93c5fd'},name:'마이오스마트',note:'1.59 (PC)',sub:'C.A.R.E. · 근시억제 63%',lbl:'코팅',index:'풀컨트롤',msrp:570000,price:null},
+  {cat:'control',row:2,brand:'ZEISS',color:{bg:'#0c1a40',badge:'#93c5fd'},name:'마이오스마트',note:'1.59 (PC)',sub:'C.A.R.E. · 근시억제 63%',lbl:'코팅',index:'카멜레온(변색)',msrp:570000,price:null},
+  {cat:'control',row:2,brand:'ZEISS',color:{bg:'#0c1a40',badge:'#93c5fd'},name:'마이오스마트',note:'1.59 (PC)',sub:'C.A.R.E. · 근시억제 63%',lbl:'코팅',index:'선버드(편광)',msrp:570000,price:null},
+  /* 근시억제렌즈 - row3 */
+  {cat:'control',row:3,brand:'ESSILOR',color:{bg:'#14532d',badge:'#86efac'},name:'스텔리스트 프리벤시아',note:'1.59 Airwear',sub:'H.A.L.T. · 67%',index:'1.59',msrp:570000,price:null},
+  {cat:'control',row:3,brand:'HOYA',color:{bg:'#1e1a2e',badge:'#c4b5fd'},name:'마이오케어 에스',note:'',sub:'C.A.R.E. · 근시억제 63%',lbl:'굴절율',ageRec:'10~12세 추천',index:'1.50',msrp:500000,price:null},
+  {cat:'control',row:3,brand:'HOYA',color:{bg:'#1e1a2e',badge:'#c4b5fd'},name:'마이오케어 에스',note:'',sub:'C.A.R.E. · 근시억제 63%',lbl:'굴절율',index:'1.59 / 1.60',msrp:600000,price:null},
+  {cat:'control',row:3,brand:'ZEISS',color:{bg:'#0c1a40',badge:'#93c5fd'},name:'마이오스마트 IQ',note:'',sub:'',lbl:'',index:'추후 업데이트 예정',msrp:null,price:null},
+  /* 근시완화렌즈 */
+  // 이노티x케미
+  // 이노티x니덱
+  // 에실로
+  // 자이스
+  // INOTI x CHEMI
+  {cat:'relief',brand:'INOTI x CHEMI',color:{bg:'#0c2048',badge:'#7dd3fc'},name:'INO-Kids-C1',note:'',sub:'근시 완화형 설계',lbl:'굴절율',index:'1.56',msrp:250000,price:79000},
+  {cat:'relief',brand:'INOTI x CHEMI',color:{bg:'#0c2048',badge:'#7dd3fc'},name:'INO-Kids-C1',note:'',sub:'근시 완화형 설계',lbl:'굴절율',index:'1.60',msrp:320000,price:109000},
+  // INOTI x NIDEK
+  {cat:'relief',brand:'INOTI x NIDEK',color:{bg:'#2a0d42',badge:'#c4b5fd'},name:'INO-Kids-N1',note:'',sub:'조절 완화형 설계',lbl:'굴절율',index:'1.56',msrp:270000,price:99000},
+  {cat:'relief',brand:'INOTI x NIDEK',color:{bg:'#2a0d42',badge:'#c4b5fd'},name:'INO-Kids-N1',note:'',sub:'조절 완화형 설계',lbl:'굴절율',index:'1.60',msrp:350000,price:129000},
+  {cat:'relief',brand:'INOTI x NIDEK',color:{bg:'#2a0d42',badge:'#c4b5fd'},name:'INO-Kids-N1',note:'',sub:'조절 완화형 설계',lbl:'굴절율',index:'1.67',msrp:430000,price:159000},
+  // ZEISS
+  {cat:'relief',brand:'ZEISS',color:{bg:'#2d1500',badge:'#fb923c'},name:'마이오비젼(여벌)',note:'',sub:'표준 근시완화 설계',lbl:'굴절율',index:'1.56',msrp:120000,price:96000},
+  {cat:'relief',brand:'ZEISS',color:{bg:'#2d1500',badge:'#fb923c'},name:'마이오비젼(여벌)',note:'',sub:'표준 근시완화 설계',lbl:'굴절율',index:'1.60',msrp:190000,price:152000},
+  {cat:'relief',brand:'ZEISS',color:{bg:'#2d1500',badge:'#fb923c'},name:'마이오키즈',note:'',sub:'어린이 전용 근시완화 설계',lbl:'굴절율',index:'1.56',msrp:260000,price:208000},
+  {cat:'relief',brand:'ZEISS',color:{bg:'#2d1500',badge:'#fb923c'},name:'마이오키즈',note:'',sub:'어린이 전용 근시완화 설계',lbl:'굴절율',index:'1.60',msrp:320000,price:256000},
+  {cat:'relief',brand:'ZEISS',color:{bg:'#2d1500',badge:'#fb923c'},name:'마이오키즈',note:'',sub:'어린이 전용 근시완화 설계',lbl:'굴절율',index:'1.67',msrp:400000,price:320000},
+  {cat:'relief',brand:'ESSILOR',color:{bg:'#0b3318',badge:'#86efac'},name:'아이젠K',note:'',sub:'디지털 피로 완화 설계',lbl:'굴절율',index:'1.50',msrp:250000,price:200000},
+  {cat:'relief',brand:'ESSILOR',color:{bg:'#0b3318',badge:'#86efac'},name:'아이젠K',note:'',sub:'디지털 피로 완화 설계',lbl:'굴절율',index:'1.59',msrp:280000,price:224000},
+  {cat:'relief',brand:'ESSILOR',color:{bg:'#0b3318',badge:'#86efac'},name:'아이젠K',note:'',sub:'디지털 피로 완화 설계',lbl:'굴절율',index:'1.60',msrp:300000,price:240000},
+];
+
+function fmt(n){if(!n)return '—';var v=n/10000;return(v===Math.round(v)?Math.round(v):parseFloat(v.toFixed(1)))+'만원';}
+
+function renderRecPages(){
+  var RI={
+    '\uc2a4\ud154\ub9ac\uc2a4\ud2b8':{t:'Essilor Stellest\u00ae',d:'\ud3f4\ub9ac\uce74\ubcf4\ub124\uc774\ud2b8(PC) / 52\ub9cc\uc6d0 / 67% \uc5b5\uc81c'},
+    '\uc2a4\ud154\ub9ac\uc2a4\ud2b8 \ud504\ub9ac\ubca4\uc2dc\uc544':{t:'Stellest Prevencia',d:'1.59 Airwear / 57\ub9cc\uc6d0'},
+    '\ub9c8\uc774\uc624\ucf00\uc5b4':{t:'HOYA MioCare',d:'D.I.M.S. / 60%'},
+    '\ub9c8\uc774\uc624\ucf00\uc5b4 \uc5d0\uc2a4':{t:'HOYA MioCare S',d:'D.I.M.S. \uac1c\uc120 / 60%'},
+    '\ub9c8\uc774\uc624\uc2a4\ub9c8\ud2b8':{t:'ZEISS MyoSmart',d:'C.A.R.E. · 근시억제 63%'},
+    '\ub9c8\uc774\uc624\uc2a4\ub9c8\ud2b8 IQ':{t:'ZEISS MyoSmart IQ',d:'C.A.R.E. · 근시억제 63%'},
+    '\uc774\uc9c0\ucf00\uc5b4':{t:'\ucf00\ubbf8 \uc774\uc9c0\ucf00\uc5b4',d:'\uadfc\uac70\ub9ac \uc870\uc808 \ubd80\ub2f4 \uc644\ud654'},
+    '\ub9b4\ub799\uc2dc':{t:'HOYA \ub9b4\ub799\uc2dc',d:'\uc870\uc808 \uc644\ud654\ud615'},
+    '\uc5d0\uc774\uc800':{t:'Essilor \uc5d0\uc774\uc800',d:'\ud53c\ub85c \uc644\ud654'}
+  };
+
+  var ctrlEl=document.getElementById('recControl');
+  if(ctrlEl){
+    var BRANDS=[
+      {key:'ESSILOR',label:'ESSILOR',bg:'#14532d'},
+      {key:'HOYA',   label:'HOYA',   bg:'#0c1a40'},
+      {key:'ZEISS',  label:'ZEISS',  bg:'#1e1a2e'}
+    ];
+    var row2names={ESSILOR:'\uc2a4\ud154\ub9ac\uc2a4\ud2b8',HOYA:'\ub9c8\uc774\uc624\uc2a4\ub9c8\ud2b8',ZEISS:'\ub9c8\uc774\uc624\ucf00\uc5b4'};
+    var row3names={ESSILOR:'\uc2a4\ud154\ub9ac\uc2a4\ud2b8 \ud504\ub9ac\ubca4\uc2dc\uc544',HOYA:'\ub9c8\uc774\uc624\uc2a4\ub9c8\ud2b8 IQ',ZEISS:'\ub9c8\uc774\uc624\ucf00\uc5b4 \uc5d0\uc2a4'};
+
+    function makeSection(nm){
+      var prods=products.filter(function(p){return p.cat==='control'&&p.name===nm;});
+      if(!prods.length) return '';
+      var note=prods[0].note?'<div class="ctrl-note-row">'+prods[0].note+'</div>':'';
+      var lbl=prods[0].lbl||'\uad74\uc808\uc728';
+      if(prods.length===1 && prods[0].msrp===null && prods[0].price===null){
+        return '<div class="ctrl-iq-row"><span class="ctrl-prod-name">마이오스마트 IQ</span><span style="font-size:10px;color:#ef4444;font-weight:700;">(추후업데이트예정)</span></div>';
+      }
+      var rows=prods.map(function(p){
+        var msrpHtml=p.msrp?'<span class="ctrl-msrp">'+fmt(p.msrp)+'</span>':'<span class="ctrl-msrp" style="opacity:0.4;">-</span>';
+        return '<div class="ctrl-data-row"><span class="ctrl-idx-badge">'+p.index+'</span>'+msrpHtml+'</div>';
+      }).join('');
+      return '<div class="ctrl-name-row"><span class="ctrl-prod-name">'+nm+'</span>'+(prods[0].ageRec?'<span class="ctrl-name-age">'+prods[0].ageRec+'</span>':'')+'</div>'+
+             note+
+             '<div class="ctrl-lbl-row"><span class="ctrl-lbl-idx">'+lbl+'</span><span class="ctrl-lbl-msrp">\uad8c\uc7a5\uc18c\ube44\uc790\uac00</span></div>'+
+             rows;
+    }
+
+    /* 중간 카드: row2 + row3 제품정보 모두 포함 */
+    function makeMiddleCard(bKey){
+      var nm2=row2names[bKey];
+      var nm3=row3names[bKey];
+      var prods=products.filter(function(p){return p.cat==='control'&&p.name===nm2;});
+      var col=prods.length?prods[0].color:{bg:'#1e293b'};
+      var s2=makeSection(nm2);
+      var s3=makeSection(nm3);
+      var divider=s3?'<div class="ctrl-divider"></div>':'';
+      var cls=bKey==='ZEISS'?' ctrl-mid-zeiss':'';
+      return '<div class="ctrl-card'+cls+'" style="background:'+col.bg+'">'+
+        s2+divider+s3+
+      '</div>';
+    }
+
+    /* 하단 카드: 이미지 영역(flex:1) + 제품확인 버튼 */
+    
+    function makeBottomCard(bKey){
+      var nm3=row3names[bKey];
+      var prods=products.filter(function(p){return p.cat==='control'&&p.name===nm3;});
+      var col=prods.length?prods[0].color:{bg:'#1e293b'};
+      var imgHtml=bKey==='ESSILOR'
+        ?'<img src="images/myopia_img_1.png"  style="width:100%;height:100%;object-fit:contain;display:block;">'
+        :bKey==='HOYA'
+        ?'<img src="images/myopia_img_2.png" style="width:100%;height:100%;object-fit:contain;display:block;">'
+        :bKey==='ZEISS'?'<img src="images/myopia_img_3.png" style="max-width:100%;max-height:100%;width:auto;height:auto;object-fit:contain;display:block;">':'';
+      var btnClick=bKey==='ESSILOR'?'openEsilorPopup()':bKey==='HOYA'?'openHoyaPopup()':bKey==='ZEISS'?'openZeissPopup()':'openRIP(this.dataset.nm)';
+      return '<div class="ctrl-card" style="background:transparent;border:1px solid rgba(255,255,255,0.08);">'+
+        '<div class="ctrl-info-row" style="background:'+col.bg+';"><button class="ctrl-info-btn" data-nm="'+nm3+'" onclick="'+btnClick+'">&#x1F4CB; 제품확인</button></div>'+
+        '<div class="ctrl-img-row">'+imgHtml+'</div>'+
+      '</div>';
+    }
+
+    var row1=BRANDS.map(function(b){
+      return '<div class="ctrl-brand-hdr" style="background:'+b.bg+'"><div class="ctrl-brand-label">'+b.label+'</div></div>';
+    }).join('');
+    var row2=BRANDS.map(function(b){return makeMiddleCard(b.key);}).join('');
+    var row3=BRANDS.map(function(b){return makeBottomCard(b.key);}).join('');
+    ctrlEl.innerHTML=row1+row2+row3;
+  }
+
+  var reliefEl=document.getElementById('recRelief');
+  if(reliefEl){
+    var rp=products.filter(function(p){return p.cat==='relief';});
+    var rb=[...new Set(rp.map(function(p){return p.brand;}))];
+    var hdrs=rb.map(function(brand){
+      var col=rp.filter(function(p){return p.brand===brand;})[0].color;
+      return '<div class="ctrl-brand-hdr" style="background:'+col.bg+'"><span class="ctrl-brand-name">'+brand+'</span></div>';
+    }).join('');
+    var mids=rb.map(function(brand){
+      var bP=rp.filter(function(p){return p.brand===brand;});
+      var col=bP[0].color;
+      var names=[...new Set(bP.map(function(p){return p.name;}))];
+      var sections=names.map(function(name,i){
+        var items=bP.filter(function(p){return p.name===name;});
+        var lbl=items[0].lbl||'\uad74\uc808\uc728';
+        var rows=items.map(function(p){
+          var msrpHtml=p.msrp?'<span class="ctrl-msrp">'+fmt(p.msrp)+'</span>':'<span class="ctrl-msrp" style="opacity:0.4">-</span>';
+          var priceHtml=p.price?'<span class="ctrl-price">'+fmt(p.price)+'</span>':'<span class="ctrl-price" style="opacity:0.35">\ubb38\uc758</span>';
+          return '<div class="ctrl-data-row"><span class="ctrl-idx-badge">'+p.index+'</span>'+msrpHtml+priceHtml+'</div>';
+        }).join('');
+        var divHtml=i>0?'<div class="ctrl-divider"></div>':'';
+        return divHtml+
+          '<div class="ctrl-name-row"><span class="ctrl-prod-name">'+name+'</span></div>'+
+          '<div class="ctrl-lbl-row"><span class="ctrl-lbl-idx">'+lbl+'</span><span class="ctrl-lbl-msrp">\uad8c\uc7a5\uc18c\ube44\uc790\uac00</span><span class="ctrl-lbl-price">\ud310\ub9e4\uac00</span></div>'+
+          rows;
+      }).join('');
+      return '<div class="ctrl-card" style="background:'+col.bg+'">'+sections+'</div>';
+    }).join('');
+    var bots=rb.map(function(brand){
+      var col=rp.filter(function(p){return p.brand===brand;})[0].color;
+      return '<div class="ctrl-card relief-bot-card">'+'<div class="ctrl-info-row" style="background:'+col.bg+';">'+'<button class="ctrl-info-btn" onclick="'+(brand==='INOTI x CHEMI'?'openChemiPopup()':brand==='INOTI x NIDEK'?'openNidekPopup()':brand==='ZEISS'?'openReliefZeissPopup()':brand==='ESSILOR'?'openReliefEsilorPopup()':"openRIP('"  +brand+  "')")+'">제품확인</button></div>'+'<div class="ctrl-img-row"></div></div>';
+    }).join('');
+    reliefEl.innerHTML=hdrs+mids+bots;
+  }
+
+  window.openRIP=function(name){
+    var info=RI[name]||{t:name,d:''};
+    document.getElementById('ripT').textContent=info.t;
+    document.getElementById('ripD').textContent=info.d;
+    document.getElementById('ripW').style.display='flex';
+  };
+  window.closeRIP=function(){document.getElementById('ripW').style.display='none';};
+}
+
+
+</script>
+
+<script>
+
+(function(){
+  function isMobile(){ return window.innerWidth <= 1024; }
+
+    function toggleSidebar(){
+    var sb     = document.getElementById('sidebar');
+    var ov     = document.getElementById('sbOverlay');
+    var btn    = document.getElementById('sbTopBtn');
+
+    if(isMobile()){
+      var isOpen = sb.classList.contains('sb-open');
+      if(isOpen){
+        sb.classList.remove('sb-open');
+        if(ov) ov.classList.remove('show');
+        if(btn) btn.innerHTML = '☰ 사이드바 펼치기';
+      } else {
+        sb.classList.add('sb-open');
+        if(ov) ov.classList.add('show');
+        if(btn) btn.innerHTML = '◀ 사이드바 접기';
+      }
+    } else {
+      var isHidden = sb.classList.contains('sb-hidden');
+      if(isHidden){
+        sb.classList.remove('sb-hidden');
+        document.documentElement.style.setProperty('--sidebar-w','168px');
+        if(btn) btn.innerHTML = '◀ 사이드바 접기';
+      } else {
+        sb.classList.add('sb-hidden');
+        document.documentElement.style.setProperty('--sidebar-w','0px');
+        if(btn) btn.innerHTML = '☰ 사이드바 펼치기';
+      }
+    }
+  }
+
+
+  function closeSidebar(){
+    var sb  = document.getElementById('sidebar');
+    var ov  = document.getElementById('sbOverlay');
+    sb.classList.remove('sb-open');
+    if(ov) ov.classList.remove('show');
+  }
+
+  window.toggleSidebar = toggleSidebar;
+  window.closeSidebar  = closeSidebar;
+
+  document.addEventListener('DOMContentLoaded', function(){
+    /* 태블릿 초기 상태: sbTopBtn 노출 */
+    if(isMobile()){
+      var topBtn = document.getElementById('sbTopBtn');
+      }
+
+    /* 사이드바 링크 클릭 시 닫기 */
+    document.querySelectorAll('#sidebar a').forEach(function(el){
+      el.addEventListener('click', function(){
+        if(isMobile()) setTimeout(closeSidebar, 150);
+      });
+    });
+
+    /* [FIX] 터치 기기 인터랙션 — touchstart 즉시 반응, touchmove 시 취소 */
+    var touchTargets = document.querySelectorAll('#sidebar .sb-sub, #sidebar .sb-btn');
+    touchTargets.forEach(function(el){
+      var moved = false;
+      el.addEventListener('touchstart', function(e){
+        moved = false;
+        el.classList.add('touch-active');
+      }, { passive: true });
+      el.addEventListener('touchmove', function(){
+        moved = true;
+        el.classList.remove('touch-active');
+      }, { passive: true });
+      el.addEventListener('touchend', function(){
+        if(!moved) {
+          setTimeout(function(){ el.classList.remove('touch-active'); }, 180);
+        } else {
+          el.classList.remove('touch-active');
+        }
+      }, { passive: true });
+      el.addEventListener('touchcancel', function(){
+        el.classList.remove('touch-active');
+      }, { passive: true });
+    });
+
+    /* iOS에서 :active 활성화를 위한 트릭 */
+    if(/iPhone|iPad|iPod/.test(navigator.userAgent)){
+      document.body.setAttribute('onclick','void(0)');
+    }
+  });
+})();
+
+
+
+
+
+document.addEventListener('keydown',function(e){if(e.key==='Escape'){closeEsilorPopup();}});
+
+function openEsilorPopup(){document.getElementById('esilorPopup').style.display='flex';switchETab(1);}
+function closeEsilorPopup(){document.getElementById('esilorPopup').style.display='none';}
+function switchETab(n){
+  var g='#14532d',w='#f9fafb',d='#374151';
+  var t1=document.getElementById('etab1'),t2=document.getElementById('etab2');
+  var p1=document.getElementById('epanel1'),p2=document.getElementById('epanel2');
+  if(n===1){
+    t1.style.cssText='flex:1;padding:11px;font-size:14px;font-weight:700;border:none;border-bottom:3px solid '+g+';cursor:pointer;background:'+g+';color:#fff;';
+    t2.style.cssText='flex:1;padding:11px;font-size:14px;font-weight:700;border:none;border-bottom:3px solid transparent;cursor:pointer;background:'+w+';color:'+d+';';
+    p1.style.display='block';p2.style.display='none';
+  }else{
+    t2.style.cssText='flex:1;padding:11px;font-size:14px;font-weight:700;border:none;border-bottom:3px solid '+g+';cursor:pointer;background:'+g+';color:#fff;';
+    t1.style.cssText='flex:1;padding:11px;font-size:14px;font-weight:700;border:none;border-bottom:3px solid transparent;cursor:pointer;background:'+w+';color:'+d+';';
+    p2.style.display='block';p1.style.display='none';
+  }
+}
+
+function openHoyaPopup(){document.getElementById('hoyaPopup').style.display='flex';switchHTab(1);}
+function closeHoyaPopup(){document.getElementById('hoyaPopup').style.display='none';}
+function switchHTab(n){
+  var g='#0c1a40',w='#f9fafb',d='#374151',e='3px solid';
+  var t1=document.getElementById('htab1'),t2=document.getElementById('htab2');
+  var p1=document.getElementById('hpanel1'),p2=document.getElementById('hpanel2');
+  if(n===1){
+    t1.style.cssText='flex:1;padding:11px;font-size:14px;font-weight:700;border:none;border-bottom:'+e+' '+g+';cursor:pointer;background:'+g+';color:#fff;';
+    t2.style.cssText='flex:1;padding:11px;font-size:14px;font-weight:700;border:none;border-bottom:'+e+' transparent;cursor:pointer;background:'+w+';color:'+d+';';
+    p1.style.display='block';p2.style.display='none';
+  }else{
+    t2.style.cssText='flex:1;padding:11px;font-size:14px;font-weight:700;border:none;border-bottom:'+e+' '+g+';cursor:pointer;background:'+g+';color:#fff;';
+    t1.style.cssText='flex:1;padding:11px;font-size:14px;font-weight:700;border:none;border-bottom:'+e+' transparent;cursor:pointer;background:'+w+';color:'+d+';';
+    p2.style.display='block';p1.style.display='none';
+  }
+}
+
+function openZeissPopup(){document.getElementById('zeissPopup').style.display='flex';}
+function closeZeissPopup(){document.getElementById('zeissPopup').style.display='none';}
+</script>
+
+
+<div id="ripW" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.65);z-index:500;align-items:center;justify-content:center;"><div style="background:#1e293b;border-radius:14px;min-width:300px;max-width:78vw;border:1px solid rgba(255,255,255,0.12);overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,0.5);"><div style="display:flex;align-items:center;justify-content:space-between;padding:12px 18px;border-bottom:1px solid rgba(255,255,255,0.1);background:rgba(255,255,255,0.04);"><span id="ripT" style="font-size:15px;font-weight:800;color:#fff;"></span><button onclick="closeRIP()" style="background:none;border:none;font-size:22px;cursor:pointer;color:rgba(255,255,255,0.6);line-height:1;">&#x2715;</button></div><div style="padding:16px 18px;"><p id="ripD" style="font-size:13px;color:#cbd5e1;line-height:1.8;margin:0;"></p></div></div></div>
+
+
+<!-- Essilor Popup -->
+<div id="esilorPopup" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.72);z-index:600;align-items:center;justify-content:center;"><div style="background:#fff;border-radius:16px;width:92vw;max-width:780px;max-height:90vh;overflow:hidden;display:flex;flex-direction:column;box-shadow:0 24px 80px rgba(0,0,0,0.5);"><div style="display:flex;align-items:center;justify-content:space-between;padding:14px 20px;background:#14532d;flex-shrink:0;"><span style="font-size:16px;font-weight:800;color:#fff;">Essilor 근시억제렌즈 제품 정보</span><button onclick="closeEsilorPopup()" style="background:none;border:none;font-size:24px;cursor:pointer;color:rgba(255,255,255,0.8);">&#x2715;</button></div><div style="display:flex;flex-shrink:0;border-bottom:2px solid #e5e7eb;"><button id="etab1" onclick="switchETab(1)" style="flex:1;padding:11px;font-size:14px;font-weight:700;border:none;border-bottom:3px solid #14532d;cursor:pointer;background:#14532d;color:#fff;">스텔리스트</button><button id="etab2" onclick="switchETab(2)" style="flex:1;padding:11px;font-size:14px;font-weight:700;border:none;border-bottom:3px solid transparent;cursor:pointer;background:#f9fafb;color:#374151;">스텔리스트 프리벤시아</button></div><div style="overflow-y:auto;flex:1;"><div id="epanel1" style="display:block;"><img src="images/myopia_img_4.png" style="width:100%;display:block;"></div><div id="epanel2" style="display:none;"><img src="images/myopia_img_5.png" style="width:100%;display:block;"></div></div></div></div>
+
+<!-- HOYA Popup -->
+<div id="hoyaPopup" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.72);z-index:600;align-items:center;justify-content:center;"><div style="background:#fff;border-radius:16px;width:92vw;max-width:780px;max-height:90vh;overflow:hidden;display:flex;flex-direction:column;box-shadow:0 24px 80px rgba(0,0,0,0.5);"><div style="display:flex;align-items:center;justify-content:space-between;padding:14px 20px;background:#0c1a40;flex-shrink:0;"><span style="font-size:16px;font-weight:800;color:#fff;">HOYA 근시억제렌즈 제품 정보</span><button onclick="closeHoyaPopup()" style="background:none;border:none;font-size:24px;cursor:pointer;color:rgba(255,255,255,0.8);">&#x2715;</button></div><div style="display:flex;flex-shrink:0;border-bottom:2px solid #e5e7eb;"><button id="htab1" onclick="switchHTab(1)" style="flex:1;padding:11px;font-size:14px;font-weight:700;border:none;border-bottom:3px solid #0c1a40;cursor:pointer;background:#0c1a40;color:#fff;">마이오스마트 / 풀컨트롤</button><button id="htab2" onclick="switchHTab(2)" style="flex:1;padding:11px;font-size:14px;font-weight:700;border:none;border-bottom:3px solid transparent;cursor:pointer;background:#f9fafb;color:#374151;">카멜레온 / 선버드</button></div><div style="overflow-y:auto;flex:1;"><div id="hpanel1"><img src="images/myopia_img_6.png" style="width:100%;display:block;"></div><div id="hpanel2" style="display:none;"><img src="images/myopia_img_7.png" style="width:100%;display:block;"></div></div></div></div>
+
+<!-- ZEISS Popup -->
+<div id="zeissPopup" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.72);z-index:600;align-items:center;justify-content:center;"><div style="background:#fff;border-radius:16px;width:92vw;max-width:680px;max-height:90vh;overflow:hidden;display:flex;flex-direction:column;box-shadow:0 24px 80px rgba(0,0,0,0.5);"><div style="display:flex;align-items:center;justify-content:space-between;padding:14px 20px;background:#1e1a2e;flex-shrink:0;"><span style="font-size:16px;font-weight:800;color:#fff;">ZEISS 근시억제렌즈 제품 정보</span><button onclick="closeZeissPopup()" style="background:none;border:none;font-size:24px;cursor:pointer;color:rgba(255,255,255,0.8);">&#x2715;</button></div><div style="overflow-y:auto;flex:1;"><img src="images/myopia_img_8.png" style="width:100%;display:block;"></div></div></div>
+
+<!-- CHEMI Popup -->
+<div id="chemiPopup" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.75);z-index:700;align-items:center;justify-content:center;"><div style="background:#fff;border-radius:16px;width:92vw;max-width:600px;max-height:90vh;overflow:hidden;display:flex;flex-direction:column;box-shadow:0 24px 80px rgba(0,0,0,0.5);"><div style="display:flex;align-items:center;justify-content:space-between;padding:14px 20px;background:#0c2048;flex-shrink:0;"><span style="font-size:16px;font-weight:800;color:#fff;">INOTI x CHEMI 제품 정보</span><button onclick="document.getElementById('chemiPopup').style.display='none'" style="background:none;border:none;font-size:24px;cursor:pointer;color:rgba(255,255,255,0.85);">&#x2715;</button></div><div style="overflow-y:auto;flex:1;"><img src="images/myopia_img_9.png" style="width:100%;display:block;"></div></div></div>
+<!-- NIDEK Popup -->
+<div id="nidekPopup" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.75);z-index:700;align-items:center;justify-content:center;"><div style="background:#fff;border-radius:16px;width:auto;max-width:94vw;max-height:90vh;overflow:hidden;display:flex;flex-direction:column;box-shadow:0 24px 80px rgba(0,0,0,0.5);"><div style="display:flex;align-items:center;justify-content:space-between;padding:14px 20px;background:#2a0d42;flex-shrink:0;"><span style="font-size:16px;font-weight:800;color:#fff;">INOTI x NIDEK 제품 정보</span><button onclick="document.getElementById('nidekPopup').style.display='none'" style="background:none;border:none;font-size:24px;cursor:pointer;color:rgba(255,255,255,0.85);">&#x2715;</button></div><div style="overflow:auto;flex:1;"><div style="display:flex;align-items:flex-start;"><img src="images/myopia_img_10.png" style="height:700px;width:auto;display:block;flex-shrink:0;"><img src="images/myopia_img_11.png" style="height:700px;width:auto;display:block;flex-shrink:0;"></div></div></div></div>
+<script>
+function openChemiPopup(){var el=document.getElementById("chemiPopup");if(el)el.style.display="flex";}
+function openNidekPopup(){var el=document.getElementById("nidekPopup");if(el)el.style.display="flex";}
+</script>
+
+<!-- Relief ZEISS Popup -->
+<div id="reliefZeissPopup" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.75);z-index:700;align-items:center;justify-content:center;"><div style="background:#fff;border-radius:16px;width:92vw;max-width:900px;max-height:90vh;overflow:hidden;display:flex;flex-direction:column;box-shadow:0 24px 80px rgba(0,0,0,0.5);"><div style="display:flex;align-items:center;justify-content:space-between;padding:14px 20px;background:#2d1500;flex-shrink:0;"><span style="font-size:16px;font-weight:800;color:#fff;">ZEISS 근시완화렌즈 제품 정보</span><button onclick="document.getElementById('reliefZeissPopup').style.display='none'" style="background:none;border:none;font-size:24px;cursor:pointer;color:rgba(255,255,255,0.85);">&#x2715;</button></div><div style="display:flex;flex-shrink:0;border-bottom:2px solid #e5e7eb;"><button id="rztab1" onclick="switchRZTab(1)" style="flex:1;padding:11px;font-size:14px;font-weight:700;border:none;border-bottom:3px solid #2d1500;cursor:pointer;background:#2d1500;color:#fff;">마이오비젼</button><button id="rztab2" onclick="switchRZTab(2)" style="flex:1;padding:11px;font-size:14px;font-weight:700;border:none;border-bottom:3px solid transparent;cursor:pointer;background:#f9fafb;color:#374151;">마이오키즈</button></div><div style="overflow-y:auto;flex:1;"><div id="rzpanel1"><img src="images/myopia_img_12.png" style="width:100%;display:block;"></div><div id="rzpanel2" style="display:none;"><img src="images/myopia_img_13.png" style="width:100%;display:block;"></div></div></div></div>
+<!-- Relief ESSILOR Popup -->
+<div id="reliefEsilorPopup" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.75);z-index:700;align-items:center;justify-content:center;"><div style="background:#fff;border-radius:16px;width:92vw;max-width:700px;max-height:90vh;overflow:hidden;display:flex;flex-direction:column;box-shadow:0 24px 80px rgba(0,0,0,0.5);"><div style="display:flex;align-items:center;justify-content:space-between;padding:14px 20px;background:#0b3318;flex-shrink:0;"><span style="font-size:16px;font-weight:800;color:#fff;">ESSILOR 근시완화렌즈 제품 정보</span><button onclick="document.getElementById('reliefEsilorPopup').style.display='none'" style="background:none;border:none;font-size:24px;cursor:pointer;color:rgba(255,255,255,0.85);">&#x2715;</button></div><div style="overflow-y:auto;flex:1;"><img src="images/myopia_img_14.png" style="width:100%;display:block;"></div></div></div>
+<script>
+function openReliefZeissPopup(){var el=document.getElementById("reliefZeissPopup");if(el){el.style.display="flex";switchRZTab(1);}}
+function openReliefEsilorPopup(){var el=document.getElementById("reliefEsilorPopup");if(el)el.style.display="flex";}
+function switchRZTab(n){var g="#2d1500",w="#f9fafb",d="#374151";
+var t1=document.getElementById("rztab1"),t2=document.getElementById("rztab2");
+var p1=document.getElementById("rzpanel1"),p2=document.getElementById("rzpanel2");
+if(n===1){t1.style.cssText="flex:1;padding:11px;font-size:14px;font-weight:700;border:none;border-bottom:3px solid "+g+";cursor:pointer;background:"+g+";color:#fff;";t2.style.cssText="flex:1;padding:11px;font-size:14px;font-weight:700;border:none;border-bottom:3px solid transparent;cursor:pointer;background:"+w+";color:"+d+";";p1.style.display="block";p2.style.display="none";}else{t2.style.cssText="flex:1;padding:11px;font-size:14px;font-weight:700;border:none;border-bottom:3px solid "+g+";cursor:pointer;background:"+g+";color:#fff;";t1.style.cssText="flex:1;padding:11px;font-size:14px;font-weight:700;border:none;border-bottom:3px solid transparent;cursor:pointer;background:"+w+";color:"+d+";";p2.style.display="block";p1.style.display="none";}}
+</script>
+</body>
+</html>
