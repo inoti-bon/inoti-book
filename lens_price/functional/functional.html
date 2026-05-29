@@ -154,54 +154,46 @@ button, a, input, select, textarea,
 }
 
 
-/* ━━ 태블릿(≤1024px): vw 비례 반응형 ━━ */
-@media(max-width:1024px){
-  /* overflow 체인 → main이 가로 스크롤 담당 */
-  .main { min-width:0 !important; overflow-x:auto !important; }
 
-  /* 카드 컨테이너 좌우 여백 제거 */
-  .cust-zs-cols,.cust-zs-cols.grid2,
-  .zs-cols,.prem-cards,.hy-cols,.ch-cols { margin-left:0 !important; margin-right:0 !important; }
+  .prem-cards                        { flex-direction:column !important; }
+}
 
-  /* 라벨 열: vw 비례 */
-  .zs-td-lbl,.es-label-rowspan {
-    width: max(48px, 5.5vw) !important;
-    font-size: max(7.5px, 0.8vw) !important;
-    padding: 2px 3px !important;
-  }
-  /* 데이터 셀: vw 비례 */
-  .zs-td {
-    padding: max(1px,0.15vw) max(2px,0.25vw) !important;
-    font-size: max(9px, 0.95vw) !important;
-  }
-  .zs-th .zs-td { font-size: max(9px, 1vw) !important; font-weight:800 !important; }
 
-  /* 권장소비자가 행 */
-  .zs-p   { font-size: max(8px, 0.9vw) !important; }
-  .zs-p s { font-size: max(7px, 0.75vw) !important; }
 
-  /* 판매가 행: 가장 중요 — 충분히 크게 */
-  .zs-inoti { font-size: max(10px, 1.2vw) !important; white-space:nowrap; }
 
-  /* 카드 헤더 */
-  .zs-name          { font-size: max(13px, 1.3vw) !important; }
-  .chemi-name-badge { font-size: max(13px, 1.4vw) !important; }
-  .zs-kname         { font-size: max(8px, 0.8vw) !important; }
-  .zs-feat          { font-size: max(9px, 0.9vw) !important; }
-  .zs-add           { font-size: max(8px, 0.8vw) !important; }
-  .zs-section .zs-full { font-size: max(7px, 0.75vw) !important; letter-spacing:0 !important; }
-  .badge-name       { font-size: max(13px, 1.3vw) !important; }
-  .badge-sub        { font-size: max(8px, 0.8vw) !important; }
+  .prem-cards                        { flex-direction:column !important; }
+}
 
-  /* 가격 행 높이 */
-  .cpl-top { font-size: max(6.5px, 0.7vw) !important; }
-  .cpl-bot { font-size: max(7.5px, 0.8vw) !important; }
-  .es-price-sub-row:first-child { min-height: max(18px,2vw) !important; }
-  .es-inoti-prices              { min-height: max(26px,3vw) !important; }
 
-  /* 프리미엄렌즈 테이블 */
-  .es-img-tbl th,.es-img-tbl td { font-size: max(9px,0.9vw) !important; padding: max(3px,0.3vw) max(4px,0.5vw) !important; }
-  .prem-col { padding: max(3px,0.4vw) !important; }
+
+/* ━━ 반응형(≤1800px): vw 비례 축소 ━━ */
+@media(max-width:1800px){
+  .prem-col,.cust-zs-col,.zs-col,.hy-col,.ch-col { min-width:0 !important; }
+  .cust-zs-cols,.cust-zs-cols.grid2,.zs-cols,.prem-cards,
+  .hy-cols,.ch-cols,.es-tbl-wrap { margin-left:0 !important; margin-right:0 !important; }
+  .zs-subtabs  { margin-left:0 !important; margin-right:0 !important; }
+  .main        { min-width:0 !important; overflow-x:auto !important; }
+
+  .zs-td-lbl,.es-label-rowspan { width:max(46px,3.2vw) !important; font-size:max(7px,0.55vw) !important; padding:2px 3px !important; }
+  .zs-td       { padding:max(1px,0.1vw) max(2px,0.18vw) !important; font-size:max(9px,0.72vw) !important; }
+  .zs-th .zs-td{ font-size:max(9px,0.75vw) !important; font-weight:800 !important; }
+  .zs-p        { font-size:max(8px,0.65vw) !important; }
+  .zs-p s      { font-size:max(7px,0.58vw) !important; }
+  .zs-inoti    { font-size:clamp(11px,1.1vw,17px) !important; white-space:nowrap; }
+  .zs-name     { font-size:max(13px,0.95vw) !important; }
+  .chemi-name-badge { font-size:max(13px,1.0vw) !important; }
+  .zs-kname    { font-size:max(7.5px,0.6vw) !important; }
+  .zs-feat     { font-size:max(8px,0.65vw) !important; }
+  .zs-add      { font-size:max(7.5px,0.6vw) !important; }
+  .zs-section .zs-full { font-size:max(7px,0.58vw) !important; letter-spacing:0 !important; }
+  .badge-name  { font-size:max(13px,0.95vw) !important; }
+  .badge-sub   { font-size:max(7.5px,0.6vw) !important; }
+  .cpl-top     { font-size:max(6px,0.52vw) !important; }
+  .cpl-bot     { font-size:max(7px,0.58vw) !important; }
+  .es-price-sub-row:first-child { min-height:max(16px,1.5vw) !important; }
+  .es-inoti-prices              { min-height:max(22px,2.2vw) !important; }
+  .es-img-tbl th,.es-img-tbl td { font-size:max(9px,0.72vw) !important; padding:max(3px,0.25vw) max(4px,0.35vw) !important; }
+  .prem-col    { padding:max(3px,0.3vw) !important; }
 }
 @media(max-width:768px){
   .cust-zs-cols,.cust-zs-cols.grid2 { flex-direction:column !important; }
@@ -676,27 +668,25 @@ function toggleSidebar(){
 
 
 
+
+
 <script>
-/* ── 태블릿 overflow 해제 JS ── */
+/* ── 반응형 overflow 해제 JS ── */
 (function(){
   function fix(){
-    if(window.innerWidth > 1024) return;
+    if(window.innerWidth > 1800) return;
     document.querySelectorAll('.cust-zs-cols,.zs-cols,.prem-cards,.hy-cols,.ch-cols').forEach(function(el){
       var p = el.parentElement;
       while(p && p.tagName !== 'BODY'){
-        var cs = window.getComputedStyle(p);
-        if(cs.overflowX === 'hidden')
+        if(window.getComputedStyle(p).overflowX === 'hidden')
           p.style.setProperty('overflow-x','visible','important');
         p = p.parentElement;
       }
       el.style.setProperty('margin-left','0','important');
       el.style.setProperty('margin-right','0','important');
     });
-    var main = document.querySelector('.main');
-    if(main){
-      main.style.setProperty('min-width','0','important');
-      main.style.setProperty('overflow-x','auto','important');
-    }
+    var m = document.querySelector('.main');
+    if(m){ m.style.setProperty('min-width','0','important'); m.style.setProperty('overflow-x','auto','important'); }
   }
   if(document.readyState==='loading'){
     document.addEventListener('DOMContentLoaded',function(){ setTimeout(fix,60); });
